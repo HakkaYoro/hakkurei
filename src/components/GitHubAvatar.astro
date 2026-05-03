@@ -1,0 +1,46 @@
+---
+// Server-side: siempre fetchea el avatar actual de GitHub
+const username = "HakkaYoro";
+
+let avatarUrl = "https://avatars.githubusercontent.com/u/57907085?v=4";
+let profileUrl = "https://github.com/HakkaYoro";
+let displayName = "Hakka!";
+
+try {
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), 5000);
+	const res = await fetch(`https://api.github.com/users/${username}`, {
+		signal: controller.signal,
+		headers: {
+			Accept: "application/vnd.github+json",
+			"User-Agent": "Hakkurei-Shrine/1.0",
+		},
+	});
+	clearTimeout(timeout);
+
+	if (res.ok) {
+		const data = await res.json();
+		avatarUrl = data.avatar_url ?? avatarUrl;
+		profileUrl = data.html_url ?? profileUrl;
+		displayName = data.name ?? displayName;
+	}
+} catch (_) {
+	// fallback a los defaults estáticos
+}
+---
+
+<a href={profileUrl} target="_blank" rel="noopener noreferrer">
+	<img
+		src={avatarUrl}
+		alt={`${displayName}'s avatar`}
+		class="avatar"
+		width="120"
+		height="120"
+		loading="eager"
+	/>
+</a>
+<style>
+	.avatar {
+		border-radius: 50%;
+	}
+</style>

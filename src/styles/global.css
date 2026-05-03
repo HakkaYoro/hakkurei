@@ -1,0 +1,303 @@
+@font-face {
+	font-family: "DFPPOPCorn-W12";
+	src: url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.eot");
+	src: url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.eot?#iefix") format("embedded-opentype"),
+	     url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.woff2") format("woff2"),
+	     url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.woff") format("woff"),
+	     url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.ttf") format("truetype"),
+	     url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.svg#DFPPOPCorn-W12") format("svg");
+}
+
+:root {
+	--bg: #EEF7F4;
+	--surface: #FEFDFC;
+	--text: #0B0F37;
+	--text-dim: #2D3061;
+	--reimu-red: #DB3655;
+	--reimu-red-light: #DBC3D5;
+	--gold: #B3D4CB;
+	--cyan: #36418E;
+	--magenta: #A21C3E;
+	--border: #362C3B;
+	--border-light: #DBC3D5;
+	--link: #DB3655;
+	--link-hover: #A21C3E;
+	--font-sans: "DFPPOPCorn-W12", "Tahoma", "Arial", sans-serif;
+	--font-mono: "Courier New", "Consolas", monospace;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html {
+	font-size: 16px;
+	scroll-behavior: smooth;
+}
+
+body {
+        background-color: var(--bg);
+        background-image: url('/wallpaper.webp');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: var(--text);
+        font-family: var(--font-sans);
+        line-height: 1.6;
+        min-height: 100vh;
+        cursor: url('/cursors/Normal.ani'), auto;
+}
+
+/* The Sakura petals are styled via inline css now to allow random animations injected from layout! */
+
+.sakura-petal {
+	position: fixed;
+	pointer-events: none;
+	z-index: 9999;
+	user-select: none;
+}
+
+a {
+	color: var(--link);
+	text-decoration: none;
+	border-bottom: 1px dotted var(--link);
+	transition: color 0.2s, border-color 0.2s;
+}
+a:hover {
+	color: var(--link-hover);
+	border-color: var(--link-hover);
+}
+
+h1, h2, h3 {
+	font-family: var(--font-sans);
+	color: var(--reimu-red);
+	letter-spacing: 1px;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.2rem; }
+
+/* Scrollbar retro */
+::-webkit-scrollbar { width: 12px; }
+::-webkit-scrollbar-track { background: var(--bg); border: 1px solid var(--border); }
+::-webkit-scrollbar-thumb {
+	background: linear-gradient(180deg, var(--reimu-red), var(--magenta));
+	border: 1px solid var(--border);
+}
+
+/* Selection */
+::selection {
+	background: var(--magenta);
+	color: var(--bg);
+}
+
+/* Utility classes */
+.wrapper {
+	max-width: 900px;
+	margin: 0 auto;
+	background: var(--bg);
+	min-height: 100vh;
+	border-left: 4px solid var(--magenta);
+	border-right: 4px solid var(--magenta);
+	box-shadow: none;
+	position: relative;
+	z-index: 10;
+}
+
+.site-header {
+	text-align: center;
+	padding: 2rem 1rem 1rem;
+}
+
+.torii-icon {
+	font-size: 5rem;
+	color: var(--reimu-red);
+	line-height: 1;
+	margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 0px var(--text-dim);
+}
+
+.site-title {
+	font-size: 2.5rem;
+	margin: 0;
+}
+
+.site-subtitle {
+	color: var(--reimu-red);
+	font-size: 0.9rem;
+	margin-top: 0.5rem;
+}
+
+.visitor-counter {
+	background: var(--text);
+	display: inline-block;
+	padding: 4px 8px;
+	margin-top: 1rem;
+	border: 2px outset var(--border);
+	font-family: monospace;
+	font-size: 0.9rem;
+	letter-spacing: 2px;
+}
+.visitor-counter .label { color: #00ff00; margin-right: 8px;}
+.visitor-counter .digits { color: var(--reimu-red); }
+
+.marquee-container {
+	background: var(--reimu-red);
+	color: var(--surface);
+	padding: 4px 0;
+	margin-bottom: 1rem;
+	font-size: 0.9rem;
+}
+
+/* Nav */
+.site-nav {
+	background: var(--reimu-red-light);
+	text-align: center;
+	padding: 0.75rem;
+	border-top: 1px solid var(--reimu-red);
+	border-bottom: 1px solid var(--reimu-red);
+	margin-bottom: 1.5rem;
+}
+
+.site-nav a {
+	margin: 0 1rem;
+	font-weight: bold;
+	color: var(--reimu-red);
+	text-decoration: none;
+	border: none;
+}
+.site-nav a:hover {
+	text-decoration: underline;
+}
+
+/* Content Area */
+.content-outer {
+	border: 1px solid var(--reimu-red);
+	padding: 4px;
+	background: var(--surface);
+	margin: 0 1.5rem;
+}
+
+.content-inner {
+	border: 1px dashed var(--reimu-red);
+	padding: 2rem;
+	min-height: 400px;
+}
+
+.section-title {
+	color: var(--reimu-red);
+	font-size: 1.5rem;
+	margin-bottom: 1.5rem;
+	font-family: var(--font-sans);
+	font-weight: bold;
+}
+
+/* Footer */
+footer {
+	text-align: center;
+	padding: 2rem;
+	font-size: 0.8rem;
+	color: var(--reimu-red);
+	margin-top: 2rem;
+}
+footer .badges {
+	display: flex;
+	justify-content: center;
+	gap: 0.5rem;
+	margin-bottom: 1.5rem;
+	flex-wrap: wrap;
+}
+.badge {
+	border: 1px solid var(--surface);
+	box-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+	padding: 2px 6px;
+	font-size: 0.6rem;
+	background: var(--reimu-red);
+	color: white;
+	text-transform: uppercase;
+	font-family: var(--font-sans);
+}
+.badge.blue { background: #0044cc; }
+.badge.cyan { background: #0088cc; }
+.badge.orange { background: #ff6600; }
+
+footer a { border: none; font-weight: bold; margin: 0 0.5rem; }
+
+/* Avatar */
+.avatar {
+	width: 120px;
+	height: 120px;
+	border-radius: 10px;
+	border: 3px solid var(--reimu-red);
+	box-shadow: 4px 4px 0px var(--border);
+	display: block;
+	margin: 1rem auto;
+	image-rendering: auto;
+}
+
+/* ASCII art */
+.ascii {
+	white-space: pre;
+	color: var(--reimu-red);
+	font-size: 0.55rem;
+	line-height: 1;
+	text-align: center;
+	margin: 1rem 0;
+	font-family: monospace;
+}
+
+/* About Layout */
+.about-grid {
+	display: flex;
+	gap: 2rem;
+	align-items: flex-start;
+}
+
+.about-avatar-col {
+	flex: 0 0 200px;
+	text-align: center;
+}
+
+.about-avatar-col .avatar {
+	width: 200px;
+	height: 200px;
+	border: 3px solid var(--reimu-red);
+	border-radius: 0;
+	box-shadow: none;
+	margin: 0 auto 1rem auto;
+	background: var(--reimu-red-light);
+	display: block;
+	object-fit: cover;
+}
+
+.avatar-caption {
+	color: var(--reimu-red);
+	font-size: 0.85rem;
+	line-height: 1.5;
+}
+
+.about-text-col {
+	flex: 1;
+	font-size: 0.95rem;
+	color: var(--text);
+}
+
+.status-box {
+	background: var(--reimu-red-light);
+	border-left: 4px solid var(--reimu-red);
+	padding: 0.75rem 1rem;
+	margin-top: 2rem;
+	font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+	.about-grid { flex-direction: column; align-items: center; }
+	h1 { font-size: 1.5rem; }
+}
+a {
+	cursor: url('/cursors/Link.ani'), pointer;
+}

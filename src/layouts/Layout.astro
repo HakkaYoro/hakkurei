@@ -1,0 +1,628 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const { title } = Astro.props;
+const currentPage = Astro.url.pathname;
+
+let musicFiles: string[] = [];
+try {
+	const musicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'public', 'music');
+	musicFiles = fs.readdirSync(musicDir).filter((f: string) => f.endsWith('.ogg'));
+} catch (_) {
+	// no music dir or error — skip bgm
+}
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content="Hakkurei Shrine — the wired and the bullet hell." />
+		<title>{title ? `${title} · Hakkurei Shrine` : 'Hakkurei Shrine'}</title>
+	</head>
+	<body>
+		<!-- Loading screen overlay — hidden immediately via inline script if already dismissed -->
+		<div id="loading-screen">
+			<div class="ls-scanlines"></div>
+			<div class="ls-stars"></div>
+
+			<div class="ls-border-top"></div>
+			<div class="ls-border-bottom"></div>
+
+			<div class="loader-content">
+				<div class="ls-kanji-top">博麗神社</div>
+
+				<div class="ls-logo-ring">
+					<div class="ls-ring-outer"></div>
+					<div class="ls-ring-inner"></div>
+					<img src="/images/9.png" class="spinning-logo" alt="Loading..." />
+				</div>
+
+				<div class="ls-title">~ Hakurei Shrine ~</div>
+				<div class="ls-subtitle">— Connecting to Gensokyo —</div>
+
+				<div class="ls-progress-container">
+					<div class="ls-progress-track">
+						<div class="ls-progress-fill" id="ls-progress-fill"></div>
+					</div>
+					<div class="ls-progress-label" id="ls-progress-label">LOADING...</div>
+				</div>
+
+				<p id="click-text" style="display: none;">☆ Click here to enter the Shrine ☆</p>
+
+				<div class="ls-decorations">
+					<span>✧</span><span>⛩️</span><span>✧</span><span>☆</span><span>✧</span><span>⛩️</span><span>✧</span>
+				</div>
+			</div>
+
+			<div class="ls-footer">
+				<span>HAKKUREI.COM © 2026</span>
+				<span>◆ BEST VIEWED AT 1024×768 ◆</span>
+			</div>
+		</div>
+
+		<!-- Inline script: hides loading screen on initial load AND prevents it from appearing on View Transition navigations -->
+		<script is:inline>
+			// Hide on initial page load if already dismissed
+			if (sessionStorage.getItem('loading-screen-dismissed') === '1') {
+				var ls = document.getElementById('loading-screen');
+				if (ls) ls.remove();
+			}
+			// Prevent loading screen from appearing on any future ClientRouter navigation
+			// by removing it from the incoming document BEFORE Astro swaps the DOM
+			if (!window._loadingScreenSwapHooked) {
+				window._loadingScreenSwapHooked = true;
+				document.addEventListener('astro:before-swap', function(e) {
+					if (sessionStorage.getItem('loading-screen-dismissed') === '1') {
+						var el = e.newDocument.getElementById('loading-screen');
+						if (el) el.remove();
+					}
+				});
+			}
+		</script>
+
+		<div class="wrapper">
+			<header class="site-header">
+				<div class="torii-icon">⛩️</div>
+				<h1 class="site-title">博麗神社 ~ Hakurei Shrine</h1>
+				<p class="site-subtitle">Welcome to hakkurei.com</p>
+			</header>
+
+			<div class="marquee-container">
+				<marquee scrollamount="4" truespeed id="dynamic-marquee">
+					◆ Loading network messages... ◆
+				</marquee>
+			</div>
+
+			<nav class="site-nav">
+				<a href="/">[ About Me ]</a>
+				<a href="/projects">[ Projects ]</a>
+				<a href="/projects#skills">[ Skills ]</a>
+				<a href="/contact">[ Contact ]</a>
+			</nav>
+
+			<div class="content-outer">
+				<div class="content-inner">
+					<slot />
+				</div>
+			</div>
+
+			<footer>
+				<div class="badges">
+					<span class="badge">TOUHOU PROJECT</span>
+					<span class="badge blue">BUILT WITH ASTRO</span>
+					<span class="badge cyan">POWERED BY HTML5</span>
+					<span class="badge orange">VALID CSS3</span>
+				</div>
+				<p>
+					© 2026 Hakurei Shrine ◆ Built with nostalgia ◆ Best viewed at 1024x768
+				</p>
+				<p style="margin: 1rem 0;">
+					<a href="/">Home</a> ・ <a href="/guestbook">Guestbook</a> ・ <a href="/links">Links</a>
+				</p>
+				<p>🌸 May the shrine protect you from incidents 🌸</p>
+			</footer>
+		</div>
+
+		<audio id="bgm" transition:persist preload="auto"></audio>
+		<ClientRouter />
+
+		<!-- Loading screen + petals + marquee: regular script, runs once with ClientRouter -->
+		<script>
+			// Loading screen logic — only on first visit
+			(function() {
+				const loadScreen = document.getElementById('loading-screen');
+				const clickText = document.getElementById('click-text');
+				const progressFill = document.getElementById('ls-progress-fill');
+				const progressLabel = document.getElementById('ls-progress-label');
+				if (!loadScreen || !clickText) return;
+
+				// If already dismissed this session, remove immediately
+				if (sessionStorage.getItem('loading-screen-dismissed') === '1') {
+					loadScreen.remove();
+					window.dispatchEvent(new CustomEvent('loading-screen-dismissed'));
+					return;
+				}
+
+				// Animate the retro progress bar
+				const messages = [
+					'INITIALIZING SHRINE BARRIER...',
+					'LOADING SPELL CARDS...',
+					'CONNECTING TO GENSOKYO...',
+					'RESOLVING INCIDENTS...',
+					'CALIBRATING DANMAKU...',
+					'SYNCING WITH HAKUREI ORB...',
+					'READY!'
+				];
+				let progress = 0;
+				const totalDuration = 1500 + Math.random() * 2500; // 1.5-4s total
+				const steps = messages.length;
+				const stepTime = totalDuration / steps;
+
+				function advanceProgress() {
+					if (progress >= steps) {
+						if (progressLabel) progressLabel.textContent = '[ CLICK TO ENTER ]';
+						clickText.style.display = 'block';
+						return;
+					}
+					const targetWidth = Math.min(((progress + 1) / steps) * 100, 100);
+					if (progressFill) progressFill.style.width = targetWidth + '%';
+					if (progressLabel) progressLabel.textContent = messages[progress];
+					progress++;
+					setTimeout(advanceProgress, stepTime + (Math.random() * 200 - 100));
+				}
+
+				setTimeout(advanceProgress, 300);
+
+				function dismiss() {
+					sessionStorage.setItem('loading-screen-dismissed', '1');
+					window.dispatchEvent(new CustomEvent('loading-screen-dismissed'));
+					loadScreen!.style.opacity = '0';
+					loadScreen!.style.pointerEvents = 'none';
+					setTimeout(() => {
+						loadScreen!.remove();
+					}, 600);
+				}
+
+				clickText.addEventListener('click', dismiss);
+			})();
+
+			// Sakura Petals Script
+			function createPetal() {
+				const petal = document.createElement('div');
+				petal.className = 'sakura-petal';
+				const img = document.createElement('img'); img.src = Math.random() > 0.5 ? '/particles/power.png' : '/particles/point.png'; img.style.width = '200%'; img.style.height = '200%'; img.style.imageRendering = 'pixelated'; petal.appendChild(img);
+				
+				const startLeft = Math.random() * 100;
+				const duration = Math.random() * 5 + 5;
+				const size = Math.random() * 10 + 15;
+				const rotationStart = Math.random() * 360;
+				const rotationEnd = rotationStart + Math.random() * 720;
+				
+				petal.style.left = startLeft + 'vw';
+				petal.style.width = size + 'px'; petal.style.height = size + 'px';
+				
+				document.body.appendChild(petal);
+				
+				const animation = petal.animate([
+					{ top: '-10vh', transform: 'translateX(0) rotate(' + rotationStart + 'deg)' },
+					{ top: '110vh', transform: 'translateX(' + (Math.random() * 60 - 30) + 'px) rotate(' + rotationEnd + 'deg)' }
+				], {
+					duration: duration * 1000,
+					easing: 'linear'
+				});
+				
+				animation.onfinish = () => petal.remove();
+			}
+
+			// Petals only after loading screen dismiss
+			let _petalInterval: ReturnType<typeof setInterval> | null = null;
+			function startPetals() {
+				if (_petalInterval) return;
+				_petalInterval = setInterval(createPetal, 300);
+			}
+
+			// If already dismissed, start petals directly
+			if (sessionStorage.getItem('loading-screen-dismissed') === '1') {
+				startPetals();
+			}
+
+			window.addEventListener('loading-screen-dismissed', startPetals, { once: true });
+
+			// Load random marquee message
+			fetch('/messages.json')
+				.then(res => res.json())
+				.then(data => {
+					const marquee = document.getElementById('dynamic-marquee');
+					if (marquee && data.length > 0) {
+						marquee.textContent = data[Math.floor(Math.random() * data.length)];
+					}
+				})
+				.catch(err => console.error('Failed to load messages:', err));
+		</script>
+
+		<!-- BGM logic: needs define:vars for musicFiles, uses is:inline to avoid re-init issues -->
+		<script is:inline define:vars={{ musicFiles }}>
+			// Only initialize BGM once
+			if (!window._bgmInitialized) {
+				window._bgmInitialized = true;
+				var bgm = document.getElementById('bgm');
+				if (bgm && !bgm.getAttribute('src') && musicFiles.length > 0) {
+					var file = musicFiles[Math.floor(Math.random() * musicFiles.length)];
+					bgm.src = '/music/' + file;
+					bgm.volume = 0.15;
+					var fading = false;
+					function pickNextSong() {
+						var next = musicFiles[Math.floor(Math.random() * musicFiles.length)];
+						while (next === file && musicFiles.length > 1) {
+							next = musicFiles[Math.floor(Math.random() * musicFiles.length)];
+						}
+						return next;
+					}
+					function startFadeOut() {
+						if (fading) return;
+						fading = true;
+						var fadeSteps = 30;
+						var stepDuration = 100;
+						var startVol = bgm.volume;
+						var stepVol = startVol / fadeSteps;
+						var fadeInterval = setInterval(function() {
+							bgm.volume = Math.max(0, bgm.volume - stepVol);
+							if (bgm.volume <= 0) {
+								clearInterval(fadeInterval);
+								file = pickNextSong();
+								bgm.src = '/music/' + file;
+								bgm.volume = 0.15;
+								fading = false;
+								bgm.play()['catch'](function() {});
+							}
+						}, stepDuration);
+					}
+					bgm.addEventListener('timeupdate', function() {
+						if (!fading && bgm.duration && (bgm.duration - bgm.currentTime) <= 3.1) {
+							startFadeOut();
+						}
+					});
+					var playMusic = function() { if (bgm.paused) bgm.play(); document.body.removeEventListener('click', playMusic); };
+					bgm.play()['catch'](function() { document.body.addEventListener('click', playMusic); });
+				}
+			}
+		</script>
+
+		<style is:global>
+			.nav-active {
+				color: var(--reimu-red) !important;
+				border-color: var(--reimu-red);
+				font-weight: bold;
+			}
+
+			/* ═══════════════════════════════════════════════════
+			   LOADING SCREEN — Neocities / 2000s / Touhou
+			   ═══════════════════════════════════════════════════ */
+
+			#loading-screen {
+				position: fixed;
+				top: 0; left: 0;
+				width: 100vw; height: 100vh;
+				z-index: 99999;
+				background: #0a0010;
+				background-image:
+					radial-gradient(ellipse at 50% 30%, rgba(160, 20, 60, 0.15) 0%, transparent 60%),
+					radial-gradient(ellipse at 20% 80%, rgba(54, 65, 142, 0.1) 0%, transparent 50%),
+					radial-gradient(ellipse at 80% 70%, rgba(162, 28, 62, 0.08) 0%, transparent 50%);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-direction: column;
+				transition: opacity 0.6s ease;
+				overflow: hidden;
+				cursor: url('/cursors/Normal.ani'), auto;
+			}
+
+			/* CRT Scanlines */
+			.ls-scanlines {
+				position: absolute;
+				top: 0; left: 0;
+				width: 100%; height: 100%;
+				background: repeating-linear-gradient(
+					0deg,
+					transparent,
+					transparent 2px,
+					rgba(0, 0, 0, 0.15) 2px,
+					rgba(0, 0, 0, 0.15) 4px
+				);
+				pointer-events: none;
+				z-index: 3;
+			}
+
+			/* Starfield */
+			.ls-stars {
+				position: absolute;
+				top: 0; left: 0;
+				width: 100%; height: 100%;
+				background-image:
+					radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.6), transparent),
+					radial-gradient(1px 1px at 25% 45%, rgba(255,200,200,0.5), transparent),
+					radial-gradient(1.5px 1.5px at 40% 15%, rgba(255,255,255,0.7), transparent),
+					radial-gradient(1px 1px at 55% 70%, rgba(255,220,220,0.4), transparent),
+					radial-gradient(1px 1px at 70% 35%, rgba(255,255,255,0.5), transparent),
+					radial-gradient(1.5px 1.5px at 85% 60%, rgba(255,200,255,0.6), transparent),
+					radial-gradient(1px 1px at 15% 75%, rgba(255,255,255,0.4), transparent),
+					radial-gradient(1px 1px at 50% 90%, rgba(255,200,200,0.5), transparent),
+					radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.6), transparent),
+					radial-gradient(1.5px 1.5px at 35% 55%, rgba(200,200,255,0.5), transparent),
+					radial-gradient(1px 1px at 60% 25%, rgba(255,255,255,0.4), transparent),
+					radial-gradient(1px 1px at 5% 50%, rgba(255,180,200,0.5), transparent),
+					radial-gradient(1px 1px at 75% 85%, rgba(255,255,255,0.5), transparent),
+					radial-gradient(1px 1px at 45% 40%, rgba(255,220,255,0.3), transparent),
+					radial-gradient(1.5px 1.5px at 95% 45%, rgba(255,255,255,0.6), transparent),
+					radial-gradient(1px 1px at 20% 95%, rgba(200,200,255,0.4), transparent),
+					radial-gradient(1px 1px at 65% 5%, rgba(255,200,200,0.5), transparent),
+					radial-gradient(1px 1px at 80% 50%, rgba(255,255,255,0.3), transparent),
+					radial-gradient(1px 1px at 30% 80%, rgba(255,200,255,0.4), transparent);
+				animation: ls-twinkle 4s ease-in-out infinite alternate;
+				z-index: 1;
+			}
+
+			@keyframes ls-twinkle {
+				0% { opacity: 0.6; }
+				50% { opacity: 1; }
+				100% { opacity: 0.7; }
+			}
+
+			/* Animated shrine-gate borders */
+			.ls-border-top, .ls-border-bottom {
+				position: absolute;
+				left: 0; width: 100%;
+				height: 4px;
+				background: linear-gradient(
+					90deg,
+					transparent,
+					#DB3655 20%,
+					#ff6b8a 50%,
+					#DB3655 80%,
+					transparent
+				);
+				z-index: 4;
+				box-shadow: 0 0 12px rgba(219, 54, 85, 0.6);
+				animation: ls-border-glow 2s ease-in-out infinite alternate;
+			}
+			.ls-border-top { top: 0; }
+			.ls-border-bottom { bottom: 0; }
+
+			@keyframes ls-border-glow {
+				0% { box-shadow: 0 0 8px rgba(219, 54, 85, 0.4); opacity: 0.7; }
+				100% { box-shadow: 0 0 20px rgba(219, 54, 85, 0.8); opacity: 1; }
+			}
+
+			/* Main content area */
+			.loader-content {
+				text-align: center;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 1rem;
+				z-index: 2;
+				position: relative;
+			}
+
+			/* Kanji header */
+			.ls-kanji-top {
+				font-size: 2.5rem;
+				letter-spacing: 0.8rem;
+				color: #DB3655;
+				text-shadow:
+					0 0 10px rgba(219, 54, 85, 0.7),
+					0 0 30px rgba(219, 54, 85, 0.3),
+					2px 2px 0 #1a0020;
+				font-family: serif;
+				animation: ls-kanji-flicker 3s ease-in-out infinite;
+				margin-bottom: 0.5rem;
+			}
+
+			@keyframes ls-kanji-flicker {
+				0%, 100% { opacity: 1; }
+				50% { opacity: 0.85; }
+				73% { opacity: 0.95; }
+				77% { opacity: 0.7; }
+				79% { opacity: 1; }
+			}
+
+			/* Spinning logo with concentric rings */
+			.ls-logo-ring {
+				position: relative;
+				width: 140px;
+				height: 140px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.ls-ring-outer {
+				position: absolute;
+				width: 140px; height: 140px;
+				border-radius: 50%;
+				border: 2px solid transparent;
+				border-top-color: #DB3655;
+				border-right-color: rgba(219, 54, 85, 0.3);
+				border-bottom-color: #A21C3E;
+				border-left-color: rgba(162, 28, 62, 0.3);
+				animation: ls-ring-spin 3s linear infinite;
+				box-shadow:
+					0 0 15px rgba(219, 54, 85, 0.3),
+					inset 0 0 15px rgba(219, 54, 85, 0.1);
+			}
+
+			.ls-ring-inner {
+				position: absolute;
+				width: 120px; height: 120px;
+				border-radius: 50%;
+				border: 1px solid transparent;
+				border-top-color: rgba(54, 65, 142, 0.8);
+				border-bottom-color: rgba(54, 65, 142, 0.4);
+				animation: ls-ring-spin 2s linear infinite reverse;
+			}
+
+			@keyframes ls-ring-spin {
+				to { transform: rotate(360deg); }
+			}
+
+			.spinning-logo {
+				width: 80px;
+				height: 80px;
+				image-rendering: pixelated;
+				animation: spin 2.5s linear infinite;
+				filter: drop-shadow(0 0 8px rgba(219, 54, 85, 0.5));
+				z-index: 1;
+			}
+
+			@keyframes spin {
+				from { transform: rotate(0deg); }
+				to { transform: rotate(360deg); }
+			}
+
+			/* Title and subtitle */
+			.ls-title {
+				color: #e8c8d8;
+				font-family: var(--font-sans);
+				font-size: 1.4rem;
+				letter-spacing: 3px;
+				text-shadow: 0 0 10px rgba(219, 54, 85, 0.4);
+				margin-top: 0.5rem;
+			}
+
+			.ls-subtitle {
+				color: rgba(180, 160, 200, 0.7);
+				font-family: var(--font-mono);
+				font-size: 0.75rem;
+				letter-spacing: 2px;
+				text-transform: uppercase;
+				animation: ls-blink-cursor 1s step-end infinite;
+			}
+
+			@keyframes ls-blink-cursor {
+				0%, 100% { border-right: 2px solid rgba(180,160,200,0.7); }
+				50% { border-right: 2px solid transparent; }
+			}
+
+			/* Retro progress bar */
+			.ls-progress-container {
+				width: 280px;
+				margin-top: 0.5rem;
+			}
+
+			.ls-progress-track {
+				height: 14px;
+				border: 2px solid #DB3655;
+				background: #1a0020;
+				padding: 2px;
+				box-shadow:
+					inset 0 0 4px rgba(0,0,0,0.8),
+					0 0 6px rgba(219, 54, 85, 0.3);
+			}
+
+			.ls-progress-fill {
+				height: 100%;
+				width: 0%;
+				background: repeating-linear-gradient(
+					90deg,
+					#DB3655 0px,
+					#DB3655 8px,
+					#A21C3E 8px,
+					#A21C3E 10px
+				);
+				box-shadow: 0 0 6px rgba(219, 54, 85, 0.6);
+				transition: width 0.15s linear;
+			}
+
+			.ls-progress-label {
+				color: rgba(219, 54, 85, 0.8);
+				font-family: var(--font-mono);
+				font-size: 0.65rem;
+				letter-spacing: 2px;
+				margin-top: 4px;
+				text-align: center;
+			}
+
+			/* Click prompt */
+			#click-text {
+				color: #ffcc00;
+				font-family: var(--font-sans);
+				font-size: 1.1rem;
+				cursor: url('/cursors/Link.ani'), pointer;
+				text-decoration: none;
+				user-select: none;
+				text-shadow:
+					0 0 8px rgba(255, 204, 0, 0.6),
+					0 0 20px rgba(255, 204, 0, 0.2);
+				animation: ls-click-pulse 1.2s ease-in-out infinite;
+				padding: 0.5rem 1.5rem;
+				border: 1px solid rgba(255, 204, 0, 0.3);
+				background: rgba(255, 204, 0, 0.05);
+				transition: all 0.2s ease;
+			}
+
+			#click-text:hover {
+				color: #fff;
+				background: rgba(219, 54, 85, 0.2);
+				border-color: #DB3655;
+				text-shadow:
+					0 0 12px rgba(255, 255, 255, 0.8),
+					0 0 30px rgba(219, 54, 85, 0.5);
+			}
+
+			@keyframes ls-click-pulse {
+				0%, 100% { opacity: 0.6; transform: scale(1); }
+				50% { opacity: 1; transform: scale(1.03); }
+			}
+
+			/* Decorative sparkles */
+			.ls-decorations {
+				display: flex;
+				gap: 1rem;
+				color: rgba(219, 54, 85, 0.4);
+				font-size: 0.9rem;
+				margin-top: 0.5rem;
+				animation: ls-deco-fade 2s ease-in-out infinite alternate;
+			}
+
+			.ls-decorations span:nth-child(odd) {
+				animation: ls-sparkle 1.5s ease-in-out infinite;
+			}
+			.ls-decorations span:nth-child(even) {
+				animation: ls-sparkle 1.5s ease-in-out 0.75s infinite;
+			}
+
+			@keyframes ls-sparkle {
+				0%, 100% { opacity: 0.3; transform: scale(0.8); }
+				50% { opacity: 1; transform: scale(1.2); }
+			}
+
+			@keyframes ls-deco-fade {
+				0% { opacity: 0.5; }
+				100% { opacity: 1; }
+			}
+
+			/* Footer bar */
+			.ls-footer {
+				position: absolute;
+				bottom: 1.5rem;
+				display: flex;
+				gap: 2rem;
+				color: rgba(100, 80, 120, 0.5);
+				font-family: var(--font-mono);
+				font-size: 0.6rem;
+				letter-spacing: 1px;
+				z-index: 2;
+			}
+		</style>
+	</body>
+</html>

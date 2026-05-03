@@ -1,0 +1,140 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Public repos desde GitHub API
+const repos = [
+	{
+		name: "Corozal",
+		desc: "Fabric mod with venezuelan foods!",
+		lang: "Java",
+		stars: 1,
+		url: "https://github.com/HakkaYoro/Corozal",
+	},
+	{
+		name: "AutoHMWRK",
+		desc: "Why do it yourself when a script can do it better? Academic automation.",
+		lang: "Python",
+		stars: 0,
+		url: "https://github.com/HakkaYoro/AutoHMWRK",
+	},
+	{
+		name: "SubTranstator",
+		desc: "Breaking language barriers in media. Subtitle translation utilities.",
+		lang: "Python",
+		stars: 0,
+		url: "https://github.com/HakkaYoro/SubTranstator",
+	},
+	{
+		name: "osuDwn",
+		desc: "Userscript to automatically download beatmaps on official Osu! website.",
+		lang: "JavaScript",
+		stars: 0,
+		url: "https://github.com/HakkaYoro/osuDwn",
+	},
+	{
+		name: "SpotiLinkConv",
+		desc: "Spotify link converter utility.",
+		lang: "Python",
+		stars: 0,
+		url: "https://github.com/HakkaYoro/SpotiLinkConv",
+	},
+	{
+		name: "Navidrome-AI-Curator",
+		desc: "AI-assisted music curation for Navidrome.",
+		lang: "Python",
+		stars: 0,
+		url: "https://github.com/HakkaYoro/Navidrome-AI-Curator",
+	},
+	{
+		name: "FanficForge",
+		desc: "Modern fanfic generator via LLMs!",
+		lang: "Python",
+		stars: 0,
+		url: "https://github.com/HakkaYoro/FanficForge",
+	},
+	{
+		name: "Hakkurin",
+		desc: "Discord Chatbot!",
+		lang: "Python",
+		stars: 0,
+		url: "https://github.com/HakkaYoro/Hakkurin",
+	},
+];
+---
+
+<Layout title="Projects">
+	<h2 class="section-title">♦ My Projects ♦</h2>
+
+	<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+		{repos.map((repo) => (
+			<a href={repo.url} target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:none;">
+				<div style="border: 1px solid var(--border-light); background: #ffffff; height: 100%;">
+					<h3 style="background: var(--reimu-red-light); color: var(--reimu-red); font-size: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border-light); margin: 0;">
+						{repo.name}
+					</h3>
+					<div style="padding: 1rem;">
+						<p style="font-size: 0.85rem; color: var(--text); margin-bottom: 1rem; min-height: 40px;">
+							{repo.desc}
+						</p>
+						<div style="display: flex; gap: 0.5rem; align-items: center; font-size: 0.75rem;">
+							<span style="border: 1px solid var(--border-light); padding: 2px 6px; color: var(--reimu-red); background: #fff0f5;">{repo.lang}</span>
+							{repo.stars > 0 && <span style="font-weight: bold; color: var(--gold);">★ {repo.stars}</span>}
+						</div>
+						<p style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-dim); font-weight: bold;">
+							✨ View on GitHub
+						</p>
+					</div>
+				</div>
+			</a>
+		))}
+	</div>
+
+	<div style="text-align: center; margin: 3rem 0;">
+		<a href="https://github.com/HakkaYoro" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: var(--reimu-red); color: #fff; padding: 0.75rem 1.5rem; text-decoration: none; border: none; font-weight: bold; box-shadow: 2px 2px 0px rgba(0,0,0,0.2);">
+			→ View All Projects ←
+		</a>
+	</div>
+
+	<h2 id="skills" class="section-title">⚡ Spell Cards (Skills) ⚡</h2>
+
+	<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+		<div style="border: 1px solid var(--border-light); background: #ffffff;">
+			<h3 style="color: var(--reimu-red); padding: 1rem 1rem 0.5rem; border-bottom: 1px dashed var(--border-light); margin: 0;">Frontend</h3>
+			<ul style="list-style: none; padding: 1rem; line-height: 1.8; font-size: 0.9rem;">
+				<li><span style="color:var(--reimu-red);">♦</span> HTML / CSS / JS (Learning)</li>
+				<li><span style="color:var(--reimu-red);">♦</span> Astro (Learning)</li>
+				<li><span style="color:var(--reimu-red);">♦</span> React (Learning)</li>
+				<li><span style="color:var(--reimu-red);">♦</span> TypeScript (Learning)</li>
+			</ul>
+		</div>
+
+		<div style="border: 1px solid var(--border-light); background: #ffffff;">
+			<h3 style="color: var(--reimu-red); padding: 1rem 1rem 0.5rem; border-bottom: 1px dashed var(--border-light); margin: 0;">Backend / Scripting</h3>
+			<ul style="list-style: none; padding: 1rem; line-height: 1.8; font-size: 0.9rem;">
+				<li><span style="color:var(--reimu-red);">♦</span> Python</li>
+				<li><span style="color:var(--reimu-red);">♦</span> Lua</li>
+				<li><span style="color:var(--reimu-red);">♦</span> Java (Learning)</li>
+				<li><span style="color:var(--reimu-red);">♦</span> Golang (Learning)</li>
+			</ul>
+		</div>
+
+		<div style="border: 1px solid var(--border-light); background: #ffffff;">
+			<h3 style="color: var(--reimu-red); padding: 1rem 1rem 0.5rem; border-bottom: 1px dashed var(--border-light); margin: 0;">Tools</h3>
+			<ul style="list-style: none; padding: 1rem; line-height: 1.8; font-size: 0.9rem;">
+				<li><span style="color:var(--reimu-red);">♦</span> Git / GitHub</li>
+				<li><span style="color:var(--reimu-red);">♦</span> Arch Linux</li>
+				<li><span style="color:var(--reimu-red);">♦</span> Markdown</li>
+				<li><span style="color:var(--reimu-red);">♦</span> LaTeX</li>
+			</ul>
+		</div>
+	</div>
+
+	<h2 class="section-title">🗣️ Languages 🗣️</h2>
+	<div style="border: 1px solid var(--border-light); background: #ffffff; padding: 1rem; margin-bottom: 2rem;">
+		<ul style="list-style: none; line-height: 1.8; font-size: 0.9rem;">
+			<li><span style="color:var(--reimu-red);">♦</span> Spanish (Native)</li>
+			<li><span style="color:var(--reimu-red);">♦</span> English (C1)</li>
+			<li><span style="color:var(--reimu-red);">♦</span> Japanese (N4, Learning)</li>
+		</ul>
+	</div>
+</Layout>
