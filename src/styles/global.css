@@ -47,7 +47,7 @@ body {
         font-family: var(--font-sans);
         line-height: 1.6;
         min-height: 100vh;
-        cursor: url('/cursors/Normal.ani'), auto;
+        cursor: url('/cursors/Normal.png'), auto;
 }
 
 /* The Sakura petals are styled via inline css now to allow random animations injected from layout! */
@@ -299,5 +299,5 @@ footer a { border: none; font-weight: bold; margin: 0 0.5rem; }
 	h1 { font-size: 1.5rem; }
 }
 a {
-	cursor: url('/cursors/Link.ani'), pointer;
+	cursor: url('/cursors/Link.png'), pointer;
 }

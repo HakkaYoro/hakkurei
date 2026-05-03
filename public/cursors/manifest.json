@@ -1,0 +1,332 @@
+{
+  "Alternate": {
+    "frames": [
+      "/cursors/Alternate_frames/0.png",
+      "/cursors/Alternate_frames/1.png",
+      "/cursors/Alternate_frames/2.png",
+      "/cursors/Alternate_frames/3.png",
+      "/cursors/Alternate_frames/4.png",
+      "/cursors/Alternate_frames/5.png",
+      "/cursors/Alternate_frames/6.png",
+      "/cursors/Alternate_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Busy": {
+    "frames": [
+      "/cursors/Busy_frames/0.png",
+      "/cursors/Busy_frames/1.png",
+      "/cursors/Busy_frames/2.png",
+      "/cursors/Busy_frames/3.png",
+      "/cursors/Busy_frames/4.png",
+      "/cursors/Busy_frames/5.png",
+      "/cursors/Busy_frames/6.png",
+      "/cursors/Busy_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Diagonal1": {
+    "frames": [
+      "/cursors/Diagonal1_frames/0.png",
+      "/cursors/Diagonal1_frames/1.png",
+      "/cursors/Diagonal1_frames/2.png",
+      "/cursors/Diagonal1_frames/3.png",
+      "/cursors/Diagonal1_frames/4.png",
+      "/cursors/Diagonal1_frames/5.png",
+      "/cursors/Diagonal1_frames/6.png",
+      "/cursors/Diagonal1_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Diagonal2": {
+    "frames": [
+      "/cursors/Diagonal2_frames/0.png",
+      "/cursors/Diagonal2_frames/1.png",
+      "/cursors/Diagonal2_frames/2.png",
+      "/cursors/Diagonal2_frames/3.png",
+      "/cursors/Diagonal2_frames/4.png",
+      "/cursors/Diagonal2_frames/5.png",
+      "/cursors/Diagonal2_frames/6.png",
+      "/cursors/Diagonal2_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Handwriting": {
+    "frames": [
+      "/cursors/Handwriting_frames/0.png",
+      "/cursors/Handwriting_frames/1.png",
+      "/cursors/Handwriting_frames/2.png",
+      "/cursors/Handwriting_frames/3.png",
+      "/cursors/Handwriting_frames/4.png",
+      "/cursors/Handwriting_frames/5.png",
+      "/cursors/Handwriting_frames/6.png",
+      "/cursors/Handwriting_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Help": {
+    "frames": [
+      "/cursors/Help_frames/0.png",
+      "/cursors/Help_frames/1.png",
+      "/cursors/Help_frames/2.png",
+      "/cursors/Help_frames/3.png",
+      "/cursors/Help_frames/4.png",
+      "/cursors/Help_frames/5.png",
+      "/cursors/Help_frames/6.png",
+      "/cursors/Help_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Horizontal": {
+    "frames": [
+      "/cursors/Horizontal_frames/0.png",
+      "/cursors/Horizontal_frames/1.png",
+      "/cursors/Horizontal_frames/2.png",
+      "/cursors/Horizontal_frames/3.png",
+      "/cursors/Horizontal_frames/4.png",
+      "/cursors/Horizontal_frames/5.png",
+      "/cursors/Horizontal_frames/6.png",
+      "/cursors/Horizontal_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Link": {
+    "frames": [
+      "/cursors/Link_frames/0.png",
+      "/cursors/Link_frames/1.png",
+      "/cursors/Link_frames/2.png",
+      "/cursors/Link_frames/3.png",
+      "/cursors/Link_frames/4.png",
+      "/cursors/Link_frames/5.png",
+      "/cursors/Link_frames/6.png",
+      "/cursors/Link_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Move": {
+    "frames": [
+      "/cursors/Move_frames/0.png",
+      "/cursors/Move_frames/1.png",
+      "/cursors/Move_frames/2.png",
+      "/cursors/Move_frames/3.png",
+      "/cursors/Move_frames/4.png",
+      "/cursors/Move_frames/5.png",
+      "/cursors/Move_frames/6.png",
+      "/cursors/Move_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Normal": {
+    "frames": [
+      "/cursors/Normal_frames/0.png",
+      "/cursors/Normal_frames/1.png",
+      "/cursors/Normal_frames/2.png",
+      "/cursors/Normal_frames/3.png",
+      "/cursors/Normal_frames/4.png",
+      "/cursors/Normal_frames/5.png",
+      "/cursors/Normal_frames/6.png",
+      "/cursors/Normal_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Precision": {
+    "frames": [
+      "/cursors/Precision_frames/0.png",
+      "/cursors/Precision_frames/1.png",
+      "/cursors/Precision_frames/2.png",
+      "/cursors/Precision_frames/3.png",
+      "/cursors/Precision_frames/4.png",
+      "/cursors/Precision_frames/5.png",
+      "/cursors/Precision_frames/6.png",
+      "/cursors/Precision_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Text": {
+    "frames": [
+      "/cursors/Text_frames/0.png",
+      "/cursors/Text_frames/1.png",
+      "/cursors/Text_frames/2.png",
+      "/cursors/Text_frames/3.png",
+      "/cursors/Text_frames/4.png",
+      "/cursors/Text_frames/5.png",
+      "/cursors/Text_frames/6.png",
+      "/cursors/Text_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Unavailable": {
+    "frames": [
+      "/cursors/Unavailable_frames/0.png",
+      "/cursors/Unavailable_frames/1.png",
+      "/cursors/Unavailable_frames/2.png",
+      "/cursors/Unavailable_frames/3.png",
+      "/cursors/Unavailable_frames/4.png",
+      "/cursors/Unavailable_frames/5.png",
+      "/cursors/Unavailable_frames/6.png",
+      "/cursors/Unavailable_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Vertical": {
+    "frames": [
+      "/cursors/Vertical_frames/0.png",
+      "/cursors/Vertical_frames/1.png",
+      "/cursors/Vertical_frames/2.png",
+      "/cursors/Vertical_frames/3.png",
+      "/cursors/Vertical_frames/4.png",
+      "/cursors/Vertical_frames/5.png",
+      "/cursors/Vertical_frames/6.png",
+      "/cursors/Vertical_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  },
+  "Working": {
+    "frames": [
+      "/cursors/Working_frames/0.png",
+      "/cursors/Working_frames/1.png",
+      "/cursors/Working_frames/2.png",
+      "/cursors/Working_frames/3.png",
+      "/cursors/Working_frames/4.png",
+      "/cursors/Working_frames/5.png",
+      "/cursors/Working_frames/6.png",
+      "/cursors/Working_frames/7.png"
+    ],
+    "timing": [
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  }
+}

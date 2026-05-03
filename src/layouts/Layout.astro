@@ -31,41 +31,31 @@ try {
 	<body>
 		<!-- Loading screen overlay — hidden immediately via inline script if already dismissed -->
 		<div id="loading-screen">
-			<div class="ls-scanlines"></div>
-			<div class="ls-stars"></div>
+			<div class="ls-panel">
+				<div class="ls-panel-border">
+					<div class="ls-header">⛩️</div>
+					<h1 class="ls-title">博麗神社 ~ Hakurei Shrine</h1>
+					<p class="ls-subtitle">Welcome to hakkurei.com</p>
 
-			<div class="ls-border-top"></div>
-			<div class="ls-border-bottom"></div>
+					<div class="ls-divider">☆ ☆ ☆</div>
 
-			<div class="loader-content">
-				<div class="ls-kanji-top">博麗神社</div>
-
-				<div class="ls-logo-ring">
-					<div class="ls-ring-outer"></div>
-					<div class="ls-ring-inner"></div>
 					<img src="/images/9.png" class="spinning-logo" alt="Loading..." />
-				</div>
 
-				<div class="ls-title">~ Hakurei Shrine ~</div>
-				<div class="ls-subtitle">— Connecting to Gensokyo —</div>
-
-				<div class="ls-progress-container">
-					<div class="ls-progress-track">
-						<div class="ls-progress-fill" id="ls-progress-fill"></div>
+					<div class="ls-progress-container">
+						<div class="ls-progress-track">
+							<div class="ls-progress-fill" id="ls-progress-fill"></div>
+						</div>
+						<div class="ls-progress-label" id="ls-progress-label">Loading...</div>
 					</div>
-					<div class="ls-progress-label" id="ls-progress-label">LOADING...</div>
+
+					<p id="click-text" style="display: none;">☆ Click here to enter the Shrine ☆</p>
+
+					<div class="ls-divider">☆ ☆ ☆</div>
+
+					<div class="ls-footer">
+						<span>© 2026 Hakurei Shrine ◆ Best viewed at 1024×768</span>
+					</div>
 				</div>
-
-				<p id="click-text" style="display: none;">☆ Click here to enter the Shrine ☆</p>
-
-				<div class="ls-decorations">
-					<span>✧</span><span>⛩️</span><span>✧</span><span>☆</span><span>✧</span><span>⛩️</span><span>✧</span>
-				</div>
-			</div>
-
-			<div class="ls-footer">
-				<span>HAKKUREI.COM © 2026</span>
-				<span>◆ BEST VIEWED AT 1024×768 ◆</span>
 			</div>
 		</div>
 
@@ -170,7 +160,7 @@ try {
 				function advanceProgress() {
 					if (progress >= steps) {
 						if (progressLabel) progressLabel.textContent = '[ CLICK TO ENTER ]';
-						clickText.style.display = 'block';
+						clickText!.style.display = 'block';
 						return;
 					}
 					const targetWidth = Math.min(((progress + 1) / steps) * 100, 100);
@@ -247,6 +237,45 @@ try {
 					}
 				})
 				.catch(err => console.error('Failed to load messages:', err));
+
+			// Animated cursor system — cycles through PNG frames extracted from .ani files
+			(function() {
+				const FRAME_COUNT = 8;
+				const FRAME_MS = 96; // ~96ms per frame (original ANI timing)
+				const cursors: Record<string, { frames: string[], fallback: string }> = {
+					normal: {
+						frames: Array.from({length: FRAME_COUNT}, (_, i) => `/cursors/Normal_frames/${i}.png`),
+						fallback: 'auto'
+					},
+					link: {
+						frames: Array.from({length: FRAME_COUNT}, (_, i) => `/cursors/Link_frames/${i}.png`),
+						fallback: 'pointer'
+					}
+				};
+
+				// Preload all frames
+				for (const key of Object.keys(cursors)) {
+					for (const src of cursors[key].frames) {
+						const img = new window.Image();
+						img.src = src;
+					}
+				}
+
+				// Create a dynamic style element for cursor updates
+				const style = document.createElement('style');
+				document.head.appendChild(style);
+				let frame = 0;
+
+				setInterval(() => {
+					const normalUrl = cursors.normal.frames[frame];
+					const linkUrl = cursors.link.frames[frame];
+					style.textContent = `
+						body { cursor: url('${normalUrl}'), auto !important; }
+						a, #click-text, [role="button"], button { cursor: url('${linkUrl}'), pointer !important; }
+					`;
+					frame = (frame + 1) % FRAME_COUNT;
+				}, FRAME_MS);
+			})();
 		</script>
 
 		<!-- BGM logic: needs define:vars for musicFiles, uses is:inline to avoid re-init issues -->
@@ -305,7 +334,7 @@ try {
 			}
 
 			/* ═══════════════════════════════════════════════════
-			   LOADING SCREEN — Neocities / 2000s / Touhou
+			   LOADING SCREEN — Matching site's 2000s/Neocities style
 			   ═══════════════════════════════════════════════════ */
 
 			#loading-screen {
@@ -313,175 +342,82 @@ try {
 				top: 0; left: 0;
 				width: 100vw; height: 100vh;
 				z-index: 99999;
-				background: #0a0010;
-				background-image:
-					radial-gradient(ellipse at 50% 30%, rgba(160, 20, 60, 0.15) 0%, transparent 60%),
-					radial-gradient(ellipse at 20% 80%, rgba(54, 65, 142, 0.1) 0%, transparent 50%),
-					radial-gradient(ellipse at 80% 70%, rgba(162, 28, 62, 0.08) 0%, transparent 50%);
+				background-color: var(--bg);
+				background-image: url('/wallpaper.webp');
+				background-size: cover;
+				background-position: center;
+				background-attachment: fixed;
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				flex-direction: column;
-				transition: opacity 0.6s ease;
-				overflow: hidden;
-				cursor: url('/cursors/Normal.ani'), auto;
+				transition: opacity 0.5s ease;
+				cursor: url('/cursors/Normal.png'), auto;
 			}
 
-			/* CRT Scanlines */
-			.ls-scanlines {
-				position: absolute;
-				top: 0; left: 0;
-				width: 100%; height: 100%;
-				background: repeating-linear-gradient(
-					0deg,
-					transparent,
-					transparent 2px,
-					rgba(0, 0, 0, 0.15) 2px,
-					rgba(0, 0, 0, 0.15) 4px
-				);
-				pointer-events: none;
-				z-index: 3;
+			/* Central panel — mirrors .wrapper + .content-outer style */
+			.ls-panel {
+				background: var(--bg);
+				border-left: 4px solid var(--magenta);
+				border-right: 4px solid var(--magenta);
+				max-width: 550px;
+				width: 90%;
+				position: relative;
 			}
 
-			/* Starfield */
-			.ls-stars {
-				position: absolute;
-				top: 0; left: 0;
-				width: 100%; height: 100%;
-				background-image:
-					radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.6), transparent),
-					radial-gradient(1px 1px at 25% 45%, rgba(255,200,200,0.5), transparent),
-					radial-gradient(1.5px 1.5px at 40% 15%, rgba(255,255,255,0.7), transparent),
-					radial-gradient(1px 1px at 55% 70%, rgba(255,220,220,0.4), transparent),
-					radial-gradient(1px 1px at 70% 35%, rgba(255,255,255,0.5), transparent),
-					radial-gradient(1.5px 1.5px at 85% 60%, rgba(255,200,255,0.6), transparent),
-					radial-gradient(1px 1px at 15% 75%, rgba(255,255,255,0.4), transparent),
-					radial-gradient(1px 1px at 50% 90%, rgba(255,200,200,0.5), transparent),
-					radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.6), transparent),
-					radial-gradient(1.5px 1.5px at 35% 55%, rgba(200,200,255,0.5), transparent),
-					radial-gradient(1px 1px at 60% 25%, rgba(255,255,255,0.4), transparent),
-					radial-gradient(1px 1px at 5% 50%, rgba(255,180,200,0.5), transparent),
-					radial-gradient(1px 1px at 75% 85%, rgba(255,255,255,0.5), transparent),
-					radial-gradient(1px 1px at 45% 40%, rgba(255,220,255,0.3), transparent),
-					radial-gradient(1.5px 1.5px at 95% 45%, rgba(255,255,255,0.6), transparent),
-					radial-gradient(1px 1px at 20% 95%, rgba(200,200,255,0.4), transparent),
-					radial-gradient(1px 1px at 65% 5%, rgba(255,200,200,0.5), transparent),
-					radial-gradient(1px 1px at 80% 50%, rgba(255,255,255,0.3), transparent),
-					radial-gradient(1px 1px at 30% 80%, rgba(255,200,255,0.4), transparent);
-				animation: ls-twinkle 4s ease-in-out infinite alternate;
-				z-index: 1;
-			}
-
-			@keyframes ls-twinkle {
-				0% { opacity: 0.6; }
-				50% { opacity: 1; }
-				100% { opacity: 0.7; }
-			}
-
-			/* Animated shrine-gate borders */
-			.ls-border-top, .ls-border-bottom {
-				position: absolute;
-				left: 0; width: 100%;
-				height: 4px;
-				background: linear-gradient(
-					90deg,
-					transparent,
-					#DB3655 20%,
-					#ff6b8a 50%,
-					#DB3655 80%,
-					transparent
-				);
-				z-index: 4;
-				box-shadow: 0 0 12px rgba(219, 54, 85, 0.6);
-				animation: ls-border-glow 2s ease-in-out infinite alternate;
-			}
-			.ls-border-top { top: 0; }
-			.ls-border-bottom { bottom: 0; }
-
-			@keyframes ls-border-glow {
-				0% { box-shadow: 0 0 8px rgba(219, 54, 85, 0.4); opacity: 0.7; }
-				100% { box-shadow: 0 0 20px rgba(219, 54, 85, 0.8); opacity: 1; }
-			}
-
-			/* Main content area */
-			.loader-content {
+			.ls-panel-border {
+				border: 1px solid var(--reimu-red);
+				margin: 1.5rem;
+				padding: 2rem 2.5rem;
+				border-style: dashed;
+				background: var(--surface);
 				text-align: center;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
-				gap: 1rem;
-				z-index: 2;
-				position: relative;
+				gap: 0.75rem;
 			}
 
-			/* Kanji header */
-			.ls-kanji-top {
-				font-size: 2.5rem;
-				letter-spacing: 0.8rem;
-				color: #DB3655;
-				text-shadow:
-					0 0 10px rgba(219, 54, 85, 0.7),
-					0 0 30px rgba(219, 54, 85, 0.3),
-					2px 2px 0 #1a0020;
-				font-family: serif;
-				animation: ls-kanji-flicker 3s ease-in-out infinite;
-				margin-bottom: 0.5rem;
+			/* Torii icon */
+			.ls-header {
+				font-size: 4rem;
+				line-height: 1;
+				text-shadow: 2px 2px 0px var(--text-dim);
 			}
 
-			@keyframes ls-kanji-flicker {
-				0%, 100% { opacity: 1; }
-				50% { opacity: 0.85; }
-				73% { opacity: 0.95; }
-				77% { opacity: 0.7; }
-				79% { opacity: 1; }
+			/* Title */
+			.ls-title {
+				color: var(--reimu-red);
+				font-family: var(--font-sans);
+				font-size: 2rem;
+				margin: 0;
+				letter-spacing: 1px;
 			}
 
-			/* Spinning logo with concentric rings */
-			.ls-logo-ring {
-				position: relative;
-				width: 140px;
-				height: 140px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
+			.ls-subtitle {
+				color: var(--reimu-red);
+				font-family: var(--font-sans);
+				font-size: 0.9rem;
 			}
 
-			.ls-ring-outer {
-				position: absolute;
-				width: 140px; height: 140px;
-				border-radius: 50%;
-				border: 2px solid transparent;
-				border-top-color: #DB3655;
-				border-right-color: rgba(219, 54, 85, 0.3);
-				border-bottom-color: #A21C3E;
-				border-left-color: rgba(162, 28, 62, 0.3);
-				animation: ls-ring-spin 3s linear infinite;
-				box-shadow:
-					0 0 15px rgba(219, 54, 85, 0.3),
-					inset 0 0 15px rgba(219, 54, 85, 0.1);
+			/* Dividers */
+			.ls-divider {
+				color: var(--reimu-red);
+				font-size: 0.8rem;
+				letter-spacing: 4px;
+				opacity: 0.6;
 			}
 
-			.ls-ring-inner {
-				position: absolute;
-				width: 120px; height: 120px;
-				border-radius: 50%;
-				border: 1px solid transparent;
-				border-top-color: rgba(54, 65, 142, 0.8);
-				border-bottom-color: rgba(54, 65, 142, 0.4);
-				animation: ls-ring-spin 2s linear infinite reverse;
-			}
-
-			@keyframes ls-ring-spin {
-				to { transform: rotate(360deg); }
-			}
-
+			/* Spinning logo */
 			.spinning-logo {
-				width: 80px;
-				height: 80px;
+				width: 96px;
+				height: 96px;
 				image-rendering: pixelated;
-				animation: spin 2.5s linear infinite;
-				filter: drop-shadow(0 0 8px rgba(219, 54, 85, 0.5));
-				z-index: 1;
+				animation: spin 2s linear infinite;
+				border: 3px solid var(--reimu-red);
+				border-radius: 50%;
+				padding: 6px;
+				background: var(--reimu-red-light);
+				box-shadow: 3px 3px 0px var(--border);
 			}
 
 			@keyframes spin {
@@ -489,44 +425,18 @@ try {
 				to { transform: rotate(360deg); }
 			}
 
-			/* Title and subtitle */
-			.ls-title {
-				color: #e8c8d8;
-				font-family: var(--font-sans);
-				font-size: 1.4rem;
-				letter-spacing: 3px;
-				text-shadow: 0 0 10px rgba(219, 54, 85, 0.4);
-				margin-top: 0.5rem;
-			}
-
-			.ls-subtitle {
-				color: rgba(180, 160, 200, 0.7);
-				font-family: var(--font-mono);
-				font-size: 0.75rem;
-				letter-spacing: 2px;
-				text-transform: uppercase;
-				animation: ls-blink-cursor 1s step-end infinite;
-			}
-
-			@keyframes ls-blink-cursor {
-				0%, 100% { border-right: 2px solid rgba(180,160,200,0.7); }
-				50% { border-right: 2px solid transparent; }
-			}
-
-			/* Retro progress bar */
+			/* Retro progress bar — outset borders like Win98 */
 			.ls-progress-container {
-				width: 280px;
-				margin-top: 0.5rem;
+				width: 100%;
+				max-width: 300px;
 			}
 
 			.ls-progress-track {
-				height: 14px;
-				border: 2px solid #DB3655;
-				background: #1a0020;
+				height: 18px;
+				border: 2px solid var(--border);
+				border-style: inset;
+				background: var(--bg);
 				padding: 2px;
-				box-shadow:
-					inset 0 0 4px rgba(0,0,0,0.8),
-					0 0 6px rgba(219, 54, 85, 0.3);
 			}
 
 			.ls-progress-fill {
@@ -534,94 +444,55 @@ try {
 				width: 0%;
 				background: repeating-linear-gradient(
 					90deg,
-					#DB3655 0px,
-					#DB3655 8px,
-					#A21C3E 8px,
-					#A21C3E 10px
+					var(--reimu-red) 0px,
+					var(--reimu-red) 10px,
+					var(--magenta) 10px,
+					var(--magenta) 12px
 				);
-				box-shadow: 0 0 6px rgba(219, 54, 85, 0.6);
 				transition: width 0.15s linear;
 			}
 
 			.ls-progress-label {
-				color: rgba(219, 54, 85, 0.8);
-				font-family: var(--font-mono);
-				font-size: 0.65rem;
-				letter-spacing: 2px;
+				color: var(--text-dim);
+				font-family: var(--font-sans);
+				font-size: 0.75rem;
 				margin-top: 4px;
 				text-align: center;
 			}
 
 			/* Click prompt */
 			#click-text {
-				color: #ffcc00;
+				color: var(--reimu-red);
 				font-family: var(--font-sans);
 				font-size: 1.1rem;
-				cursor: url('/cursors/Link.ani'), pointer;
+				font-weight: bold;
+				cursor: url('/cursors/Link.png'), pointer;
 				text-decoration: none;
 				user-select: none;
-				text-shadow:
-					0 0 8px rgba(255, 204, 0, 0.6),
-					0 0 20px rgba(255, 204, 0, 0.2);
-				animation: ls-click-pulse 1.2s ease-in-out infinite;
+				animation: ls-click-pulse 1.5s ease-in-out infinite;
 				padding: 0.5rem 1.5rem;
-				border: 1px solid rgba(255, 204, 0, 0.3);
-				background: rgba(255, 204, 0, 0.05);
+				border: 2px outset var(--reimu-red-light);
+				background: var(--reimu-red-light);
 				transition: all 0.2s ease;
 			}
 
 			#click-text:hover {
-				color: #fff;
-				background: rgba(219, 54, 85, 0.2);
-				border-color: #DB3655;
-				text-shadow:
-					0 0 12px rgba(255, 255, 255, 0.8),
-					0 0 30px rgba(219, 54, 85, 0.5);
+				background: var(--reimu-red);
+				color: white;
+				border-style: inset;
 			}
 
 			@keyframes ls-click-pulse {
-				0%, 100% { opacity: 0.6; transform: scale(1); }
-				50% { opacity: 1; transform: scale(1.03); }
+				0%, 100% { opacity: 0.7; }
+				50% { opacity: 1; }
 			}
 
-			/* Decorative sparkles */
-			.ls-decorations {
-				display: flex;
-				gap: 1rem;
-				color: rgba(219, 54, 85, 0.4);
-				font-size: 0.9rem;
-				margin-top: 0.5rem;
-				animation: ls-deco-fade 2s ease-in-out infinite alternate;
-			}
-
-			.ls-decorations span:nth-child(odd) {
-				animation: ls-sparkle 1.5s ease-in-out infinite;
-			}
-			.ls-decorations span:nth-child(even) {
-				animation: ls-sparkle 1.5s ease-in-out 0.75s infinite;
-			}
-
-			@keyframes ls-sparkle {
-				0%, 100% { opacity: 0.3; transform: scale(0.8); }
-				50% { opacity: 1; transform: scale(1.2); }
-			}
-
-			@keyframes ls-deco-fade {
-				0% { opacity: 0.5; }
-				100% { opacity: 1; }
-			}
-
-			/* Footer bar */
+			/* Footer */
 			.ls-footer {
-				position: absolute;
-				bottom: 1.5rem;
-				display: flex;
-				gap: 2rem;
-				color: rgba(100, 80, 120, 0.5);
-				font-family: var(--font-mono);
-				font-size: 0.6rem;
-				letter-spacing: 1px;
-				z-index: 2;
+				color: var(--reimu-red);
+				font-family: var(--font-sans);
+				font-size: 0.7rem;
+				opacity: 0.6;
 			}
 		</style>
 	</body>
