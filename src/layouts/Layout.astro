@@ -22,8 +22,7 @@ try {
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
+		<link rel="icon" href="/favicon.ico" type="image/x-icon" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content="Hakkurei Shrine — the wired and the bullet hell." />
 		<title>{title ? `${title} · Hakkurei Shrine` : 'Hakkurei Shrine'}</title>
@@ -147,27 +146,37 @@ try {
 					'INITIALIZING SHRINE BARRIER...',
 					'LOADING SPELL CARDS...',
 					'CONNECTING TO GENSOKYO...',
-					'RESOLVING INCIDENTS...',
-					'CALIBRATING DANMAKU...',
-					'SYNCING WITH HAKUREI ORB...',
+					'GIRLS ARE NOW PREPARING...',
 					'READY!'
 				];
 				let progress = 0;
-				const totalDuration = 1500 + Math.random() * 2500; // 1.5-4s total
+				const totalDuration = 4000 + Math.random() * 3000; // 4-7s total
 				const steps = messages.length;
 				const stepTime = totalDuration / steps;
 
 				function advanceProgress() {
 					if (progress >= steps) {
-						if (progressLabel) progressLabel.textContent = '[ CLICK TO ENTER ]';
+						if (progressLabel) {
+							progressLabel.style.opacity = '0';
+							setTimeout(() => {
+								progressLabel!.textContent = '[ CLICK TO ENTER ]';
+								progressLabel!.style.opacity = '1';
+							}, 300);
+						}
 						clickText!.style.display = 'block';
 						return;
 					}
 					const targetWidth = Math.min(((progress + 1) / steps) * 100, 100);
 					if (progressFill) progressFill.style.width = targetWidth + '%';
-					if (progressLabel) progressLabel.textContent = messages[progress];
+					if (progressLabel) {
+						progressLabel.style.opacity = '0';
+						setTimeout(() => {
+							progressLabel!.textContent = messages[progress];
+							progressLabel!.style.opacity = '1';
+						}, 300);
+					}
 					progress++;
-					setTimeout(advanceProgress, stepTime + (Math.random() * 200 - 100));
+					setTimeout(advanceProgress, stepTime + (Math.random() * 400 - 100));
 				}
 
 				setTimeout(advanceProgress, 300);
@@ -413,11 +422,6 @@ try {
 				height: 96px;
 				image-rendering: pixelated;
 				animation: spin 2s linear infinite;
-				border: 3px solid var(--reimu-red);
-				border-radius: 50%;
-				padding: 6px;
-				background: var(--reimu-red-light);
-				box-shadow: 3px 3px 0px var(--border);
 			}
 
 			@keyframes spin {
@@ -458,6 +462,7 @@ try {
 				font-size: 0.75rem;
 				margin-top: 4px;
 				text-align: center;
+				transition: opacity 0.3s ease;
 			}
 
 			/* Click prompt */
