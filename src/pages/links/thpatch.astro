@@ -1,0 +1,135 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Touhou Patch Center Portal">
+	<div class="portal-outer">
+		<h2 class="section-title">東方自動パッチ部 ~ Touhou Patch Center Portal</h2>
+
+		<div class="portal-card">
+			<div class="portal-header">
+				<h3>Touhou Patch Center (THPatch)</h3>
+				<span class="portal-status">Status: Translation Network</span>
+			</div>
+			
+			<div class="portal-body">
+				<p class="portal-desc">
+					The Touhou Patch Center (THPatch) is a community translation project offering automatic on-the-fly multi-language translations for the official Touhou Project games. Its server-side framework serves translations dynamically to game installations.
+				</p>
+				<p class="portal-notes">
+					<strong>Note from Reimu:</strong> "It's nice that people from the Outside World can read our dialogues and understand the spell card names in their own languages! They do amazing work syncing and patching everything automatically."
+				</p>
+				
+				<div class="portal-link-box">
+					<p>Visit the official community translation center:</p>
+					<a href="https://www.thpatch.net/" target="_blank" rel="noopener noreferrer" class="btn-portal-go">
+						Go to Touhou Patch Center ↗
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="portal-footer">
+			<a href="/links" class="btn-back">&lt;&lt; Return to Links Directory</a>
+		</div>
+	</div>
+</Layout>
+
+<style>
+	.portal-outer {
+		margin: 1rem 0;
+	}
+
+	.portal-card {
+		background: var(--surface);
+		border: 2px solid var(--reimu-red);
+		padding: 1.5rem;
+		margin-top: 1.5rem;
+		box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+	}
+
+	.portal-header {
+		border-bottom: 1px dashed var(--border-light);
+		padding-bottom: 0.75rem;
+		margin-bottom: 1rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.portal-header h3 {
+		margin: 0;
+		color: var(--reimu-red);
+	}
+
+	.portal-status {
+		font-size: 0.8rem;
+		font-weight: bold;
+		background: var(--bg);
+		padding: 2px 8px;
+		border: 1px solid var(--border-light);
+	}
+
+	.portal-body {
+		font-size: 0.9rem;
+		line-height: 1.6;
+	}
+
+	.portal-desc {
+		margin-bottom: 1rem;
+	}
+
+	.portal-notes {
+		background: var(--bg);
+		border-left: 4px solid var(--reimu-red);
+		padding: 8px 12px;
+		font-style: italic;
+		margin-bottom: 1.5rem;
+	}
+
+	.portal-link-box {
+		text-align: center;
+		border: 1px dashed var(--reimu-red-light);
+		padding: 1.25rem;
+		background: var(--surface);
+	}
+
+	.portal-link-box p {
+		margin-bottom: 10px;
+		font-size: 0.85rem;
+		color: var(--text-dim);
+	}
+
+	.btn-portal-go {
+		display: inline-block;
+		background: var(--reimu-red);
+		color: white !important;
+		border: 2px outset var(--reimu-red-light);
+		padding: 8px 16px;
+		font-family: var(--font-sans);
+		font-weight: bold;
+		cursor: url('/cursors/Link.png'), pointer;
+		box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+		transition: all 0.15s ease;
+	}
+
+	.btn-portal-go:hover {
+		background: var(--magenta);
+		border-style: inset;
+		text-decoration: none !important;
+	}
+
+	.portal-footer {
+		margin-top: 2rem;
+		text-align: center;
+	}
+
+	.btn-back {
+		display: inline-block;
+		font-weight: bold;
+		color: var(--reimu-red);
+		border-bottom: 1px dotted var(--reimu-red);
+	}
+</style>

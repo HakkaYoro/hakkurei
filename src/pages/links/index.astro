@@ -1,0 +1,1077 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const affiliates = [
+	{
+		id: 'kourindou',
+		name: 'Kourindou (香霖堂)',
+		proprietor: 'Rinnosuke Morichika',
+		description: 'The only antique shop in Gensokyo, specializing in items from the Outside World. Rinnosuke is always willing to explain their "purposes" (even if he is completely wrong).',
+		color: '#8b5a2b',
+		badgeBg: 'linear-gradient(135deg, #5c3a21, #3d2514)',
+		hoverEffect: 'wood-swivel'
+	},
+	{
+		id: 'sdm',
+		name: 'Scarlet Devil Mansion (紅魔館)',
+		proprietor: 'Remilia Scarlet',
+		description: 'A luxurious, scarlet-colored gothic mansion located next to the Misty Lake. Home to the vampire mistress Remilia, her sister Flandre, the librarian Patchouli, and Sakuya the head maid.',
+		color: '#8b0000',
+		badgeBg: 'linear-gradient(135deg, #3d0000, #1b001f)',
+		hoverEffect: 'bat-flutter'
+	},
+	{
+		id: 'eientei',
+		name: 'Eientei Pharmacy (永遠亭)',
+		proprietor: 'Kaguya Houraisan & Eirin Yagokoro',
+		description: 'A massive, ancient mansion hidden deep in the Bamboo Forest of Lost. Famous for Eirin\'s mystical medical capsules and rabbits hopping around under the silver moon.',
+		color: '#006400',
+		badgeBg: 'linear-gradient(135deg, #0b2d13, #04190b)',
+		hoverEffect: 'bunny-bounce'
+	},
+	{
+		id: 'moriya',
+		name: 'Moriya Shrine (守矢神社)',
+		proprietor: 'Kanako Yasaka & Suwako Moriya',
+		description: 'Our rival shinto shrine located on the top of Youkai Mountain. They have massive mechanical gadgets, frogs, snakes, and gather massive amounts of faith! Reimu is highly competitive with them.',
+		color: '#2e8b57',
+		badgeBg: 'linear-gradient(135deg, #124d2d, #092b18)',
+		hoverEffect: 'snake-wiggle'
+	},
+	{
+		id: 'myouren',
+		name: 'Myouren Temple (命蓮寺)',
+		proprietor: 'Byakuren Hijiri',
+		description: 'A Buddhist temple founded by Byakuren Hijiri to promote harmony between humans and youkai. Known for peaceful meditation, sutras, and rather noisy youkai rock concerts in the backyard.',
+		color: '#4b0082',
+		badgeBg: 'linear-gradient(135deg, #2e0854, #120126)',
+		hoverEffect: 'serene-glow'
+	},
+	{
+		id: 'netherworld',
+		name: 'Hakugyokurou (白玉楼)',
+		proprietor: 'Yuyuko Saigyouji',
+		description: 'A gorgeous, massive traditional estate in the Netherworld famous for its expansive gardens of ghosts and the Saigyou Ayakashi cherry blossom tree. Swept daily by Youmu.',
+		color: '#4682b4',
+		badgeBg: 'linear-gradient(135deg, #1a3c5a, #0b1d2e)',
+		hoverEffect: 'ghostly-float'
+	}
+];
+
+const netBadges = [
+	{ id: 'netscape', title: 'NETSCAPE NAVIGATOR OPTIMIZED', bg: '#000080', border: '#0000FF', text: 'NETSCAPE', color: '#00FFFF' },
+	{ id: 'ie6', title: 'INTERNET EXPLORER 6.0 COMPATIBLE', bg: '#008080', border: '#00FFFF', text: 'MSIE 6.0', color: '#FFFFFF' },
+	{ id: 'astro', title: 'BUILT WITH ASTRO STATIC ENGINE', bg: '#4f1787', border: '#8c3061', text: 'ASTRO v6', color: '#ff7e67' },
+	{ id: 'cirno', title: 'CIRNO ⑨ CERTIFIED STRONGEST', bg: '#00bfff', border: '#4682b4', text: '⑨ STRONGEST', color: '#FFFFFF' },
+	{ id: 'reimufan', title: 'REIMU HAKUREI FAN CLUB #1', bg: '#db3655', border: '#ffd700', text: 'REIMU ★ FAN', color: '#ffd700' },
+	{ id: 'faith', title: '100% FAITH-ENHANCED SOURCE', bg: '#ffd700', border: '#db3655', text: 'FAITH 100%', color: '#8b0000' },
+	{ id: 'html5', title: 'POWERED BY PURE CLEAN HTML5', bg: '#e34f26', border: '#ef652a', text: 'HTML5 ENGINE', color: '#FFFFFF' },
+	{ id: 'css3', title: 'VALIDATED VANILLA CSS3 STYLES', bg: '#1572b6', border: '#33a9dc', text: 'CSS3 VALID', color: '#FFFFFF' },
+	{ id: 'noai', title: 'MADE BY HUMANS IN GENSOKYO', bg: '#333333', border: '#666666', text: '100% HUMAN', color: '#00FF00' },
+	{ id: 'weirdweb', title: 'KEEP THE PERSONAL WEB WEIRD!', bg: '#8a2be2', border: '#ba55d3', text: 'WEIRD WEB', color: '#7ffd44' }
+];
+
+const hakkureiHtml = `<a href="https://hakkurei.com" target="_blank">\n  <img src="https://hakkurei.com/images/badges/hakkurei.svg" width="88" height="31" border="0" alt="Hakurei Shrine">\n</a>`;
+
+const communitySites = [
+	{
+		id: 'moriya-shrine',
+		name: 'Moriya Shrine (守矢神社コミュ)',
+		description: 'A massive community hub dedicated to sharing Touhou fanworks, community game downloads, custom mods, and discussion boards.',
+		externalUrl: 'https://moriyashrine.org/',
+		localUrl: '/links/moriya-shrine',
+		color: '#2e8b57'
+	},
+	{
+		id: 'touhou-wiki',
+		name: 'Touhou Wiki (東方Project攻略Wiki)',
+		description: 'The ultimate collaborative encyclopedia covering all official Touhou games, print works, characters, lore, music, and translations.',
+		externalUrl: 'https://en.touhouwiki.net/wiki/Touhou_Wiki',
+		localUrl: '/links/touhou-wiki',
+		color: '#4682b4'
+	},
+	{
+		id: 'thpatch',
+		name: 'Touhou Patch Center (東方パッチ部)',
+		description: 'The official community translation portal providing multi-language patches for all official Touhou games in real time.',
+		externalUrl: 'https://www.thpatch.net/',
+		localUrl: '/links/thpatch',
+		color: '#8b0000'
+	},
+	{
+		id: 'team-shanghai-alice',
+		name: 'Team Shanghai Alice (上海アリス幻樂団)',
+		description: 'ZUN\'s legendary official website where new game trials, development logs, and music CDs are announced.',
+		externalUrl: 'https://www16.big.or.jp/~zun/',
+		localUrl: '/links/team-shanghai-alice',
+		color: '#ffd700'
+	}
+];
+---
+
+<Layout title="Links">
+	<h2 class="section-title">幻想郷リンク集 ~ Links & Webring</h2>
+
+	<div class="links-intro">
+		<p>
+			Welcome to the <strong>Genso-Net Webring & Link Exchange</strong>! Below you will find our official 88x31 web banner to link back to the Hakurei Shrine, alongside the banners of our allies across Gensokyo and vintage web badges. If you're a webmaster, feel free to add us to your personal directory!
+		</p>
+	</div>
+
+	<!-- ═══════════════════════════════════════════════════
+	     LINK TO US SECTION
+	     ═══════════════════════════════════════════════════ -->
+	<div class="link-us-panel">
+		<h3 class="panel-header">Link to Us! (当サイトへのリンク)</h3>
+		
+		<div class="link-us-grid">
+			<div class="banner-display-col">
+				<div class="banner-label">Our 88x31 Badge:</div>
+				
+				<!-- The live animated SVG badge, wrapped exactly like a retro button -->
+				<div class="badge-wrapper-interactive" id="shrine-badge-showcase">
+					<img src="/images/badges/hakkurei.svg" class="badge-img-88x31" alt="Hakurei Shrine Badge" width="88" height="31" />
+					<div class="badge-crt-scanline"></div>
+				</div>
+				<p class="badge-dimensions-hint">Dimensions: 88 × 31 px</p>
+			</div>
+
+			<div class="copy-code-col">
+				<label for="embed-code">Copy HTML Embed Code:</label>
+				<textarea id="embed-code" readonly class="embed-code-area">{hakkureiHtml}</textarea>
+				
+				<button id="btn-copy-code" class="btn-copy-action">
+					<span id="copy-btn-text">Copy Embed HTML</span>
+					<!-- Canvas overlay for copy button sparkles -->
+					<canvas id="copy-sparks-canvas" class="copy-sparks-canvas"></canvas>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="divider"><span class="divider-orb"></span></div>
+
+	<!-- ═══════════════════════════════════════════════════
+	     ALLIES & AFFILIATES
+	     ═══════════════════════════════════════════════════ -->
+	<h3 class="section-title">Allies & Affiliates (盟友・同盟)</h3>
+	<p class="section-subtitle-desc">Clicking these buttons does not navigate away; instead, it triggers a custom retro faction sound and hover effect, highlighting their lore!</p>
+
+	<div class="affiliates-grid">
+		{affiliates.map((aff) => (
+			<div class="affiliate-card" id={`card-${aff.id}`} style={`border-top: 3px solid ${aff.color};`}>
+				<div class="affiliate-top">
+					<h4 class="affiliate-name">{aff.name}</h4>
+					<span class="affiliate-prop">Proprietor: <strong>{aff.proprietor}</strong></span>
+				</div>
+				
+				<div class="affiliate-body">
+					<!-- Custom styled 88x31 SVG retro buttons rendering natively in client -->
+					<div class="badge-container">
+						<div class={`retro-badge-button affiliate-badge-${aff.id} hover-${aff.hoverEffect}`} id={`badge-btn-${aff.id}`} role="button" aria-label={`Activate ${aff.name} Badge`}>
+							{aff.id === 'kourindou' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-kourindou)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#d2b48c" stroke-width="1" />
+									<!-- Magnifying glass / antique symbol -->
+									<circle cx="12" cy="14" r="5" fill="none" stroke="#ffd700" stroke-width="1.5" />
+									<line x1="16" y1="18" x2="21" y2="23" stroke="#ffd700" stroke-width="2" stroke-linecap="round" />
+									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">香霖堂</text>
+									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#ffffff" letter-spacing="0.5">KOURINDOU</text>
+								</svg>
+							)}
+							{aff.id === 'sdm' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-sdm)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.3" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#db3655" stroke-width="1" />
+									<!-- Crimson Moon and Bat -->
+									<circle cx="12" cy="15" r="6" fill="#db3655" />
+									<path d="M 6 15 Q 12 12 18 15 Q 12 17 6 15 Z" fill="#000000" />
+									<path d="M 8 13 L 10 15 L 12 13 L 14 15 L 16 13 M 10 15 L 12 16 L 14 15" stroke="#000000" stroke-width="0.5" fill="none" />
+									<text x="28" y="17" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#db3655" text-shadow="1px 1px 0px #000">紅魔館</text>
+									<text x="28" y="26" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#da70d6" letter-spacing="0.5">DEVIL MANSION</text>
+								</svg>
+							)}
+							{aff.id === 'eientei' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-eientei)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#32cd32" stroke-width="1" />
+									<!-- Bamboo stalk & rabbit outline -->
+									<line x1="8" y1="6" x2="8" y2="25" stroke="#32cd32" stroke-width="2" />
+									<line x1="13" y1="8" x2="13" y2="23" stroke="#228b22" stroke-width="1.5" />
+									<circle cx="16" cy="18" r="3.5" fill="#ffffff" />
+									<!-- Ears -->
+									<ellipse cx="14.5" cy="12" rx="1" ry="3.5" fill="#ffffff" transform="rotate(-15 14.5 12)" />
+									<ellipse cx="17.5" cy="12" rx="1" ry="3.5" fill="#ffffff" transform="rotate(15 17.5 12)" />
+									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffffff" text-shadow="1px 1px 0px #092b18">永遠亭</text>
+									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#32cd32" letter-spacing="0.5">EIENTI CLINIC</text>
+								</svg>
+							)}
+							{aff.id === 'moriya' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-moriya)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#ffd700" stroke-width="1" />
+									<!-- Shinto rope ring & frog eyes -->
+									<circle cx="12" cy="15" r="7" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-dasharray="3 2" />
+									<circle cx="9" cy="10" r="2.5" fill="#ffd700" />
+									<circle cx="15" cy="10" r="2.5" fill="#ffd700" />
+									<circle cx="9" cy="10" r="0.8" fill="#000" />
+									<circle cx="15" cy="10" r="0.8" fill="#000" />
+									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">守矢神社</text>
+									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#00ff7f" letter-spacing="0.2">MORIYA SHRINE</text>
+								</svg>
+							)}
+							{aff.id === 'myouren' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-myouren)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#da70d6" stroke-width="1" />
+									<!-- Lotus Flower silhouette -->
+									<path d="M 12 8 C 8 13 8 20 12 24 C 16 20 16 13 12 8 Z" fill="#da70d6" />
+									<path d="M 12 12 C 5 15 5 21 12 24 C 19 21 19 15 12 12 Z" fill="#ba55d3" opacity="0.7" />
+									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">命蓮寺</text>
+									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#da70d6" letter-spacing="0.5">MYOUREN TEMP</text>
+								</svg>
+							)}
+							{aff.id === 'netherworld' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-netherworld)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#afeeee" stroke-width="1" />
+									<!-- Cherry blossom petal & ghost flame -->
+									<path d="M 12 10 Q 5 14 12 21 Q 19 14 12 10" fill="#ffb7c5" />
+									<circle cx="12" cy="15" r="2.5" fill="#ffffff" />
+									<path d="M 12 15 Q 16 10 18 6 Q 14 8 12 15 Z" fill="#afeeee" opacity="0.8" />
+									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffc0cb" text-shadow="1px 1px 0px #000">白玉楼</text>
+									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#afeeee" letter-spacing="0.5">NETHERWORLD</text>
+								</svg>
+							)}
+							<div class="badge-crt-scanline"></div>
+						</div>
+					</div>
+
+					<div class="affiliate-desc">
+						<p>{aff.description}</p>
+					</div>
+				</div>
+			</div>
+		))}
+	</div>
+
+	<!-- Shared global SVG patterns for SVG banners -->
+	<svg width="0" height="0" style="position: absolute;">
+		<defs>
+			<pattern id="pixel-grid" width="2" height="2" patternUnits="userSpaceOnUse">
+				<rect width="2" height="2" fill="none" />
+				<path d="M 2 0 L 0 0 0 2" fill="none" stroke="#FFFFFF" stroke-width="0.2" />
+			</pattern>
+			<linearGradient id="bg-kourindou" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#5c3a21" />
+				<stop offset="100%" stop-color="#211003" />
+			</linearGradient>
+			<linearGradient id="bg-sdm" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#3d0000" />
+				<stop offset="100%" stop-color="#0e0012" />
+			</linearGradient>
+			<linearGradient id="bg-eientei" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#0b2d13" />
+				<stop offset="100%" stop-color="#021206" />
+			</linearGradient>
+			<linearGradient id="bg-moriya" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#124d2d" />
+				<stop offset="100%" stop-color="#051f0f" />
+			</linearGradient>
+			<linearGradient id="bg-myouren" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#2e0854" />
+				<stop offset="100%" stop-color="#0b001a" />
+			</linearGradient>
+			<linearGradient id="bg-netherworld" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#122c45" />
+				<stop offset="100%" stop-color="#06121f" />
+			</linearGradient>
+			<linearGradient id="bg-moriya-shrine" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#124d2d" />
+				<stop offset="100%" stop-color="#021206" />
+			</linearGradient>
+			<linearGradient id="bg-touhou-wiki" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#1f3c5c" />
+				<stop offset="100%" stop-color="#0b1726" />
+			</linearGradient>
+			<linearGradient id="bg-thpatch" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#54080e" />
+				<stop offset="100%" stop-color="#1a0104" />
+			</linearGradient>
+			<linearGradient id="bg-team-shanghai-alice" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#694d0e" />
+				<stop offset="100%" stop-color="#261b03" />
+			</linearGradient>
+		</defs>
+	</svg>
+
+	<div class="divider"><span class="divider-orb"></span></div>
+
+	<!-- ═══════════════════════════════════════════════════
+	     RELATED PORTALS & COMMUNITIES
+	     ═══════════════════════════════════════════════════ -->
+	<h3 class="section-title">Related Portals & Resources (関連サイト・資源)</h3>
+	<p class="section-subtitle-desc">Official ZUN projects and primary community resources. Click a banner to enter our portal page, or view external links.</p>
+
+	<div class="community-grid">
+		{communitySites.map((site) => (
+			<div class="community-card" style={`border-top: 3px solid ${site.color};`}>
+				<div class="community-top">
+					<h4 class="community-name">{site.name}</h4>
+				</div>
+				
+				<div class="community-body">
+					<!-- Clickable 88x31 retro SVG button banner -->
+					<div class="badge-container" style="margin-bottom: 10px;">
+						<a href={site.localUrl} class="badge-link-wrapper" title={`Enter our ${site.name} portal page`}>
+							<div class={`retro-badge-button community-badge-${site.id}`}>
+								{site.id === 'moriya-shrine' && (
+									<svg viewBox="0 0 88 31" width="88" height="31">
+										<rect width="88" height="31" fill="url(#bg-moriya-shrine)" />
+										<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+										<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#00ff7f" stroke-width="1" />
+										<ellipse cx="12" cy="15" rx="5" ry="4" fill="#00ff7f" />
+										<circle cx="10" cy="10" r="2.5" fill="#00ff7f" />
+										<circle cx="14" cy="10" r="2.5" fill="#00ff7f" />
+										<circle cx="10" cy="10" r="0.8" fill="#000" />
+										<circle cx="14" cy="10" r="0.8" fill="#000" />
+										<text x="25" y="16" font-family="'VT323', 'Courier New', monospace" font-size="12" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">守矢神社</text>
+										<text x="25" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#ffffff" letter-spacing="0.2">MORIYA SHRINE</text>
+									</svg>
+								)}
+								{site.id === 'touhou-wiki' && (
+									<svg viewBox="0 0 88 31" width="88" height="31">
+										<rect width="88" height="31" fill="url(#bg-touhou-wiki)" />
+										<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+										<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#4682b4" stroke-width="1" />
+										<path d="M 6 18 C 9 13 12 13 15 15 C 15 21 15 21 15 21 C 12 19 9 19 6 24 Z" fill="#ffffff" />
+										<path d="M 24 18 C 21 13 18 13 15 15 C 15 21 15 21 15 21 C 18 19 21 19 24 24 Z" fill="#ffffff" stroke="#4682b4" stroke-width="0.5" />
+										<text x="30" y="16" font-family="'VT323', 'Courier New', monospace" font-size="12" font-weight="bold" fill="#ffffff" text-shadow="1px 1px 0px #000">東方百科</text>
+										<text x="30" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7" fill="#afeeee" letter-spacing="0.5">TOUHOU WIKI</text>
+									</svg>
+								)}
+								{site.id === 'thpatch' && (
+									<svg viewBox="0 0 88 31" width="88" height="31">
+										<rect width="88" height="31" fill="url(#bg-thpatch)" />
+										<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+										<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#ff3333" stroke-width="1" />
+										<circle cx="13" cy="15" r="6" fill="#ff3333" stroke="#ffd700" stroke-width="1" />
+										<line x1="10" y1="15" x2="16" y2="15" stroke="#ffd700" stroke-width="1" />
+										<line x1="13" y1="12" x2="13" y2="18" stroke="#ffd700" stroke-width="1" />
+										<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="12" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">東方翻訳</text>
+										<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#ffffff" letter-spacing="0.2">THPATCH</text>
+									</svg>
+								)}
+								{site.id === 'team-shanghai-alice' && (
+									<svg viewBox="0 0 88 31" width="88" height="31">
+										<rect width="88" height="31" fill="url(#bg-team-shanghai-alice)" />
+										<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+										<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#ffd700" stroke-width="1" />
+										<rect x="9" y="11" width="8" height="10" rx="1.5" fill="#ffffff" />
+										<path d="M 17 13 H 20 V 18 H 17" fill="none" stroke="#ffffff" stroke-width="1.5" />
+										<rect x="9" y="11" width="8" height="3" fill="#ffe4b5" />
+										<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="11" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">上海アリス</text>
+										<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#ffffff" letter-spacing="0.1">SHANGHAI ALICE</text>
+									</svg>
+								)}
+								<div class="badge-crt-scanline"></div>
+							</div>
+						</a>
+					</div>
+					
+					<div class="community-desc">
+						<p>{site.description}</p>
+					</div>
+
+					<div class="community-actions">
+						<a href={site.localUrl} class="btn-community-local">Design Portal</a>
+						<a href={site.externalUrl} target="_blank" rel="noopener noreferrer" class="btn-community-external">Visit Site</a>
+					</div>
+				</div>
+			</div>
+		))}
+	</div>
+
+	<div class="divider"><span class="divider-orb"></span></div>
+
+	<!-- ═══════════════════════════════════════════════════
+	     RETRO NET BADGES GRID
+	     ═══════════════════════════════════════════════════ -->
+	<h3 class="section-title">Retro Web Badges (ネットバッジ同盟)</h3>
+	<p class="section-subtitle-desc">Vintage 88x31 webmaster badges representing standard retro web movements, built natively with high-fidelity pixel-accurate borders!</p>
+	
+	<div class="net-badges-grid">
+		{netBadges.map((badge) => (
+			<div class="badge-item-outer" title={badge.title}>
+				<div class="retro-badge-button badge-net-item" style={`background: ${badge.bg}; border: 1.5px outset ${badge.border};`}>
+					<div class="badge-net-glow-text" style={`color: ${badge.color};`}>
+						{badge.text}
+					</div>
+					<div class="badge-net-subtitle">
+						{badge.id === 'netscape' && 'OPTIMIZED'}
+						{badge.id === 'ie6' && 'COMPATIBLE'}
+						{badge.id === 'astro' && 'BUILT'}
+						{badge.id === 'cirno' && 'CERTIFIED'}
+						{badge.id === 'reimufan' && '#1 MEMBER'}
+						{badge.id === 'faith' && 'POWERED'}
+						{badge.id === 'html5' && 'WEB ENGINE'}
+						{badge.id === 'css3' && 'COMPLIANT'}
+						{badge.id === 'noai' && 'GENUINE'}
+						{badge.id === 'weirdweb' && 'FOREVER'}
+					</div>
+					<div class="badge-crt-scanline"></div>
+				</div>
+			</div>
+		))}
+	</div>
+</Layout>
+
+<script is:inline>
+	// Audio-Visual Interactivity for copying embed code & faction button clicking
+	(function() {
+		const btnCopy = document.getElementById('btn-copy-code');
+		const embedTextarea = document.getElementById('embed-code');
+		const copyText = document.getElementById('copy-btn-text');
+		const sparksCanvas = document.getElementById('copy-sparks-canvas');
+
+		if (!btnCopy || !embedTextarea || !copyText || !sparksCanvas) return;
+
+		const sparksCtx = sparksCanvas.getContext('2d');
+		const sparks = [];
+
+		function resizeCanvas() {
+			sparksCanvas.width = btnCopy.offsetWidth;
+			sparksCanvas.height = btnCopy.offsetHeight;
+		}
+		resizeCanvas();
+		window.addEventListener('resize', resizeCanvas);
+
+		class Spark {
+			constructor(x, y) {
+				this.x = x;
+				this.y = y;
+				const angle = Math.random() * Math.PI * 2;
+				const speed = 1.5 + Math.random() * 3.5;
+				this.vx = Math.cos(angle) * speed;
+				this.vy = Math.sin(angle) * speed - 1.0;
+				this.size = 2 + Math.random() * 2.5;
+				this.alpha = 1.0;
+				this.decay = 0.02 + Math.random() * 0.03;
+				// Red & gold color palette
+				this.color = Math.random() > 0.5 ? '#FFD700' : '#DB3655';
+			}
+			update() {
+				this.x += this.vx;
+				this.y += this.vy;
+				this.vy += 0.06; // subtle gravity
+				this.alpha -= this.decay;
+			}
+			draw() {
+				sparksCtx.save();
+				sparksCtx.globalAlpha = Math.max(0, this.alpha);
+				sparksCtx.fillStyle = this.color;
+				sparksCtx.beginPath();
+				sparksCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+				sparksCtx.fill();
+				sparksCtx.restore();
+			}
+		}
+
+		let animId = null;
+		function animateSparks() {
+			sparksCtx.clearRect(0, 0, sparksCanvas.width, sparksCanvas.height);
+			
+			for (let i = sparks.length - 1; i >= 0; i--) {
+				const s = sparks[i];
+				s.update();
+				s.draw();
+				if (s.alpha <= 0) {
+					sparks.splice(i, 1);
+				}
+			}
+
+			if (sparks.length > 0) {
+				animId = requestAnimationFrame(animateSparks);
+			} else {
+				animId = null;
+			}
+		}
+
+		// Synthesized Audio chime for Copy Action
+		function playCopyChime() {
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			if (!AudioContext) return;
+			const ctx = new AudioContext();
+			
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+			
+			osc.type = 'triangle';
+			osc.frequency.setValueAtTime(659.25, ctx.currentTime); // E5
+			osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.08); // A5
+			osc.frequency.setValueAtTime(1318.51, ctx.currentTime + 0.16); // E6
+			
+			gain.gain.setValueAtTime(0.12, ctx.currentTime);
+			gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+			
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			
+			osc.start();
+			osc.stop(ctx.currentTime + 0.4);
+		}
+
+		// Click copy embed handler
+		btnCopy.addEventListener('click', function(e) {
+			// Copy text
+			embedTextarea.select();
+			navigator.clipboard.writeText(embedTextarea.value).then(() => {
+				// Success animation feedback
+				copyText.textContent = "Copied to Clipboard!";
+				playCopyChime();
+
+				// Spawn sparks at click point
+				const rect = btnCopy.getBoundingClientRect();
+				const clickX = e.clientX - rect.left;
+				const clickY = e.clientY - rect.top;
+
+				for (let i = 0; i < 20; i++) {
+					sparks.push(new Spark(clickX, clickY));
+				}
+
+				if (!animId) {
+					animateSparks();
+				}
+
+				// Reset button text after 2s
+				setTimeout(() => {
+					copyText.textContent = "Copy Embed HTML";
+				}, 2000);
+			}).catch(err => {
+				console.error("Failed to copy embed code: ", err);
+			});
+		});
+
+		// Synthesized sound effects for factions
+		const soundProfiles = {
+			kourindou: { type: 'sine', freqs: [440, 554.37, 659.25], duration: 0.3 },     // Major triad chime (A4-C#5-E5)
+			sdm: { type: 'sawtooth', freqs: [220, 261.63, 196], duration: 0.5 },          // Goth dark chord
+			eientei: { type: 'triangle', freqs: [523.25, 783.99, 1046.50], duration: 0.3 },// Hopping bouncy arpeggio
+			moriya: { type: 'sine', freqs: [392, 523.25, 488.68], duration: 0.4 },        // Serpent wind sound
+			myouren: { type: 'sine', freqs: [293.66, 329.63, 392], duration: 0.6 },       // Soothing Buddhist meditation sine
+			netherworld: { type: 'sine', freqs: [587.33, 783.99, 1174.66], duration: 0.4 } // High ghostly whisper notes
+		};
+
+		function playFactionSound(factionId) {
+			const profile = soundProfiles[factionId];
+			if (!profile) return;
+
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			if (!AudioContext) return;
+			const ctx = new AudioContext();
+
+			const gain = ctx.createGain();
+			gain.gain.setValueAtTime(0.08, ctx.currentTime);
+			gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + profile.duration);
+			gain.connect(ctx.destination);
+
+			profile.freqs.forEach((freq, index) => {
+				const osc = ctx.createOscillator();
+				osc.type = profile.type;
+				osc.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.07);
+				osc.connect(gain);
+				osc.start();
+				osc.stop(ctx.currentTime + profile.duration);
+			});
+		}
+
+		// Wire up faction button clicks using hardcoded list of IDs
+		const affiliateIds = ['kourindou', 'sdm', 'eientei', 'moriya', 'myouren', 'netherworld'];
+		const factionColors = {
+			kourindou: '#8b5a2b',
+			sdm: '#8b0000',
+			eientei: '#006400',
+			moriya: '#2e8b57',
+			myouren: '#4b0082',
+			netherworld: '#4682b4'
+		};
+		affiliateIds.forEach(id => {
+			const badgeBtn = document.getElementById(`badge-btn-${id}`);
+			const card = document.getElementById(`card-${id}`);
+			if (badgeBtn && card) {
+				badgeBtn.addEventListener('click', function() {
+					playFactionSound(id);
+					
+					// Briefly flash the card with faction color
+					card.style.background = (factionColors[id] || '#ffffff') + '0c'; // 5% opacity color flash
+					card.style.transform = 'translateY(-2px)';
+					setTimeout(() => {
+						card.style.background = '';
+						card.style.transform = '';
+					}, 300);
+				});
+			}
+		});
+	})();
+</script>
+
+<style is:global>
+	.links-intro {
+		background: var(--surface);
+		border: 1px dashed var(--reimu-red);
+		padding: 1.25rem;
+		margin-bottom: 2rem;
+		font-size: 0.95rem;
+		line-height: 1.6;
+		color: var(--text);
+		text-align: center;
+	}
+
+	.section-subtitle-desc {
+		font-size: 0.85rem;
+		color: var(--text-dim);
+		margin-top: -1rem;
+		margin-bottom: 1.5rem;
+		font-style: italic;
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   LINK TO US COMPONENT
+	   ═══════════════════════════════════════════════════ */
+	.link-us-panel {
+		background: var(--surface);
+		border: 2px solid var(--reimu-red);
+		padding: 1.5rem;
+		margin: 2rem 0;
+	}
+
+	.panel-header {
+		color: var(--reimu-red);
+		border-bottom: 1px dashed var(--reimu-red-light);
+		padding-bottom: 0.5rem;
+		margin-bottom: 1.25rem;
+		font-size: 1.1rem;
+	}
+
+	.link-us-grid {
+		display: flex;
+		gap: 2rem;
+		flex-wrap: wrap;
+	}
+
+	.banner-display-col {
+		flex: 0 0 160px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		border-right: 1px dashed var(--border-light);
+		padding-right: 2rem;
+	}
+
+	@media (max-width: 600px) {
+		.banner-display-col {
+			flex: 1 1 100%;
+			border-right: none;
+			border-bottom: 1px dashed var(--border-light);
+			padding-right: 0;
+			padding-bottom: 1.5rem;
+		}
+	}
+
+	.banner-label {
+		font-size: 0.8rem;
+		font-weight: bold;
+		color: var(--text-dim);
+		margin-bottom: 8px;
+	}
+
+	.badge-wrapper-interactive {
+		width: 88px;
+		height: 31px;
+		position: relative;
+		overflow: hidden;
+		box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+		border: 1px solid var(--border);
+		cursor: url('/cursors/Link.png'), pointer;
+	}
+
+	.badge-img-88x31 {
+		width: 88px;
+		height: 31px;
+		display: block;
+		image-rendering: pixelated;
+	}
+
+	.badge-crt-scanline {
+		position: absolute;
+		top: 0; left: 0; width: 100%; height: 100%;
+		background: linear-gradient(
+			rgba(18, 16, 16, 0) 50%, 
+			rgba(0, 0, 0, 0.15) 50%
+		), linear-gradient(
+			90deg, 
+			rgba(255, 0, 0, 0.03), 
+			rgba(0, 255, 0, 0.01), 
+			rgba(0, 0, 255, 0.03)
+		);
+		background-size: 100% 2.5px, 3px 100%;
+		pointer-events: none;
+		z-index: 15;
+	}
+
+	.badge-dimensions-hint {
+		font-size: 0.7rem;
+		color: var(--text-dim);
+		margin-top: 6px;
+		font-style: italic;
+	}
+
+	.copy-code-col {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.copy-code-col label {
+		font-size: 0.85rem;
+		font-weight: bold;
+		color: var(--reimu-red);
+	}
+
+	.embed-code-area {
+		width: 100%;
+		height: 64px;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		border: 2px solid var(--border-light);
+		border-style: inset;
+		background: var(--bg);
+		padding: 6px;
+		resize: none;
+		color: var(--text-dim);
+		overflow: hidden;
+	}
+	.embed-code-area:focus {
+		outline: none;
+		border-color: var(--reimu-red);
+	}
+
+	.btn-copy-action {
+		align-self: flex-start;
+		background: var(--reimu-red);
+		color: white;
+		border: 2px outset var(--reimu-red-light);
+		padding: 6px 16px;
+		font-family: var(--font-sans);
+		font-size: 0.85rem;
+		font-weight: bold;
+		cursor: url('/cursors/Link.png'), pointer;
+		position: relative;
+		box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+		transition: background 0.15s ease;
+	}
+	.btn-copy-action:hover {
+		background: var(--magenta);
+	}
+	.btn-copy-action:active {
+		border-style: inset;
+	}
+
+	.copy-sparks-canvas {
+		position: absolute;
+		top: 0; left: 0; width: 100%; height: 100%;
+		pointer-events: none;
+		z-index: 20;
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   ALLIES & AFFILIATES STYLES
+	   ═══════════════════════════════════════════════════ */
+	.affiliates-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: 1.25rem;
+		margin: 1.5rem 0;
+	}
+
+	.affiliate-card {
+		border: 1px solid var(--border-light);
+		background: var(--surface);
+		padding: 1rem;
+		box-shadow: 2px 2px 4px rgba(0,0,0,0.03);
+		transition: all 0.2s ease;
+	}
+	.affiliate-card:hover {
+		box-shadow: 3px 3px 8px rgba(0,0,0,0.08);
+	}
+
+	.affiliate-top {
+		display: flex;
+		flex-direction: column;
+		border-bottom: 1px dashed var(--border-light);
+		padding-bottom: 6px;
+		margin-bottom: 10px;
+	}
+
+	.affiliate-name {
+		font-size: 0.95rem;
+		color: var(--text);
+		font-weight: bold;
+	}
+
+	.affiliate-prop {
+		font-size: 0.75rem;
+		color: var(--text-dim);
+		margin-top: 2px;
+	}
+
+	.affiliate-body {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		align-items: center;
+	}
+
+	.badge-container {
+		width: 88px;
+		height: 31px;
+	}
+
+	.retro-badge-button {
+		width: 88px;
+		height: 31px;
+		position: relative;
+		overflow: hidden;
+		box-shadow: 1.5px 1.5px 3px rgba(0,0,0,0.2);
+		cursor: url('/cursors/Link.png'), pointer;
+		border: 1px solid #000000;
+	}
+
+	.retro-badge-button svg {
+		width: 88px;
+		height: 31px;
+		display: block;
+	}
+
+	.affiliate-desc {
+		font-size: 0.8rem;
+		line-height: 1.4;
+		color: var(--text-dim);
+		text-align: center;
+	}
+
+	/* Micro-animations on hover */
+	.retro-badge-button.hover-wood-swivel {
+		transform-origin: 50% 0%;
+		transition: transform 0.25s ease;
+	}
+	.retro-badge-button.hover-wood-swivel:hover {
+		transform: rotate(4deg);
+		animation: swivelHang 1.2s ease-in-out infinite alternate;
+	}
+
+	@keyframes swivelHang {
+		0% { transform: rotate(4deg); }
+		100% { transform: rotate(-4deg); }
+	}
+
+	.retro-badge-button.hover-bat-flutter:hover {
+		animation: batFlutter 0.15s linear infinite;
+	}
+
+	@keyframes batFlutter {
+		0% { transform: translateY(0) rotate(0); }
+		25% { transform: translateY(-1px) rotate(1deg); }
+		75% { transform: translateY(1px) rotate(-1deg); }
+		100% { transform: translateY(0) rotate(0); }
+	}
+
+	.retro-badge-button.hover-bunny-bounce:hover {
+		animation: bunnyBounce 0.4s ease infinite;
+	}
+
+	@keyframes bunnyBounce {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(-3px); }
+	}
+
+	.retro-badge-button.hover-snake-wiggle:hover {
+		animation: snakeWiggle 0.6s ease infinite alternate;
+	}
+
+	@keyframes snakeWiggle {
+		0% { transform: skewX(-2deg); }
+		100% { transform: skewX(2deg); }
+	}
+
+	.retro-badge-button.hover-serene-glow {
+		transition: box-shadow 0.2s ease;
+	}
+	.retro-badge-button.hover-serene-glow:hover {
+		box-shadow: 0 0 8px #da70d6;
+	}
+
+	.retro-badge-button.hover-ghostly-float:hover {
+		animation: ghostlyFloat 1.5s ease-in-out infinite alternate;
+	}
+
+	@keyframes ghostlyFloat {
+		0% { transform: translateY(0) scale(1); opacity: 1; }
+		100% { transform: translateY(-2px) scale(0.98); opacity: 0.85; }
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   RETRO NET BADGES GRID STYLES
+	   ═══════════════════════════════════════════════════ */
+	.net-badges-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+		gap: 12px;
+		margin: 1.5rem 0;
+		justify-items: center;
+	}
+
+	.badge-item-outer {
+		width: 92px;
+		height: 35px;
+		padding: 2px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--surface);
+		border: 1px dashed var(--border-light);
+	}
+
+	.badge-net-item {
+		width: 88px;
+		height: 31px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		user-select: none;
+		border: 1.5px outset #fff !important;
+		padding: 2px;
+		overflow: hidden;
+		transition: all 0.1s ease;
+	}
+	
+	.badge-net-item:hover {
+		border-style: inset !important;
+		transform: translateY(0.5px);
+	}
+
+	.badge-net-glow-text {
+		font-family: var(--font-mono);
+		font-size: 8px;
+		font-weight: bold;
+		text-shadow: 1px 1px 0px #000;
+		letter-spacing: 0.5px;
+		line-height: 1.1;
+		text-transform: uppercase;
+	}
+
+	.badge-net-subtitle {
+		font-family: var(--font-sans);
+		font-size: 6px;
+		color: #ffffff;
+		margin-top: 1px;
+		letter-spacing: 0.2px;
+		opacity: 0.95;
+		line-height: 1;
+		font-weight: bold;
+	}
+
+	/* Community grid and card styling */
+	.community-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: 1.25rem;
+		margin: 1.5rem 0;
+	}
+
+	.community-card {
+		border: 1px solid var(--border-light);
+		background: var(--surface);
+		padding: 1.25rem;
+		box-shadow: 2px 2px 4px rgba(0,0,0,0.03);
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		transition: all 0.2s ease;
+	}
+	.community-card:hover {
+		box-shadow: 3px 3px 8px rgba(0,0,0,0.08);
+		transform: translateY(-2px);
+	}
+
+	.community-name {
+		font-size: 0.95rem;
+		color: var(--text);
+		font-weight: bold;
+		margin-bottom: 8px;
+		font-family: var(--font-sans);
+	}
+
+	.community-desc {
+		font-size: 0.8rem;
+		line-height: 1.45;
+		color: var(--text-dim);
+		margin-bottom: 12px;
+		flex-grow: 1;
+	}
+
+	.community-actions {
+		display: flex;
+		gap: 8px;
+		margin-top: auto;
+	}
+
+	.btn-community-local {
+		flex: 1;
+		text-align: center;
+		background: var(--reimu-red);
+		color: white !important;
+		border: 2px outset var(--reimu-red-light);
+		padding: 6px 8px;
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+		font-weight: bold;
+		cursor: url('/cursors/Link.png'), pointer;
+		box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+		transition: all 0.15s ease;
+	}
+	.btn-community-local:hover {
+		background: var(--magenta);
+		border-style: inset;
+		text-decoration: none !important;
+	}
+
+	.btn-community-external {
+		flex: 0 0 90px;
+		text-align: center;
+		background: var(--bg);
+		color: var(--reimu-red) !important;
+		border: 2px solid var(--reimu-red-light);
+		padding: 6px 8px;
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+		font-weight: bold;
+		cursor: url('/cursors/Link.png'), pointer;
+		transition: all 0.15s ease;
+	}
+	.btn-community-external:hover {
+		background: var(--reimu-red-light);
+		text-decoration: none !important;
+	}
+</style>

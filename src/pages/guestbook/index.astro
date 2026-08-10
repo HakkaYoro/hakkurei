@@ -1,0 +1,830 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import { getGuestbookEntries, getDonationsData } from '../../lib/db';
+
+const defaultAvatars = [
+	{ id: 'reimu', name: 'Reimu Hakurei', path: '/images/avatars/reimu.png' },
+	{ id: 'marisa', name: 'Marisa Kirisame', path: '/images/avatars/marisa.png' },
+	{ id: 'cirno', name: 'Cirno ⑨', path: '/images/avatars/cirno.png' },
+	{ id: 'sakuya', name: 'Sakuya Izayoi', path: '/images/avatars/sakuya.png' },
+	{ id: 'sanae', name: 'Sanae Kochiya', path: '/images/avatars/sanae.png' },
+	{ id: 'youmu', name: 'Youmu Konpaku', path: '/images/avatars/youmu.png' },
+];
+
+const allEntries = getGuestbookEntries();
+// Sort by date descending
+allEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+const donations = getDonationsData();
+const totalDonations = donations.total;
+---
+
+<Layout title="Guestbook">
+	<h2 class="section-title">博麗神社参拝者名簿 ~ Guestbook</h2>
+
+	<div class="guestbook-intro">
+		<p>
+			Welcome to the official <strong>Hakurei Shrine Guest Register</strong>! Please leave a comment, write your prayers, or drop a virtual coin into our donation box below. May the gods of Gensokyo bless your path!
+		</p>
+	</div>
+
+	<!-- ═══════════════════════════════════════════════════
+	     SAISENBAKO (DONATION BOX) INTERACTIVE COMPONENT
+	     ═══════════════════════════════════════════════════ -->
+	<div class="saisen-panel">
+		<div class="reimu-bubble-container">
+			<img src="/images/avatars/reimu.png" class="reimu-bubble-avatar" alt="Reimu" />
+			<div class="reimu-speech-bubble" id="reimu-bubble">
+				Sigh... The donation box is empty again today.
+			</div>
+		</div>
+
+		<div class="saisenbako" id="saisenbako">
+			<div class="saisen-grille"></div>
+			<div class="saisen-text">賽銭</div>
+			<!-- Canvas overlay for falling coin physics -->
+			<canvas id="saisen-canvas" class="saisen-canvas"></canvas>
+		</div>
+
+		<div class="saisen-stats">
+			<div class="saisen-counter">
+				Faith Gathered: <span id="saisen-total">{totalDonations}</span> 🪙
+			</div>
+			<p class="saisen-hint">Click the box to make a 5-yen offering!</p>
+		</div>
+	</div>
+
+	<div class="divider"><span class="divider-orb"></span></div>
+
+	<!-- ═══════════════════════════════════════════════════
+	     GUESTBOOK FORM
+	     ═══════════════════════════════════════════════════ -->
+	<div class="form-outer">
+		<h3 class="form-header">Sign the Guestbook / Write a Prayer</h3>
+		<form id="gb-form" class="gb-form">
+			<div class="form-group">
+				<label for="gb-name">Your Handle/Name:</label>
+				<input type="text" id="gb-name" name="name" required placeholder="Anonymous Human" maxlength="30" />
+			</div>
+
+			<div class="form-group">
+				<label>Select Avatar:</label>
+				<div class="avatar-selector">
+					{defaultAvatars.map((av, index) => (
+						<label class="avatar-option">
+							<input type="radio" name="avatar" value={av.id} checked={index === 0} required />
+							<div class="avatar-wrapper">
+								<img src={av.path} alt={av.name} />
+								<span class="avatar-label">{av.name.split(' ')[0]}</span>
+							</div>
+						</label>
+					))}
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="gb-message">Message / Prayer:</label>
+				<textarea id="gb-message" name="message" required placeholder="May Gensokyo stay safe..." rows="4" maxlength="500"></textarea>
+			</div>
+
+			<button type="submit" class="gb-submit-btn">
+				🧧 Offer Prayer & Submit 🧧
+			</button>
+		</form>
+	</div>
+
+	<div class="divider"><span class="divider-orb"></span></div>
+
+	<!-- ═══════════════════════════════════════════════════
+	     FEED OF ENTRIES
+	     ═══════════════════════════════════════════════════ -->
+	<h3 class="section-title">Signatures & Prayers</h3>
+	<div class="entries-container" id="entries-container">
+		{allEntries.map(entry => {
+			const avConfig = defaultAvatars.find(a => a.id === entry.avatar);
+			const avPath = avConfig ? avConfig.path : '/images/avatars/reimu.png';
+			return (
+				<div class={`entry-card ${entry.isCharacter ? 'character-entry' : 'user-entry'} avatar-${entry.avatar}`}>
+					<div class="entry-header">
+						<img src={avPath} class="entry-avatar" alt={entry.name} />
+						<div class="entry-meta">
+							<span class="entry-name">{entry.name}</span>
+							<span class="entry-date">{entry.date}</span>
+						</div>
+					</div>
+					<div class="entry-body">
+						<p class="entry-message">{entry.message}</p>
+					</div>
+				</div>
+			);
+		})}
+	</div>
+</Layout>
+
+<script is:inline>
+	// Render and handle the guestbook entries logic
+	(function() {
+		const form = document.getElementById('gb-form');
+		if (!form) return;
+
+		// Form submit handler
+		form.addEventListener('submit', function(e) {
+			e.preventDefault();
+			const nameInput = document.getElementById('gb-name');
+			const messageInput = document.getElementById('gb-message');
+			const avatarSelected = form.querySelector('input[name="avatar"]:checked');
+
+			if (!nameInput || !messageInput || !avatarSelected) return;
+
+			const name = nameInput.value.trim();
+			const message = messageInput.value.trim();
+			const avatar = avatarSelected.value;
+
+			// Disable submit button to prevent double post
+			const submitBtn = form.querySelector('.gb-submit-btn');
+			submitBtn.disabled = true;
+
+			fetch('/api/guestbook', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name, avatar, message })
+			})
+			.then(res => res.json())
+			.then(data => {
+				if (data.error) {
+					alert(data.error);
+					submitBtn.disabled = false;
+					return;
+				}
+
+				// Reset inputs
+				nameInput.value = '';
+				messageInput.value = '';
+
+				// Play chime and reload
+				playChimeSound();
+				setTimeout(() => {
+					window.location.reload();
+				}, 500);
+			})
+			.catch(err => {
+				console.error(err);
+				alert("Something went wrong offering your prayer.");
+				submitBtn.disabled = false;
+			});
+		});
+
+		function playChimeSound() {
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			if (!AudioContext) return;
+			const ctx = new AudioContext();
+			
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+			
+			osc.type = 'triangle';
+			osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+			osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+			osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
+			osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.3); // C6
+			
+			gain.gain.setValueAtTime(0.15, ctx.currentTime);
+			gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+			
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			
+			osc.start();
+			osc.stop(ctx.currentTime + 0.55);
+		}
+	})();
+</script>
+
+<script is:inline>
+	// Audio-Visual Saisenbako Physics and Reimu dialogues
+	(function() {
+		const saisenTotal = document.getElementById('saisen-total');
+		const saisenbako = document.getElementById('saisenbako');
+		const canvas = document.getElementById('saisen-canvas');
+		const reimuBubble = document.getElementById('reimu-bubble');
+
+		if (!saisenTotal || !saisenbako || !canvas || !reimuBubble) return;
+
+		const ctx = canvas.getContext('2d');
+
+		// Dialogue list depending on click count
+		const dialogues = [
+			"Sigh... The donation box is empty again today.",
+			"Oh, a donation! May the Hakurei Shrine bless you!",
+			"A 5-yen coin! That represents a perfect relationship with the gods!",
+			"Your faith is highly appreciated. Incident solvers never rest!",
+			"Wait... Is this actual currency, or is it paper scrap? Oh, it is real!",
+			"You are donating a lot... Let me brew you a fresh cup of tea!",
+			"Wow, such generosity! The Hakurei Shrine barrier is fully energized!",
+			"May you remain safe from incidents forever! 🌸"
+		];
+
+		let sessionClicks = 0;
+		function updateReimuDialogue() {
+			sessionClicks++;
+			let text = "";
+			if (sessionClicks === 1) text = dialogues[1];
+			else if (sessionClicks === 5) text = dialogues[2];
+			else if (sessionClicks === 10) text = dialogues[4];
+			else if (sessionClicks === 20) text = dialogues[5];
+			else if (sessionClicks === 50) text = dialogues[6];
+			else {
+				// Random dialogue from index 3 or 7
+				const pool = [dialogues[3], dialogues[7]];
+				text = pool[Math.floor(Math.random() * pool.length)];
+			}
+			reimuBubble.textContent = text;
+			reimuBubble.style.animation = 'none';
+			void reimuBubble.offsetWidth; // trigger reflow
+			reimuBubble.style.animation = 'speech-pulse 0.4s ease';
+		}
+
+		// Sound Synthesizers
+		function playCoinSound() {
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			if (!AudioContext) return;
+			const audioCtx = new AudioContext();
+			
+			const osc = audioCtx.createOscillator();
+			const gain = audioCtx.createGain();
+			
+			osc.type = 'sine';
+			osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5
+			osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.08); // E6
+			
+			gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+			gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+			
+			osc.connect(gain);
+			gain.connect(audioCtx.destination);
+			
+			osc.start();
+			osc.stop(audioCtx.currentTime + 0.35);
+		}
+
+		function playBuzzerSound() {
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			if (!AudioContext) return;
+			const audioCtx = new AudioContext();
+			
+			const osc = audioCtx.createOscillator();
+			const gain = audioCtx.createGain();
+			
+			osc.type = 'sawtooth';
+			osc.frequency.setValueAtTime(150, audioCtx.currentTime); // Low buzz
+			osc.frequency.setValueAtTime(110, audioCtx.currentTime + 0.15); // Lower buzz
+			
+			gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+			gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+			
+			osc.connect(gain);
+			gain.connect(audioCtx.destination);
+			
+			osc.start();
+			osc.stop(audioCtx.currentTime + 0.35);
+		}
+
+		// Coin physics array
+		const activeCoins = [];
+		const activeSparks = [];
+
+		function resizeCanvas() {
+			canvas.width = saisenbako.offsetWidth;
+			canvas.height = saisenbako.offsetHeight;
+		}
+		window.addEventListener('resize', resizeCanvas);
+		resizeCanvas();
+
+		class Coin {
+			constructor(x, y) {
+				this.x = x;
+				this.y = y;
+				this.vy = 2.0;
+				this.vx = (Math.random() - 0.5) * 3;
+				this.gravity = 14.0;
+				this.r = 6;
+				this.alpha = 1.0;
+			}
+			update(dt) {
+				this.vy += this.gravity * dt;
+				this.x += this.vx;
+				this.y += this.vy;
+				// Fade out near the grille
+				if (this.y > canvas.height - 30) {
+					this.alpha -= 5.0 * dt;
+				}
+			}
+			draw() {
+				ctx.save();
+				ctx.globalAlpha = Math.max(0, this.alpha);
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+				ctx.fillStyle = '#FFD700';
+				ctx.strokeStyle = '#DAA520';
+				ctx.lineWidth = 1.5;
+				ctx.fill();
+				ctx.stroke();
+				// Hole in the 5-yen coin
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, 1.8, 0, Math.PI * 2);
+				ctx.fillStyle = '#a05a2c';
+				ctx.fill();
+				ctx.restore();
+			}
+		}
+
+		class Spark {
+			constructor(x, y) {
+				this.x = x;
+				this.y = y;
+				this.vx = (Math.random() - 0.5) * 5;
+				this.vy = (Math.random() - 0.5) * 5 - 2;
+				this.size = 2 + Math.random() * 3;
+				this.alpha = 1.0;
+				this.decay = 0.02 + Math.random() * 0.03;
+				this.color = Math.random() > 0.5 ? '#FF4500' : '#FFD700';
+			}
+			update() {
+				this.x += this.vx;
+				this.y += this.vy;
+				this.alpha -= this.decay;
+			}
+			draw() {
+				ctx.save();
+				ctx.globalAlpha = Math.max(0, this.alpha);
+				ctx.fillStyle = this.color;
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.restore();
+			}
+		}
+
+		// Animation loop
+		let lastTime = performance.now();
+		function animate() {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			const now = performance.now();
+			const dt = (now - lastTime) / 1000;
+			lastTime = now;
+
+			// Update & Draw Coins
+			for (let i = activeCoins.length - 1; i >= 0; i--) {
+				const coin = activeCoins[i];
+				coin.update(dt);
+				coin.draw();
+				if (coin.alpha <= 0 || coin.y > canvas.height) {
+					activeCoins.splice(i, 1);
+				}
+			}
+
+			// Update & Draw Sparks
+			for (let i = activeSparks.length - 1; i >= 0; i--) {
+				const spark = activeSparks[i];
+				spark.update();
+				spark.draw();
+				if (spark.alpha <= 0) {
+					activeSparks.splice(i, 1);
+				}
+			}
+
+			requestAnimationFrame(animate);
+		}
+		requestAnimationFrame(animate);
+
+		// Click trigger with API limit checks
+		saisenbako.addEventListener('mousedown', function(e) {
+			if (saisenbako.dataset.donating === 'true') return;
+			saisenbako.dataset.donating = 'true';
+
+			fetch('/api/donations', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' }
+			})
+			.then(res => {
+				if (res.status === 429) {
+					return res.json().then(data => {
+						throw new Error(data.error);
+					});
+				}
+				return res.json();
+			})
+			.then(data => {
+				saisenbako.dataset.donating = 'false';
+				if (!data.success) return;
+
+				// Update counter
+				saisenTotal.textContent = data.total;
+
+				// Chime
+				playCoinSound();
+
+				// Dialogue
+				updateReimuDialogue();
+
+				// Physics placement
+				const rect = saisenbako.getBoundingClientRect();
+				const clickX = e.clientX - rect.left;
+				const clickY = e.clientY - rect.top;
+
+				// Add Coin
+				activeCoins.push(new Coin(clickX, clickY));
+
+				// Add Sparks
+				for (let i = 0; i < 8; i++) {
+					activeSparks.push(new Spark(clickX, clickY));
+				}
+			})
+			.catch(err => {
+				saisenbako.dataset.donating = 'false';
+				// Play buzzer
+				playBuzzerSound();
+
+				// Reimu warning dialogue
+				reimuBubble.textContent = err.message || "That's enough donations for today!";
+				reimuBubble.style.animation = 'none';
+				void reimuBubble.offsetWidth; // trigger reflow
+				reimuBubble.style.animation = 'speech-pulse 0.4s ease';
+			});
+		});
+	})();
+</script>
+
+<style is:global>
+	.guestbook-intro {
+		background: var(--surface);
+		border: 1px dashed var(--reimu-red);
+		padding: 1.25rem;
+		margin-bottom: 2rem;
+		font-size: 0.95rem;
+		line-height: 1.6;
+		color: var(--text);
+		text-align: center;
+	}
+
+	/* SPEECH BUBBLE COMPONENT */
+	.saisen-panel {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		margin: 2rem 0;
+	}
+
+	.reimu-bubble-container {
+		display: flex;
+		align-items: center;
+		gap: 1.25rem;
+		margin-bottom: 1.25rem;
+		max-width: 480px;
+		width: 90%;
+	}
+
+	.reimu-bubble-avatar {
+		width: 90px;
+		height: 38px;
+		border: 2px solid var(--reimu-red);
+		border-radius: 4px;
+		background: var(--reimu-red-light);
+		box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+		flex-shrink: 0;
+		object-fit: cover;
+	}
+
+	.reimu-speech-bubble {
+		position: relative;
+		background: var(--surface);
+		border: 2px solid var(--reimu-red);
+		border-radius: 12px;
+		padding: 0.75rem 1.25rem;
+		font-size: 0.9rem;
+		font-weight: bold;
+		color: var(--reimu-red);
+		box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+	}
+	.reimu-speech-bubble::before {
+		content: '';
+		position: absolute;
+		left: -12px;
+		top: 50%;
+		transform: translateY(-50%);
+		border-width: 6px 12px 6px 0;
+		border-style: solid;
+		border-color: transparent var(--reimu-red) transparent transparent;
+		display: block;
+		width: 0;
+		z-index: 1;
+	}
+	.reimu-speech-bubble::after {
+		content: '';
+		position: absolute;
+		left: -9px;
+		top: 50%;
+		transform: translateY(-50%);
+		border-width: 5px 10px 5px 0;
+		border-style: solid;
+		border-color: transparent var(--surface) transparent transparent;
+		display: block;
+		width: 0;
+		z-index: 2;
+	}
+
+	@keyframes speech-pulse {
+		0% { transform: scale(1); }
+		50% { transform: scale(1.05); }
+		100% { transform: scale(1); }
+	}
+
+	/* SAISENBAKO 2.5D WOODEN BOX */
+	.saisenbako {
+		width: 220px;
+		height: 120px;
+		background: linear-gradient(135deg, #7c3b17, #59250a);
+		border: 5px solid #361403;
+		position: relative;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 
+			0 10px 20px rgba(0,0,0,0.25),
+			inset 0 2px 4px rgba(255,255,255,0.15),
+			inset 0 -2px 6px rgba(0,0,0,0.4);
+		transition: transform 0.08s ease;
+		user-select: none;
+		overflow: hidden;
+	}
+	.saisenbako:active {
+		transform: translateY(2px) scale(0.97);
+	}
+
+	.saisen-grille {
+		position: absolute;
+		top: 0; left: 0; width: 100%; height: 20px;
+		background: repeating-linear-gradient(
+			90deg,
+			#361403 0px,
+			#361403 10px,
+			transparent 10px,
+			transparent 24px
+		);
+		border-bottom: 3px solid #361403;
+		z-index: 10;
+	}
+
+	.saisen-text {
+		font-family: var(--font-sans);
+		color: #ffd700;
+		font-size: 2.2rem;
+		font-weight: bold;
+		text-shadow: 2px 2px 0px #1e0901;
+		letter-spacing: 12px;
+		margin-left: 12px; /* balance letter spacing offset */
+		pointer-events: none;
+		z-index: 5;
+	}
+
+	.saisen-canvas {
+		position: absolute;
+		top: 0; left: 0;
+		width: 100%; height: 100%;
+		pointer-events: none;
+		z-index: 20;
+	}
+
+	.saisen-stats {
+		text-align: center;
+		margin-top: 1rem;
+	}
+
+	.saisen-counter {
+		background: var(--text);
+		color: #ffd700;
+		padding: 6px 16px;
+		font-family: var(--font-mono);
+		font-size: 1.1rem;
+		font-weight: bold;
+		border: 2px outset var(--border);
+		box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+		display: inline-block;
+	}
+
+	.saisen-hint {
+		font-size: 0.75rem;
+		color: var(--text-dim);
+		margin-top: 6px;
+		font-style: italic;
+	}
+
+	/* FORM OUTER */
+	.form-outer {
+		border: 1px solid var(--border-light);
+		background: var(--surface);
+		padding: 1.5rem;
+		margin: 2rem 0;
+	}
+
+	.form-header {
+		color: var(--reimu-red);
+		border-bottom: 1px dashed var(--border-light);
+		padding-bottom: 0.5rem;
+		margin-bottom: 1.25rem;
+		font-size: 1.1rem;
+	}
+
+	.gb-form {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+
+	.form-group {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.form-group label {
+		font-family: var(--font-sans);
+		font-size: 0.9rem;
+		font-weight: bold;
+		color: var(--reimu-red);
+	}
+
+	.form-group input[type="text"],
+	.form-group textarea {
+		width: 100%;
+		border: 2px solid var(--border-light);
+		border-style: inset;
+		background: var(--bg);
+		padding: 0.5rem;
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
+		color: var(--text);
+	}
+
+	.form-group input[type="text"]:focus,
+	.form-group textarea:focus {
+		outline: none;
+		border-color: var(--reimu-red);
+	}
+
+	/* AVATAR SELECTOR Retro radio */
+	.avatar-selector {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+		gap: 8px;
+		margin-top: 4px;
+	}
+
+	.avatar-option {
+		cursor: pointer;
+		position: relative;
+	}
+
+	.avatar-option input[type="radio"] {
+		position: absolute;
+		opacity: 0;
+		width: 0; height: 0;
+	}
+
+	.avatar-wrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		border: 2px solid var(--border-light);
+		padding: 8px 6px;
+		background: var(--surface);
+		transition: all 0.15s ease;
+		text-align: center;
+		width: 100%;
+	}
+	.avatar-option input[type="radio"]:checked + .avatar-wrapper {
+		border-color: var(--reimu-red);
+		background: var(--reimu-red-light);
+	}
+
+	.avatar-wrapper img {
+		width: 88px;
+		height: 35px;
+		border: 1px solid var(--border-light);
+		background: var(--bg);
+		image-rendering: auto;
+		object-fit: cover;
+	}
+
+	.avatar-label {
+		font-size: 0.7rem;
+		font-weight: bold;
+		color: var(--text-dim);
+		margin-top: 4px;
+	}
+	.avatar-option input[type="radio"]:checked + .avatar-wrapper .avatar-label {
+		color: var(--reimu-red);
+	}
+
+	.gb-submit-btn {
+		background: var(--reimu-red);
+		color: white;
+		border: 2px outset var(--reimu-red-light);
+		padding: 0.75rem 1.5rem;
+		font-family: var(--font-sans);
+		font-size: 1rem;
+		font-weight: bold;
+		cursor: pointer;
+		align-self: center;
+		box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+		transition: background 0.2s ease;
+	}
+	.gb-submit-btn:hover {
+		background: var(--magenta);
+		border-style: inset;
+	}
+	.gb-submit-btn:disabled {
+		background: var(--border-light);
+		color: var(--text-dim);
+		border-style: inset;
+		cursor: not-allowed;
+	}
+
+	/* GUESTBOOK ENTRIES FEED */
+	.entries-container {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		margin-top: 1.5rem;
+	}
+
+	.entry-card {
+		border: 1px solid var(--border-light);
+		background: var(--surface);
+		padding: 1.25rem;
+		box-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+	}
+
+	.entry-card.character-entry {
+		border-left: 5px solid var(--reimu-red);
+	}
+
+	/* Custom borders depending on character style */
+	.entry-card.avatar-reimu { border-left-color: var(--reimu-red); }
+	.entry-card.avatar-marisa { border-left-color: #ffd700; }
+	.entry-card.avatar-cirno { border-left-color: #00bfff; }
+	.entry-card.avatar-sakuya { border-left-color: #708090; }
+	.entry-card.avatar-sanae { border-left-color: #32cd32; }
+	.entry-card.avatar-youmu { border-left-color: #c0c0c0; }
+
+	.entry-header {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		margin-bottom: 0.75rem;
+		border-bottom: 1px dashed var(--border-light);
+		padding-bottom: 0.5rem;
+	}
+
+	.entry-avatar {
+		width: 90px;
+		height: 36px;
+		border: 1px solid var(--border-light);
+		background: var(--bg);
+		object-fit: cover;
+		border-radius: 2px;
+	}
+
+	.entry-meta {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.entry-name {
+		font-family: var(--font-sans);
+		font-size: 0.95rem;
+		font-weight: bold;
+		color: var(--reimu-red);
+	}
+	.entry-card.avatar-marisa .entry-name { color: #d4af37; }
+	.entry-card.avatar-cirno .entry-name { color: #1e90ff; }
+	.entry-card.avatar-sakuya .entry-name { color: #4f5d6b; }
+	.entry-card.avatar-sanae .entry-name { color: #228b22; }
+	.entry-card.avatar-youmu .entry-name { color: #5f7560; }
+
+	.entry-date {
+		font-size: 0.7rem;
+		color: var(--text-dim);
+		margin-top: 2px;
+	}
+
+	.entry-message {
+		font-size: 0.9rem;
+		line-height: 1.5;
+		color: var(--text);
+		white-space: pre-wrap;
+	}
+</style>
