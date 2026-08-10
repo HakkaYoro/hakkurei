@@ -1,6 +1,9 @@
 # build output
 dist/
 
+# runtime data (guestbook entries, donations, rate limits) — seeded at runtime, persisted via volume
+data/
+
 # generated types
 .astro/
 
@@ -29,6 +32,9 @@ pnpm-debug.log*
 # skills / agent config
 .agents/
 skills-lock.json
+
+# unused large assets (not referenced anywhere)
+public/images/avatars/upscaled/
 
 # misc
 *.swp
