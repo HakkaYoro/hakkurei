@@ -50,7 +50,7 @@ body {
         cursor: url('/cursors/Normal.png'), auto;
 }
 
-/* The Sakura petals are styled via inline css now to allow random animations injected from layout! */
+/* Sakura petals — positioned via Web Animations API in Layout.astro */
 
 .sakura-petal {
 	position: fixed;
@@ -64,6 +64,7 @@ a {
 	text-decoration: none;
 	border-bottom: 1px dotted var(--link);
 	transition: color 0.2s, border-color 0.2s;
+	cursor: url('/cursors/Link.png'), pointer;
 }
 a:hover {
 	color: var(--link-hover);
@@ -102,7 +103,6 @@ h3 { font-size: 1.2rem; }
 	min-height: 100vh;
 	border-left: 4px solid var(--magenta);
 	border-right: 4px solid var(--magenta);
-	box-shadow: none;
 	position: relative;
 	z-index: 10;
 }
@@ -298,6 +298,48 @@ footer a { border: none; font-weight: bold; margin: 0 0.5rem; }
 	.about-grid { flex-direction: column; align-items: center; }
 	h1 { font-size: 1.5rem; }
 }
-a {
-	cursor: url('/cursors/Link.png'), pointer;
+
+/* Styling for dividers across the site */
+.divider {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 2.5rem 0;
+	width: 100%;
+	color: var(--reimu-red);
+	font-weight: bold;
+	user-select: none;
+	border: none;
+}
+
+.divider::before,
+.divider::after {
+	content: '';
+	flex: 1;
+	height: 1px;
+	background: repeating-linear-gradient(90deg, var(--reimu-red), var(--reimu-red) 6px, transparent 6px, transparent 12px);
+}
+
+.divider::before {
+	margin-right: 16px;
+}
+
+.divider::after {
+	margin-left: 16px;
+}
+
+.divider-orb {
+	width: 18px;
+	height: 18px;
+	display: inline-block;
+	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="11" fill="%23fff" stroke="%23DB3655" stroke-width="2"/><path d="M 12 1 C 5.925 1 1 5.925 1 12 C 1 18.075 5.925 23 12 23 C 12.55 23 13 22.55 13 22 C 13 21.45 12.55 21 12 21 C 7.03 21 3 16.97 3 12 C 3 7.03 7.03 3 12 3 C 16.97 3 21 7.03 21 12 C 21 16.97 16.97 21 12 21" fill="%23DB3655"/><circle cx="12" cy="6.5" r="2.5" fill="%23DB3655"/><circle cx="12" cy="17.5" r="2.5" fill="%23fff" stroke="%23DB3655" stroke-width="1.5"/></svg>');
+	background-size: contain;
+	background-repeat: no-repeat;
+	animation: spin-slow 12s linear infinite;
+	flex-shrink: 0;
+}
+
+@keyframes spin-slow {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
 }

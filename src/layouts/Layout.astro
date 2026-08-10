@@ -30,7 +30,18 @@ try {
 	<body>
 		<!-- Loading screen overlay — hidden immediately via inline script if already dismissed -->
 		<div id="loading-screen">
+
+			<svg id="ls-ropes-svg">
+				<path id="rope-left-back" class="rope-back" d=""></path>
+				<path id="rope-left-front" class="rope-front" d=""></path>
+				<path id="rope-right-back" class="rope-back" d=""></path>
+				<path id="rope-right-front" class="rope-front" d=""></path>
+				<g id="ls-particles-group"></g>
+			</svg>
+
 			<div class="ls-panel">
+				<div class="ls-panel-ring ls-ring-left"></div>
+				<div class="ls-panel-ring ls-ring-right"></div>
 				<div class="ls-panel-border">
 					<div class="ls-header">⛩️</div>
 					<h1 class="ls-title">博麗神社 ~ Hakurei Shrine</h1>
@@ -47,7 +58,7 @@ try {
 						<div class="ls-progress-label" id="ls-progress-label">Loading...</div>
 					</div>
 
-					<p id="click-text" style="display: none;">☆ Click here to enter the Shrine ☆</p>
+					<p id="click-text">Click here to enter the Shrine</p>
 
 					<div class="ls-divider">☆ ☆ ☆</div>
 
@@ -64,6 +75,12 @@ try {
 			if (sessionStorage.getItem('loading-screen-dismissed') === '1') {
 				var ls = document.getElementById('loading-screen');
 				if (ls) ls.remove();
+			} else {
+				// Hide wrapper instantly during loading screen to prevent flash of content under the loading screen
+				var style = document.createElement('style');
+				style.id = 'ls-wrapper-hide';
+				style.textContent = '.wrapper { transform: translate3d(0, -120vh, 0) !important; }';
+				document.head.appendChild(style);
 			}
 			// Prevent loading screen from appearing on any future ClientRouter navigation
 			// by removing it from the incoming document BEFORE Astro swaps the DOM
@@ -156,14 +173,8 @@ try {
 
 				function advanceProgress() {
 					if (progress >= steps) {
-						if (progressLabel) {
-							progressLabel.style.opacity = '0';
-							setTimeout(() => {
-								progressLabel!.textContent = '[ CLICK TO ENTER ]';
-								progressLabel!.style.opacity = '1';
-							}, 300);
-						}
-						clickText!.style.display = 'block';
+						if (progressLabel) progressLabel.style.opacity = '0';
+						requestAnimationFrame(() => { clickText.classList.add('ls-visible'); });
 						return;
 					}
 					const targetWidth = Math.min(((progress + 1) / steps) * 100, 100);
@@ -171,8 +182,8 @@ try {
 					if (progressLabel) {
 						progressLabel.style.opacity = '0';
 						setTimeout(() => {
-							progressLabel!.textContent = messages[progress];
-							progressLabel!.style.opacity = '1';
+							progressLabel.textContent = messages[progress];
+							progressLabel.style.opacity = '1';
 						}, 300);
 					}
 					progress++;
@@ -181,17 +192,426 @@ try {
 
 				setTimeout(advanceProgress, 300);
 
+				function startWrapperDrop() {
+					const wrapper = document.querySelector('.wrapper');
+					if (!wrapper) return;
+
+					// Remove the FOUC style tag to let the inline transform take effect
+					const hideStyle = document.getElementById('ls-wrapper-hide');
+					if (hideStyle) hideStyle.remove();
+
+					// Physical states for both vertical movement and tilt rotation
+					let wy = -window.innerHeight - 150; // Start off-screen at the top
+					let vy = 0;
+					let wangle = 0.07; // Start with a subtle tilt in radians (approx. 4 degrees)
+					let womega = 0;
+
+					// Physics parameters (weighty spring, low damping for 2-3 natural bounces)
+					const K_spring = 160.0;
+					const D_damping = 9.5;
+					const K_rot = 130.0;
+					const D_rot = 8.0;
+					
+					let lastTime = performance.now();
+
+					function animateDrop() {
+						const now = performance.now();
+						let dt = (now - lastTime) / 1000;
+						lastTime = now;
+
+						// Cap dt to prevent physics exploding
+						if (dt > 0.03) dt = 0.03;
+
+						// 1. Vertical translation physics (spring-mass-damper)
+						const ay = -K_spring * wy - D_damping * vy;
+						vy += ay * dt;
+						wy += vy * dt;
+
+						// 2. Angular rotation physics (spring-mass-damper pulling angle back to 0)
+						const a_rot = -K_rot * wangle - D_rot * womega;
+						womega += a_rot * dt;
+						wangle += womega * dt;
+
+						// Apply 2D rigid-body physical transform (translation + tilt)
+						wrapper.style.transform = `translate3d(0, ${wy}px, 0) rotate(${wangle}rad)`;
+
+						// Stop condition: when both vertical bounce and rotational wobble are fully settled
+						if (Math.abs(wy) < 0.2 && Math.abs(vy) < 0.2 && Math.abs(wangle) < 0.002 && Math.abs(womega) < 0.002) {
+							wrapper.style.transform = ''; // Reset to default static layout
+							return;
+						}
+
+						requestAnimationFrame(animateDrop);
+					}
+
+					requestAnimationFrame(animateDrop);
+				}
+
 				function dismiss() {
 					sessionStorage.setItem('loading-screen-dismissed', '1');
 					window.dispatchEvent(new CustomEvent('loading-screen-dismissed'));
-					loadScreen!.style.opacity = '0';
-					loadScreen!.style.pointerEvents = 'none';
+					loadScreen.style.opacity = '0';
+					loadScreen.style.pointerEvents = 'none';
+
+					// Start the wrapper drop animation
+					startWrapperDrop();
+
 					setTimeout(() => {
-						loadScreen!.remove();
+						loadScreen.remove();
 					}, 600);
 				}
 
-				clickText.addEventListener('click', dismiss);
+				// --- 2D Rigid Body Physics for Hanging Sign ---
+				const panel = loadScreen.querySelector('.ls-panel');
+				const ropeLeftBack = document.getElementById('rope-left-back');
+				const ropeLeftFront = document.getElementById('rope-left-front');
+				const ropeRightBack = document.getElementById('rope-right-back');
+				const ropeRightFront = document.getElementById('rope-right-front');
+				const particlesGroup = document.getElementById('ls-particles-group');
+
+				if (!panel || !ropeLeftBack || !ropeLeftFront || !ropeRightBack || !ropeRightFront || !particlesGroup) {
+					clickText.addEventListener('click', dismiss);
+					return;
+				}
+
+				// Reset panel coordinate styles from CSS fallback (50% centering) to absolute (0px)
+				panel.style.left = '0px';
+				panel.style.top = '0px';
+
+				// Measure panel size
+				let rect = panel.getBoundingClientRect();
+				let W = rect.width || 520;
+				let H = rect.height || 340;
+
+				// Ceiling hooks positions (0px means ropes connect to the absolute top edge of the browser)
+				let cx1 = window.innerWidth / 2 - W * 0.30;
+				let cx2 = window.innerWidth / 2 + W * 0.30;
+				let cy1 = 0;
+				let cy2 = 0;
+
+				// Local attachment points relative to center of mass
+				let rx1 = -W * 0.30;
+				let rx2 = W * 0.30;
+				let ry1 = -H / 2;
+				let ry2 = -H / 2;
+
+				// Physical state
+				let px = window.innerWidth / 2;
+				let py = cy1 + 180 + H / 2; // Hanging naturally at rest initially
+				let vx = 0;
+				let vy = 0;
+				let angle = 0; // in radians
+				let omega = 0; // angular velocity
+
+				// Hook coordinates in world space (updated dynamically inside loop, read inside snap triggers)
+				let sx1 = 0, sy1 = 0, sx2 = 0, sy2 = 0;
+
+				// Constraints & Parameters
+				const mass = 1.0;
+				const inertia = 25000.0;
+				const gravity = 800.0; // pixels / s^2
+				const L = 160.0; // Rest length of Kumihimo cords
+				const K_spring = 15.0; // Stiff springs
+				const K_damping = 8.0;
+				const airResistance = 0.35;
+				const angularResistance = 70.0;
+
+				// Cutting states
+				let isLeftCut = false;
+				let isRightCut = false;
+
+				// Severed ceiling rope pendulums
+				let leftCeilingAngle = 0;
+				let leftCeilingOmega = 0;
+				let rightCeilingAngle = 0;
+				let rightCeilingOmega = 0;
+
+				// Particles array
+				const particles = [];
+
+				function createExplosion(x, y) {
+					for (let i = 0; i < 25; i++) {
+						const a = Math.random() * Math.PI * 2;
+						const speed = 2 + Math.random() * 6;
+						particles.push({
+							x: x,
+							y: y,
+							vx: Math.cos(a) * speed + (Math.random() - 0.5) * 2,
+							vy: Math.sin(a) * speed - 3 + (Math.random() - 0.5) * 2,
+							color: Math.random() > 0.5 ? 'var(--reimu-red)' : '#FFD700',
+							size: 3 + Math.random() * 5,
+							alpha: 1.0,
+							decay: 0.015 + Math.random() * 0.02
+						});
+					}
+				}
+
+				// Sync sizes on resize
+				function handleResize() {
+					rect = panel.getBoundingClientRect();
+					W = rect.width || 520;
+					H = rect.height || 340;
+					cx1 = window.innerWidth / 2 - W * 0.30;
+					cx2 = window.innerWidth / 2 + W * 0.30;
+					rx1 = -W * 0.30;
+					rx2 = W * 0.30;
+					ry1 = -H / 2;
+					ry2 = -H / 2;
+				}
+				window.addEventListener('resize', handleResize);
+
+				let lastTime = performance.now();
+				let windTime = 0;
+
+				function updatePhysics() {
+					if (sessionStorage.getItem('loading-screen-dismissed') === '1') return;
+
+					const now = performance.now();
+					let dt = (now - lastTime) / 1000;
+					lastTime = now;
+
+					// Cap dt to prevent physics exploding
+					if (dt > 0.03) dt = 0.03;
+
+					windTime += dt;
+
+					// 1. Accumulate forces
+					let totalForceX = 0;
+					let totalForceY = 0;
+					let totalTorque = 0;
+
+					// Gravity
+					totalForceY += mass * gravity;
+
+					// Wind — gusty with REAL calm periods, not a perpetual sine breeze.
+					// A non-negative envelope from max(0,sin)·max(0,sin) is >0 only when both
+					// slow sines are positive (~25% of the time), so the sign hangs vertical &
+					// still between gusts instead of sitting forever tilted by a constant push.
+					if (!isLeftCut || !isRightCut) {
+						const envelope =
+							  Math.max(0, Math.sin(windTime * 0.27 + 0.5))
+							* Math.max(0, Math.sin(windTime * 0.41 + 2.0)); // gust strength [0,1]
+						const dir = Math.sin(windTime * 0.19 + 4.0);          // slow L/R drift
+						const windField = envelope * dir;                     // ≈0 in calm
+
+						totalForceX += windField * 200; // drag — only during gusts
+
+						const turb =
+							  Math.sin(windTime * 1.91 + 0.7) * 0.6
+							+ Math.sin(windTime * 2.93 + 3.4) * 0.4;     // turbulent asymmetry
+						totalTorque += turb * windField * 250;            // twist scales with gust
+					}
+
+					// Calculate rotation matrix
+					const cosA = Math.cos(angle);
+					const sinA = Math.sin(angle);
+
+					// Hook points in world space
+					sx1 = px + rx1 * cosA - ry1 * sinA;
+					sy1 = py + rx1 * sinA + ry1 * cosA;
+					sx2 = px + rx2 * cosA - ry2 * sinA;
+					sy2 = py + rx2 * sinA + ry2 * cosA;
+
+					// Left rope physics
+					if (!isLeftCut) {
+						const dx = cx1 - sx1;
+						const dy = cy1 - sy1;
+						const dist = Math.sqrt(dx*dx + dy*dy);
+						if (dist > 0) {
+							let tension = 0;
+							if (dist > L) {
+								tension = K_spring * (dist - L);
+							}
+							// Damping along rope
+							const vx_s = vx - (sy1 - py) * omega;
+							const vy_s = vy + (sx1 - px) * omega;
+							const rvx = -vx_s;
+							const rvy = -vy_s;
+							const rv_rope = (rvx * dx + rvy * dy) / dist;
+							const damping_f = K_damping * rv_rope;
+
+							const f = Math.max(0, tension + damping_f);
+							const fx = f * (dx / dist);
+							const fy = f * (dy / dist);
+
+							totalForceX += fx;
+							totalForceY += fy;
+							totalTorque += (sx1 - px) * fy - (sy1 - py) * fx;
+						}
+					}
+
+					// Right rope physics
+					if (!isRightCut) {
+						const dx = cx2 - sx2;
+						const dy = cy2 - sy2;
+						const dist = Math.sqrt(dx*dx + dy*dy);
+						if (dist > 0) {
+							let tension = 0;
+							if (dist > L) {
+								tension = K_spring * (dist - L);
+							}
+							// Damping along rope
+							const vx_s = vx - (sy2 - py) * omega;
+							const vy_s = vy + (sx2 - px) * omega;
+							const rvx = -vx_s;
+							const rvy = -vy_s;
+							const rv_rope = (rvx * dx + rvy * dy) / dist;
+							const damping_f = K_damping * rv_rope;
+
+							const f = Math.max(0, tension + damping_f);
+							const fx = f * (dx / dist);
+							const fy = f * (dy / dist);
+
+							totalForceX += fx;
+							totalForceY += fy;
+							totalTorque += (sx2 - px) * fy - (sy2 - py) * fx;
+						}
+					}
+
+					// Damping / Air resistance
+					totalForceX -= vx * airResistance;
+					totalForceY -= vy * airResistance;
+					totalTorque -= omega * angularResistance;
+
+					// Integrate physics
+					const ax = totalForceX / mass;
+					const ay = totalForceY / mass;
+					const alpha = totalTorque / inertia;
+
+					vx += ax * dt;
+					vy += ay * dt;
+					omega += alpha * dt;
+
+					px += vx * dt;
+					py += vy * dt;
+					angle += omega * dt;
+
+					// Apply styles to sign panel
+					panel.style.transform = `translate3d(${px - W/2}px, ${py - H/2}px, 0) rotate(${angle}rad)`;
+
+					// Draw Left Cord
+					if (!isLeftCut) {
+						const dx = sx1 - cx1;
+						const dy = sy1 - cy1;
+						const mx = cx1 + dx * 0.5;
+						const my = cy1 + dy * 0.5 + 8; // slight sag
+						const pathD = `M ${cx1} ${cy1} Q ${mx} ${my} ${sx1} ${sy1}`;
+						ropeLeftBack.setAttribute('d', pathD);
+						ropeLeftFront.setAttribute('d', pathD);
+					} else {
+						// Left ceiling piece swinging
+						const c_accel = -10.0 * Math.sin(leftCeilingAngle) - 1.5 * leftCeilingOmega;
+						leftCeilingOmega += c_accel * dt;
+						leftCeilingAngle += leftCeilingOmega * dt;
+						const rx = cx1 + L * 0.7 * Math.sin(leftCeilingAngle);
+						const ry = cy1 + L * 0.7 * Math.cos(leftCeilingAngle);
+						const mx = cx1 + (rx - cx1) * 0.5 + Math.sin(windTime) * 3;
+						const my = cy1 + (ry - cy1) * 0.5 + 4;
+						const pathD = `M ${cx1} ${cy1} Q ${mx} ${my} ${rx} ${ry}`;
+						ropeLeftBack.setAttribute('d', pathD);
+						ropeLeftFront.setAttribute('d', pathD);
+					}
+
+					// Draw Right Cord
+					if (!isRightCut) {
+						const dx = sx2 - cx2;
+						const dy = sy2 - cy2;
+						const mx = cx2 + dx * 0.5;
+						const my = cy2 + dy * 0.5 + 8;
+						const pathD = `M ${cx2} ${cy2} Q ${mx} ${my} ${sx2} ${sy2}`;
+						ropeRightBack.setAttribute('d', pathD);
+						ropeRightFront.setAttribute('d', pathD);
+					} else {
+						// Right ceiling piece swinging
+						const c_accel = -10.0 * Math.sin(rightCeilingAngle) - 1.5 * rightCeilingOmega;
+						rightCeilingOmega += c_accel * dt;
+						rightCeilingAngle += rightCeilingOmega * dt;
+						const rx = cx2 + L * 0.7 * Math.sin(rightCeilingAngle);
+						const ry = cy2 + L * 0.7 * Math.cos(rightCeilingAngle);
+						const mx = cx2 + (rx - cx2) * 0.5 + Math.sin(windTime + 1.0) * 3;
+						const my = cy2 + (ry - cy2) * 0.5 + 4;
+						const pathD = `M ${cx2} ${cy2} Q ${mx} ${my} ${rx} ${ry}`;
+						ropeRightBack.setAttribute('d', pathD);
+						ropeRightFront.setAttribute('d', pathD);
+					}
+
+					// Draw cut tails on the sign
+					let tailsHtml = '';
+					if (isLeftCut) {
+						const tx = sx1 - 18 * Math.sin(angle);
+						const ty = sy1 - 18 * Math.cos(angle);
+						tailsHtml += `<path d="M ${sx1} ${sy1} L ${tx} ${ty}" stroke="var(--reimu-red)" stroke-width="5" stroke-linecap="round" fill="none" />`;
+						tailsHtml += `<path d="M ${sx1} ${sy1} L ${tx} ${ty}" stroke="#FFD700" stroke-width="2.5" stroke-dasharray="4 3" stroke-linecap="round" fill="none" />`;
+					}
+					if (isRightCut) {
+						const tx = sx2 - 18 * Math.sin(angle);
+						const ty = sy2 - 18 * Math.cos(angle);
+						tailsHtml += `<path d="M ${sx2} ${sy2} L ${tx} ${ty}" stroke="var(--reimu-red)" stroke-width="5" stroke-linecap="round" fill="none" />`;
+						tailsHtml += `<path d="M ${sx2} ${sy2} L ${tx} ${ty}" stroke="#FFD700" stroke-width="2.5" stroke-dasharray="4 3" stroke-linecap="round" fill="none" />`;
+					}
+
+					// Particle simulation
+					let particlesHtml = '';
+					for (let i = particles.length - 1; i >= 0; i--) {
+						const p = particles[i];
+						p.x += p.vx;
+						p.y += p.vy;
+						p.vy += 12.0 * dt; // gravity
+						p.alpha -= p.decay;
+						if (p.alpha <= 0) {
+							particles.splice(i, 1);
+							continue;
+						}
+						particlesHtml += `<circle cx="${p.x}" cy="${p.y}" r="${p.size}" fill="${p.color}" opacity="${p.alpha}" />`;
+					}
+
+					particlesGroup.innerHTML = tailsHtml + particlesHtml;
+
+					// If completely off-screen, cleanup and stop loop
+					if (py > window.innerHeight + H + 120) {
+						window.removeEventListener('resize', handleResize);
+						dismiss();
+						return;
+					}
+
+					requestAnimationFrame(updatePhysics);
+				}
+
+				// Trigger initial loops
+				requestAnimationFrame(updatePhysics);
+
+				// Interactive Snap Trigger
+				function cutLeft() {
+					if (isLeftCut) return;
+					isLeftCut = true;
+					const dx = sx1 - cx1;
+					const dy = sy1 - cy1;
+					leftCeilingAngle = Math.atan2(dx, dy);
+					leftCeilingOmega = omega + (vx * dy - vy * dx) / (dx*dx + dy*dy);
+					createExplosion(sx1, sy1);
+				}
+
+				function cutRight() {
+					if (isRightCut) return;
+					isRightCut = true;
+					const dx = sx2 - cx2;
+					const dy = sy2 - cy2;
+					rightCeilingAngle = Math.atan2(dx, dy);
+					rightCeilingOmega = omega + (vx * dy - vy * dx) / (dx*dx + dy*dy);
+					createExplosion(sx2, sy2);
+				}
+
+				function handleContinue() {
+					clickText.style.pointerEvents = 'none';
+					
+					// Snap Left Rope first
+					cutLeft();
+
+					// Snap Right Rope 220ms later
+					setTimeout(cutRight, 220);
+				}
+
+				clickText.addEventListener('click', handleContinue);
 			})();
 
 			// Sakura Petals Script
@@ -246,45 +666,35 @@ try {
 					}
 				})
 				.catch(err => console.error('Failed to load messages:', err));
+		</script>
 
-			// Animated cursor system — cycles through PNG frames extracted from .ani files
-			(function() {
-				const FRAME_COUNT = 8;
-				const FRAME_MS = 96; // ~96ms per frame (original ANI timing)
-				const cursors: Record<string, { frames: string[], fallback: string }> = {
-					normal: {
-						frames: Array.from({length: FRAME_COUNT}, (_, i) => `/cursors/Normal_frames/${i}.png`),
-						fallback: 'auto'
-					},
-					link: {
-						frames: Array.from({length: FRAME_COUNT}, (_, i) => `/cursors/Link_frames/${i}.png`),
-						fallback: 'pointer'
-					}
-				};
-
-				// Preload all frames
-				for (const key of Object.keys(cursors)) {
-					for (const src of cursors[key].frames) {
-						const img = new window.Image();
-						img.src = src;
-					}
+		<!-- Animated cursor: is:inline to survive View Transition head swaps -->
+		<script is:inline>
+			if (!window._cursorAnimInit) {
+				window._cursorAnimInit = true;
+				var FRAMES = 8;
+				var FRAME_MS = 96;
+				var normalFrames = [];
+				var linkFrames = [];
+				for (var i = 0; i < FRAMES; i++) {
+					normalFrames.push('/cursors/Normal_frames/' + i + '.png');
+					linkFrames.push('/cursors/Link_frames/' + i + '.png');
 				}
-
-				// Create a dynamic style element for cursor updates
-				const style = document.createElement('style');
-				document.head.appendChild(style);
-				let frame = 0;
-
-				setInterval(() => {
-					const normalUrl = cursors.normal.frames[frame];
-					const linkUrl = cursors.link.frames[frame];
-					style.textContent = `
-						body { cursor: url('${normalUrl}'), auto !important; }
-						a, #click-text, [role="button"], button { cursor: url('${linkUrl}'), pointer !important; }
-					`;
-					frame = (frame + 1) % FRAME_COUNT;
+				// Preload
+				normalFrames.concat(linkFrames).forEach(function(src) { var img = new Image(); img.src = src; });
+				var cursorStyle = document.createElement('style');
+				cursorStyle.id = 'animated-cursor-style';
+				document.head.appendChild(cursorStyle);
+				var frame = 0;
+				setInterval(function() {
+					// Re-attach if style element was removed by View Transition
+					if (!cursorStyle.parentNode) document.head.appendChild(cursorStyle);
+					cursorStyle.textContent =
+						'body { cursor: url(' + normalFrames[frame] + '), auto !important; }' +
+						'a, #click-text, [role="button"], button { cursor: url(' + linkFrames[frame] + '), pointer !important; }';
+					frame = (frame + 1) % FRAMES;
 				}, FRAME_MS);
-			})();
+			}
 		</script>
 
 		<!-- BGM logic: needs define:vars for musicFiles, uses is:inline to avoid re-init issues -->
@@ -356,21 +766,105 @@ try {
 				background-size: cover;
 				background-position: center;
 				background-attachment: fixed;
-				display: flex;
-				align-items: center;
-				justify-content: center;
+				overflow: hidden;
 				transition: opacity 0.5s ease;
-				cursor: url('/cursors/Normal.png'), auto;
 			}
 
-			/* Central panel — mirrors .wrapper + .content-outer style */
 			.ls-panel {
 				background: var(--bg);
 				border-left: 4px solid var(--magenta);
 				border-right: 4px solid var(--magenta);
 				max-width: 550px;
 				width: 90%;
-				position: relative;
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+				margin: 0;
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 1px 6px rgba(0, 0, 0, 0.1);
+				z-index: 99990;
+			}
+
+			/* ═══════════════════════════════════════════════════
+			   KUMIHIMO CORDS & HOOKS
+			   ═══════════════════════════════════════════════════ */
+			#ls-ropes-svg {
+				position: absolute;
+				top: 0; left: 0;
+				width: 100%; height: 100%;
+				pointer-events: none;
+				z-index: 99994;
+			}
+
+			.rope-back {
+				fill: none;
+				stroke: var(--reimu-red);
+				stroke-width: 6px;
+				stroke-linecap: round;
+			}
+
+			.rope-front {
+				fill: none;
+				stroke: #FFD700;
+				stroke-width: 3px;
+				stroke-dasharray: 8 6;
+				stroke-linecap: round;
+			}
+
+
+
+			.ls-panel-ring {
+				position: absolute;
+				top: -12px;
+				width: 18px;
+				height: 18px;
+				border: 3px solid var(--reimu-red);
+				background: var(--bg);
+				border-radius: 50%;
+				z-index: 99991;
+				box-shadow: inset 0 0 2px rgba(0,0,0,0.3);
+			}
+
+			.ls-ring-left {
+				left: 20%;
+				transform: translateX(-50%);
+			}
+
+			.ls-ring-right {
+				left: 80%;
+				transform: translateX(-50%);
+			}
+
+			/* Torn paper edges */
+			.ls-panel::before,
+			.ls-panel::after {
+				content: '';
+				position: absolute;
+				left: 0;
+				width: 100%;
+				height: 18px;
+				background: var(--bg);
+				z-index: 1;
+			}
+			.ls-panel::before {
+				top: -16px;
+				clip-path: polygon(
+					0% 100%, 3% 55%, 6% 80%, 10% 45%, 14% 70%, 18% 35%,
+					22% 65%, 26% 30%, 30% 75%, 34% 40%, 38% 60%, 42% 25%,
+					46% 70%, 50% 35%, 54% 65%, 58% 20%, 62% 55%, 66% 40%,
+					70% 75%, 74% 30%, 78% 60%, 82% 45%, 86% 70%, 90% 25%,
+					94% 55%, 97% 40%, 100% 100%
+				);
+			}
+			.ls-panel::after {
+				bottom: -16px;
+				clip-path: polygon(
+					0% 0%, 3% 50%, 7% 20%, 11% 60%, 15% 30%, 19% 70%,
+					23% 25%, 27% 55%, 31% 35%, 35% 75%, 39% 20%, 43% 50%,
+					47% 30%, 51% 65%, 55% 40%, 59% 70%, 63% 15%, 67% 55%,
+					71% 35%, 75% 75%, 79% 25%, 83% 60%, 87% 30%, 91% 65%,
+					95% 45%, 98% 20%, 100% 0%
+				);
 			}
 
 			.ls-panel-border {
@@ -465,26 +959,30 @@ try {
 				transition: opacity 0.3s ease;
 			}
 
-			/* Click prompt */
 			#click-text {
 				color: var(--reimu-red);
 				font-family: var(--font-sans);
 				font-size: 1.1rem;
 				font-weight: bold;
-				cursor: url('/cursors/Link.png'), pointer;
-				text-decoration: none;
 				user-select: none;
-				animation: ls-click-pulse 1.5s ease-in-out infinite;
 				padding: 0.5rem 1.5rem;
 				border: 2px outset var(--reimu-red-light);
 				background: var(--reimu-red-light);
-				transition: all 0.2s ease;
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.6s ease;
+			}
+			#click-text.ls-visible {
+				opacity: 1;
+				pointer-events: auto;
+				animation: ls-click-pulse 1.5s ease-in-out infinite 0.6s;
 			}
 
 			#click-text:hover {
 				background: var(--reimu-red);
 				color: white;
 				border-style: inset;
+				transition: background 0.2s ease, color 0.2s ease;
 			}
 
 			@keyframes ls-click-pulse {

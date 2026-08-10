@@ -1,7 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 
-// Public repos desde GitHub API
 const repos = [
 	{
 		name: "Corozal",
@@ -60,81 +59,291 @@ const repos = [
 		url: "https://github.com/HakkaYoro/Hakkurin",
 	},
 ];
+
+const langColors: Record<string, string> = {
+	Java: '#b07219',
+	Python: '#3572A5',
+	JavaScript: '#f1e05a',
+	TypeScript: '#3178c6',
+};
 ---
 
 <Layout title="Projects">
-	<h2 class="section-title">♦ My Projects ♦</h2>
+	<h2 class="section-title">My Projects</h2>
 
-	<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+	<div class="projects-grid">
 		{repos.map((repo) => (
-			<a href={repo.url} target="_blank" rel="noopener noreferrer" style="text-decoration:none;border:none;">
-				<div style="border: 1px solid var(--border-light); background: #ffffff; height: 100%;">
-					<h3 style="background: var(--reimu-red-light); color: var(--reimu-red); font-size: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border-light); margin: 0;">
-						{repo.name}
-					</h3>
-					<div style="padding: 1rem;">
-						<p style="font-size: 0.85rem; color: var(--text); margin-bottom: 1rem; min-height: 40px;">
-							{repo.desc}
-						</p>
-						<div style="display: flex; gap: 0.5rem; align-items: center; font-size: 0.75rem;">
-							<span style="border: 1px solid var(--border-light); padding: 2px 6px; color: var(--reimu-red); background: #fff0f5;">{repo.lang}</span>
-							{repo.stars > 0 && <span style="font-weight: bold; color: var(--gold);">★ {repo.stars}</span>}
-						</div>
-						<p style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-dim); font-weight: bold;">
-							✨ View on GitHub
-						</p>
+			<a href={repo.url} target="_blank" rel="noopener noreferrer" class="project-card">
+				<div class="project-card-header">
+					{repo.name}
+				</div>
+				<div class="project-card-body">
+					<p class="project-desc">{repo.desc}</p>
+					<div class="project-meta">
+						<span class="project-lang">
+							<span class="lang-dot" style={`background: ${langColors[repo.lang] || 'var(--reimu-red)'};`}></span>
+							{repo.lang}
+						</span>
+						<span class="project-donations" id={`donations-${repo.name}`} style={repo.stars > 0 ? 'display: flex;' : 'display: none;'}>
+							<svg class="yinyang-svg" viewBox="0 0 24 24" width="14" height="14">
+								<circle cx="12" cy="12" r="11" fill="#FEFDFC" stroke="var(--reimu-red)" stroke-width="1.8"/>
+								<path d="M 12 1 A 11 11 0 0 1 12 23 Z" fill="var(--reimu-red)"/>
+								<circle cx="12" cy="6.5" r="5.5" fill="var(--reimu-red)"/>
+								<circle cx="12" cy="17.5" r="5.5" fill="#FEFDFC"/>
+								<circle cx="12" cy="6.5" r="1.8" fill="#FEFDFC"/>
+								<circle cx="12" cy="17.5" r="1.8" fill="var(--reimu-red)"/>
+							</svg>
+							<span>Donations: <span class="count">{repo.stars}</span></span>
+						</span>
 					</div>
+					<div class="project-link">[ View on GitHub ]</div>
 				</div>
 			</a>
 		))}
 	</div>
 
-	<div style="text-align: center; margin: 3rem 0;">
-		<a href="https://github.com/HakkaYoro" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: var(--reimu-red); color: #fff; padding: 0.75rem 1.5rem; text-decoration: none; border: none; font-weight: bold; box-shadow: 2px 2px 0px rgba(0,0,0,0.2);">
-			→ View All Projects ←
+	<div class="github-cta">
+		<a href="https://github.com/HakkaYoro" target="_blank" rel="noopener noreferrer" class="github-btn">
+			&gt;&gt; View All Projects on GitHub &lt;&lt;
 		</a>
 	</div>
 
-	<h2 id="skills" class="section-title">⚡ Spell Cards (Skills) ⚡</h2>
+	<div class="divider"><span class="divider-orb"></span></div>
 
-	<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-		<div style="border: 1px solid var(--border-light); background: #ffffff;">
-			<h3 style="color: var(--reimu-red); padding: 1rem 1rem 0.5rem; border-bottom: 1px dashed var(--border-light); margin: 0;">Frontend</h3>
-			<ul style="list-style: none; padding: 1rem; line-height: 1.8; font-size: 0.9rem;">
-				<li><span style="color:var(--reimu-red);">♦</span> HTML / CSS / JS (Learning)</li>
-				<li><span style="color:var(--reimu-red);">♦</span> Astro (Learning)</li>
-				<li><span style="color:var(--reimu-red);">♦</span> React (Learning)</li>
-				<li><span style="color:var(--reimu-red);">♦</span> TypeScript (Learning)</li>
+	<h2 id="skills" class="section-title">Spell Cards (Skills)</h2>
+
+	<div class="skills-grid">
+		<div class="skill-panel">
+			<h3 class="skill-header">Frontend</h3>
+			<ul class="skill-list">
+				<li>HTML / CSS / JS (Learning)</li>
+				<li>Astro (Learning)</li>
+				<li>React (Learning)</li>
+				<li>TypeScript (Learning)</li>
 			</ul>
 		</div>
 
-		<div style="border: 1px solid var(--border-light); background: #ffffff;">
-			<h3 style="color: var(--reimu-red); padding: 1rem 1rem 0.5rem; border-bottom: 1px dashed var(--border-light); margin: 0;">Backend / Scripting</h3>
-			<ul style="list-style: none; padding: 1rem; line-height: 1.8; font-size: 0.9rem;">
-				<li><span style="color:var(--reimu-red);">♦</span> Python</li>
-				<li><span style="color:var(--reimu-red);">♦</span> Lua</li>
-				<li><span style="color:var(--reimu-red);">♦</span> Java (Learning)</li>
-				<li><span style="color:var(--reimu-red);">♦</span> Golang (Learning)</li>
+		<div class="skill-panel">
+			<h3 class="skill-header">Backend / Scripting</h3>
+			<ul class="skill-list">
+				<li>Python</li>
+				<li>Lua</li>
+				<li>Java (Learning)</li>
+				<li>Golang (Learning)</li>
 			</ul>
 		</div>
 
-		<div style="border: 1px solid var(--border-light); background: #ffffff;">
-			<h3 style="color: var(--reimu-red); padding: 1rem 1rem 0.5rem; border-bottom: 1px dashed var(--border-light); margin: 0;">Tools</h3>
-			<ul style="list-style: none; padding: 1rem; line-height: 1.8; font-size: 0.9rem;">
-				<li><span style="color:var(--reimu-red);">♦</span> Git / GitHub</li>
-				<li><span style="color:var(--reimu-red);">♦</span> Arch Linux</li>
-				<li><span style="color:var(--reimu-red);">♦</span> Markdown</li>
-				<li><span style="color:var(--reimu-red);">♦</span> LaTeX</li>
+		<div class="skill-panel">
+			<h3 class="skill-header">Tools</h3>
+			<ul class="skill-list">
+				<li>Git / GitHub</li>
+				<li>Arch Linux</li>
+				<li>Markdown</li>
+				<li>LaTeX</li>
 			</ul>
 		</div>
 	</div>
 
-	<h2 class="section-title">🗣️ Languages 🗣️</h2>
-	<div style="border: 1px solid var(--border-light); background: #ffffff; padding: 1rem; margin-bottom: 2rem;">
-		<ul style="list-style: none; line-height: 1.8; font-size: 0.9rem;">
-			<li><span style="color:var(--reimu-red);">♦</span> Spanish (Native)</li>
-			<li><span style="color:var(--reimu-red);">♦</span> English (C1)</li>
-			<li><span style="color:var(--reimu-red);">♦</span> Japanese (N4, Learning)</li>
+	<div class="divider"><span class="divider-orb"></span></div>
+
+	<h2 class="section-title">Languages</h2>
+	<div class="skill-panel" style="max-width: 400px;">
+		<ul class="skill-list">
+			<li>Spanish (Native)</li>
+			<li>English (C1)</li>
+			<li>Japanese (N4, Learning)</li>
 		</ul>
 	</div>
 </Layout>
+
+<style>
+	.projects-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: 1rem;
+		margin-bottom: 2rem;
+	}
+
+	.project-card {
+		display: block;
+		border: 1px solid var(--border-light);
+		background: var(--surface);
+		text-decoration: none !important;
+		border-bottom: 1px solid var(--border-light) !important;
+		transition: border-color 0.2s ease;
+	}
+	.project-card:hover {
+		border-color: var(--reimu-red);
+	}
+	.project-card:hover .project-card-header {
+		background: var(--reimu-red);
+		color: var(--surface);
+	}
+
+	.project-card-header {
+		background: var(--reimu-red-light);
+		color: var(--reimu-red);
+		font-family: var(--font-sans);
+		font-size: 1rem;
+		font-weight: bold;
+		padding: 0.75rem;
+		border-bottom: 1px solid var(--border-light);
+		transition: background 0.2s ease, color 0.2s ease;
+	}
+
+	.project-card-body {
+		padding: 1rem;
+	}
+
+	.project-desc {
+		font-size: 0.85rem;
+		color: var(--text);
+		margin-bottom: 1rem;
+		min-height: 40px;
+		line-height: 1.4;
+	}
+
+	.project-meta {
+		display: flex;
+		gap: 0.75rem;
+		align-items: center;
+		font-size: 0.75rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.project-lang {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		border: 1px solid var(--border-light);
+		padding: 2px 8px;
+		background: var(--bg);
+		color: var(--text-dim);
+		font-weight: bold;
+	}
+
+	.lang-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		display: inline-block;
+	}
+
+	.project-donations {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		border: 1px solid var(--border-light);
+		padding: 2px 8px;
+		background: var(--reimu-red-light);
+		color: var(--reimu-red);
+		font-weight: bold;
+		font-size: 0.75rem;
+		transition: background 0.2s ease, border-color 0.2s ease;
+	}
+
+	.project-card:hover .project-donations {
+		background: var(--surface);
+		border-color: var(--reimu-red);
+	}
+
+	.yinyang-svg {
+		flex-shrink: 0;
+		animation: spin-slow 4s linear infinite;
+	}
+
+	@keyframes spin-slow {
+		from { transform: rotate(0deg); }
+		to { transform: rotate(360deg); }
+	}
+
+	.project-link {
+		font-size: 0.8rem;
+		color: var(--reimu-red);
+		font-weight: bold;
+	}
+
+	.github-cta {
+		text-align: center;
+		margin: 2rem 0;
+	}
+
+	.github-btn {
+		display: inline-block;
+		background: var(--reimu-red);
+		color: var(--surface) !important;
+		padding: 0.6rem 1.5rem;
+		text-decoration: none !important;
+		border: 2px outset var(--reimu-red) !important;
+		font-weight: bold;
+		font-family: var(--font-sans);
+		font-size: 0.9rem;
+		transition: background 0.2s ease;
+	}
+	.github-btn:hover {
+		background: var(--magenta);
+		border-style: inset !important;
+	}
+
+
+
+	.skills-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+		gap: 1rem;
+		margin-bottom: 2rem;
+	}
+
+	.skill-panel {
+		border: 1px solid var(--border-light);
+		background: var(--surface);
+	}
+
+	.skill-header {
+		color: var(--reimu-red);
+		padding: 0.75rem 1rem;
+		border-bottom: 1px dashed var(--border-light);
+		margin: 0;
+		font-size: 1rem;
+	}
+
+	.skill-list {
+		list-style: none;
+		padding: 1rem;
+		line-height: 1.8;
+		font-size: 0.9rem;
+	}
+
+	.skill-list li::before {
+		content: ":: ";
+		color: var(--reimu-red);
+		font-weight: bold;
+	}
+</style>
+
+<script>
+	// Dynamically fetch GitHub stars (Donations) for HakkaYoro's repositories
+	(function() {
+		fetch('https://api.github.com/users/HakkaYoro/repos')
+			.then(res => res.json())
+			.then(data => {
+				if (!Array.isArray(data)) return;
+				data.forEach(repo => {
+					const badge = document.getElementById(`donations-${repo.name}`);
+					if (badge) {
+						const countEl = badge.querySelector('.count');
+						if (countEl) {
+							countEl.textContent = repo.stargazers_count;
+						}
+						// If stargazers_count > 0, make sure it is visible, otherwise hide
+						if (repo.stargazers_count > 0) {
+							badge.style.display = 'flex';
+						} else {
+							badge.style.display = 'none';
+						}
+					}
+				});
+			})
+			.catch(err => console.error('Failed to fetch dynamic github donations:', err));
+	})();
+</script>
