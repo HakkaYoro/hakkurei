@@ -1,0 +1,22 @@
+# build output
+dist/
+.astro/
+
+# deps
+node_modules/
+
+# runtime data — provided by the mounted volume, never baked into the image
+data/
+
+# env / editor / vcs
+.env
+.env.*
+.git
+.gitignore
+.idea/
+.vscode/
+*.swp
+*.swo
+Dockerfile
+.dockerignore
+docker-compose.yml

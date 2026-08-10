@@ -1,0 +1,21 @@
+# docker compose up -d --build
+# For TrueNAS Scale: run as a "Custom App" with these settings, or via docker-compose.
+# The named volume keeps /app/data across rebuilds — your donations and guestbook
+# entries survive image updates. To use a host path instead (e.g. a TrueNAS dataset),
+# swap the volume mapping for:  - /mnt/.ix-apps/.../hakkurei-data:/app/data
+services:
+  hakkurei:
+    build: .
+    image: hakkurei:latest
+    container_name: hakkurei
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=4321
+    volumes:
+      - hakkurei-data:/app/data
+
+volumes:
+  hakkurei-data:
