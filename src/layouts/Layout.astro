@@ -150,10 +150,12 @@ try {
 				const progressFill = document.getElementById('ls-progress-fill');
 				const progressLabel = document.getElementById('ls-progress-label');
 				if (!loadScreen || !clickText) return;
+				const screen = loadScreen;
+				const clickEl = clickText;
 
 				// If already dismissed this session, remove immediately
 				if (sessionStorage.getItem('loading-screen-dismissed') === '1') {
-					loadScreen.remove();
+					screen.remove();
 					window.dispatchEvent(new CustomEvent('loading-screen-dismissed'));
 					return;
 				}
@@ -174,7 +176,7 @@ try {
 				function advanceProgress() {
 					if (progress >= steps) {
 						if (progressLabel) progressLabel.style.opacity = '0';
-						requestAnimationFrame(() => { clickText.classList.add('ls-visible'); });
+						requestAnimationFrame(() => { clickEl.classList.add('ls-visible'); });
 						return;
 					}
 					const targetWidth = Math.min(((progress + 1) / steps) * 100, 100);
@@ -193,8 +195,9 @@ try {
 				setTimeout(advanceProgress, 300);
 
 				function startWrapperDrop() {
-					const wrapper = document.querySelector('.wrapper');
-					if (!wrapper) return;
+				const wrapper = document.querySelector<HTMLElement>('.wrapper');
+				if (!wrapper) return;
+				const wrap = wrapper;
 
 					// Remove the FOUC style tag to let the inline transform take effect
 					const hideStyle = document.getElementById('ls-wrapper-hide');
@@ -233,11 +236,11 @@ try {
 						wangle += womega * dt;
 
 						// Apply 2D rigid-body physical transform (translation + tilt)
-						wrapper.style.transform = `translate3d(0, ${wy}px, 0) rotate(${wangle}rad)`;
+						wrap.style.transform = `translate3d(0, ${wy}px, 0) rotate(${wangle}rad)`;
 
 						// Stop condition: when both vertical bounce and rotational wobble are fully settled
 						if (Math.abs(wy) < 0.2 && Math.abs(vy) < 0.2 && Math.abs(wangle) < 0.002 && Math.abs(womega) < 0.002) {
-							wrapper.style.transform = ''; // Reset to default static layout
+							wrap.style.transform = ''; // Reset to default static layout
 							return;
 						}
 
@@ -250,19 +253,19 @@ try {
 				function dismiss() {
 					sessionStorage.setItem('loading-screen-dismissed', '1');
 					window.dispatchEvent(new CustomEvent('loading-screen-dismissed'));
-					loadScreen.style.opacity = '0';
-					loadScreen.style.pointerEvents = 'none';
+					screen.style.opacity = '0';
+					screen.style.pointerEvents = 'none';
 
 					// Start the wrapper drop animation
 					startWrapperDrop();
 
 					setTimeout(() => {
-						loadScreen.remove();
+						screen.remove();
 					}, 600);
 				}
 
 				// --- 2D Rigid Body Physics for Hanging Sign ---
-				const panel = loadScreen.querySelector('.ls-panel');
+				const panel = loadScreen.querySelector<HTMLElement>('.ls-panel');
 				const ropeLeftBack = document.getElementById('rope-left-back');
 				const ropeLeftFront = document.getElementById('rope-left-front');
 				const ropeRightBack = document.getElementById('rope-right-back');
@@ -270,16 +273,22 @@ try {
 				const particlesGroup = document.getElementById('ls-particles-group');
 
 				if (!panel || !ropeLeftBack || !ropeLeftFront || !ropeRightBack || !ropeRightFront || !particlesGroup) {
-					clickText.addEventListener('click', dismiss);
+					clickEl.addEventListener('click', dismiss);
 					return;
 				}
+				const panelEl = panel;
+				const rlBack = ropeLeftBack;
+				const rlFront = ropeLeftFront;
+				const rrBack = ropeRightBack;
+				const rrFront = ropeRightFront;
+				const pGroup = particlesGroup;
 
 				// Reset panel coordinate styles from CSS fallback (50% centering) to absolute (0px)
-				panel.style.left = '0px';
-				panel.style.top = '0px';
+				panelEl.style.left = '0px';
+				panelEl.style.top = '0px';
 
 				// Measure panel size
-				let rect = panel.getBoundingClientRect();
+				let rect = panelEl.getBoundingClientRect();
 				let W = rect.width || 520;
 				let H = rect.height || 340;
 
@@ -327,9 +336,10 @@ try {
 				let rightCeilingOmega = 0;
 
 				// Particles array
-				const particles = [];
+				type Particle = { x: number; y: number; vx: number; vy: number; color: string; size: number; alpha: number; decay: number };
+				const particles: Particle[] = [];
 
-				function createExplosion(x, y) {
+				function createExplosion(x: number, y: number) {
 					for (let i = 0; i < 25; i++) {
 						const a = Math.random() * Math.PI * 2;
 						const speed = 2 + Math.random() * 6;
@@ -348,7 +358,7 @@ try {
 
 				// Sync sizes on resize
 				function handleResize() {
-					rect = panel.getBoundingClientRect();
+					rect = panelEl.getBoundingClientRect();
 					W = rect.width || 520;
 					H = rect.height || 340;
 					cx1 = window.innerWidth / 2 - W * 0.30;
@@ -487,7 +497,7 @@ try {
 					angle += omega * dt;
 
 					// Apply styles to sign panel
-					panel.style.transform = `translate3d(${px - W/2}px, ${py - H/2}px, 0) rotate(${angle}rad)`;
+					panelEl.style.transform = `translate3d(${px - W/2}px, ${py - H/2}px, 0) rotate(${angle}rad)`;
 
 					// Draw Left Cord
 					if (!isLeftCut) {
@@ -496,8 +506,8 @@ try {
 						const mx = cx1 + dx * 0.5;
 						const my = cy1 + dy * 0.5 + 8; // slight sag
 						const pathD = `M ${cx1} ${cy1} Q ${mx} ${my} ${sx1} ${sy1}`;
-						ropeLeftBack.setAttribute('d', pathD);
-						ropeLeftFront.setAttribute('d', pathD);
+						rlBack.setAttribute('d', pathD);
+						rlFront.setAttribute('d', pathD);
 					} else {
 						// Left ceiling piece swinging
 						const c_accel = -10.0 * Math.sin(leftCeilingAngle) - 1.5 * leftCeilingOmega;
@@ -508,8 +518,8 @@ try {
 						const mx = cx1 + (rx - cx1) * 0.5 + Math.sin(windTime) * 3;
 						const my = cy1 + (ry - cy1) * 0.5 + 4;
 						const pathD = `M ${cx1} ${cy1} Q ${mx} ${my} ${rx} ${ry}`;
-						ropeLeftBack.setAttribute('d', pathD);
-						ropeLeftFront.setAttribute('d', pathD);
+						rlBack.setAttribute('d', pathD);
+						rlFront.setAttribute('d', pathD);
 					}
 
 					// Draw Right Cord
@@ -519,8 +529,8 @@ try {
 						const mx = cx2 + dx * 0.5;
 						const my = cy2 + dy * 0.5 + 8;
 						const pathD = `M ${cx2} ${cy2} Q ${mx} ${my} ${sx2} ${sy2}`;
-						ropeRightBack.setAttribute('d', pathD);
-						ropeRightFront.setAttribute('d', pathD);
+						rrBack.setAttribute('d', pathD);
+						rrFront.setAttribute('d', pathD);
 					} else {
 						// Right ceiling piece swinging
 						const c_accel = -10.0 * Math.sin(rightCeilingAngle) - 1.5 * rightCeilingOmega;
@@ -531,8 +541,8 @@ try {
 						const mx = cx2 + (rx - cx2) * 0.5 + Math.sin(windTime + 1.0) * 3;
 						const my = cy2 + (ry - cy2) * 0.5 + 4;
 						const pathD = `M ${cx2} ${cy2} Q ${mx} ${my} ${rx} ${ry}`;
-						ropeRightBack.setAttribute('d', pathD);
-						ropeRightFront.setAttribute('d', pathD);
+						rrBack.setAttribute('d', pathD);
+						rrFront.setAttribute('d', pathD);
 					}
 
 					// Draw cut tails on the sign
@@ -565,7 +575,7 @@ try {
 						particlesHtml += `<circle cx="${p.x}" cy="${p.y}" r="${p.size}" fill="${p.color}" opacity="${p.alpha}" />`;
 					}
 
-					particlesGroup.innerHTML = tailsHtml + particlesHtml;
+					pGroup.innerHTML = tailsHtml + particlesHtml;
 
 					// If completely off-screen, cleanup and stop loop
 					if (py > window.innerHeight + H + 120) {
@@ -602,7 +612,7 @@ try {
 				}
 
 				function handleContinue() {
-					clickText.style.pointerEvents = 'none';
+					clickEl.style.pointerEvents = 'none';
 					
 					// Snap Left Rope first
 					cutLeft();
@@ -611,7 +621,7 @@ try {
 					setTimeout(cutRight, 220);
 				}
 
-				clickText.addEventListener('click', handleContinue);
+				clickEl.addEventListener('click', handleContinue);
 			})();
 
 			// Sakura Petals Script
