@@ -336,9 +336,11 @@ footer a { border: none; font-weight: bold; margin: 0 0.5rem; }
 }
 
 /* Palette crossfade: while the class is set (song change), every color softens
-   into the next palette instead of snapping. Hovers keep their own transitions
-   once the class is removed; reduced-motion already nukes durations globally. */
-body.palette-transition * {
+   into the next palette instead of snapping. The song bg layers are excluded so
+   their own opacity crossfade (Bgm.astro) survives this override. Hovers keep
+   their own transitions once the class is removed; reduced-motion already nukes
+   durations globally. */
+body.palette-transition *:not(.bg-song-layer) {
 	transition: background-color 0.8s ease, color 0.8s ease, border-color 0.8s ease, fill 0.8s ease, stroke 0.8s ease;
 }
 
