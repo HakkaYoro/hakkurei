@@ -187,15 +187,8 @@ export function incrementDonations(ip: string, amount: number = 5): DonationChec
 	};
 }
 
-// Guestbook anti-spam: per-IP + global daily cap.
-export interface GuestbookRateLimits {
-	[dateStr: string]: {
-		globalCount: number;
-		ips: {
-			[ip: string]: number;
-		};
-	};
-}
+// Guestbook anti-spam: per-IP + global daily cap. Same shape as donations' dailyLimits.
+export type GuestbookRateLimits = DonationsData['dailyLimits'];
 
 export interface RateLimitResult {
 	allowed: boolean;

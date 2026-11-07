@@ -15,21 +15,22 @@ export const GET: APIRoute = async () => {
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
 	try {
-		// Proxy-aware IP, same logic as the donations endpoint
-		const forwardedFor = request.headers.get('x-forwarded-for');
-		const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : (clientAddress || '127.0.0.1');
-
-		// Anti-spam: cap posts per IP and globally per day
-		const limit = checkGuestbookLimit(ip);
-		if (!limit.allowed) {
-			return new Response(JSON.stringify({ error: limit.errorMsg }), {
-				status: 429,
-				headers: { 'Content-Type': 'application/json' },
-			});
+		// Rate-limit key: the real connection IP by default. Only with TRUST_PROXY
+		// set (deployment behind a reverse proxy) is x-forwarded-for honored, taking
+		// the LAST entry — the one the trusted proxy appended (client-supplied
+		// entries come first and are spoofable). Same logic as the donations endpoint.
+		let ip = clientAddress || '127.0.0.1';
+		if (process.env.TRUST_PROXY) {
+			const lastForwarded = request.headers.get('x-forwarded-for')?.split(',').pop()?.trim();
+			if (lastForwarded) ip = lastForwarded;
 		}
 
-		const body = await request.json();
-		const { name, avatar, message } = body;
+		// Malformed bodies get a 400 before any rate-limit quota is touched
+		const body: unknown = await request.json().catch(() => null);
+		if (!body || typeof body !== 'object') {
+			return new Response(JSON.stringify({ error: 'Invalid JSON body.' }), { status: 400 });
+		}
+		const { name, avatar, message } = body as { name?: unknown; avatar?: unknown; message?: unknown };
 
 		if (!name || typeof name !== 'string' || name.trim().length === 0) {
 			return new Response(JSON.stringify({ error: 'Name handle is required.' }), { status: 400 });
@@ -44,8 +45,18 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 			return new Response(JSON.stringify({ error: 'Message must be under 500 characters.' }), { status: 400 });
 		}
 
+		// Anti-spam: cap accepted posts per IP and globally per day, checked after
+		// validation so malformed requests can't burn the daily quota
+		const limit = checkGuestbookLimit(ip);
+		if (!limit.allowed) {
+			return new Response(JSON.stringify({ error: limit.errorMsg }), {
+				status: 429,
+				headers: { 'Content-Type': 'application/json' },
+			});
+		}
+
 		const validAvatars = ['reimu', 'marisa', 'cirno', 'sakuya', 'sanae', 'youmu'];
-		const selectedAvatar = validAvatars.includes(avatar) ? avatar : 'reimu';
+		const selectedAvatar = typeof avatar === 'string' && validAvatars.includes(avatar) ? avatar : 'reimu';
 
 		const newEntry: GuestbookEntry = {
 			name: name.trim(),

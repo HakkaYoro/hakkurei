@@ -15,9 +15,15 @@ export const GET: APIRoute = async () => {
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
 	try {
-		// Fallback to headers if clientAddress is undefined or localhost
-		const forwardedFor = request.headers.get('x-forwarded-for');
-		const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : (clientAddress || '127.0.0.1');
+		// Rate-limit key: the real connection IP by default. Only with TRUST_PROXY
+		// set (deployment behind a reverse proxy) is x-forwarded-for honored, taking
+		// the LAST entry — the one the trusted proxy appended (client-supplied
+		// entries come first and are spoofable). Same logic as the guestbook endpoint.
+		let ip = clientAddress || '127.0.0.1';
+		if (process.env.TRUST_PROXY) {
+			const lastForwarded = request.headers.get('x-forwarded-for')?.split(',').pop()?.trim();
+			if (lastForwarded) ip = lastForwarded;
+		}
 
 		const result = incrementDonations(ip, 5);
 

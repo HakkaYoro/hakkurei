@@ -7,4 +7,7 @@ export default defineConfig({
 	adapter: node({
 		mode: 'standalone',
 	}),
+	image: {
+		domains: ['avatars.githubusercontent.com'],
+	},
 });

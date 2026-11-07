@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+
 // Server-side: siempre fetchea el avatar actual de GitHub
 const username = "HakkaYoro";
 
@@ -30,7 +32,7 @@ try {
 ---
 
 <a href={profileUrl} target="_blank" rel="noopener noreferrer">
-	<img
+	<Image
 		src={avatarUrl}
 		alt={`${displayName}'s avatar`}
 		class="avatar"
