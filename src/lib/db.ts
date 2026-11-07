@@ -127,7 +127,7 @@ export function getDonationsData(): DonationsData {
 	}
 }
 
-export function saveDonationsData(data: DonationsData): void {
+function saveDonationsData(data: DonationsData): void {
 	ensureFilesExist();
 	try {
 		fs.writeFileSync(DONATIONS_PATH, JSON.stringify(data, null, 2), 'utf-8');
@@ -152,6 +152,11 @@ export function incrementDonations(ip: string, amount: number = 5): DonationChec
 			globalCount: 0,
 			ips: {},
 		};
+	}
+
+	// Only today's bucket is ever read; drop past days so the JSON stays bounded.
+	for (const day of Object.keys(data.dailyLimits)) {
+		if (day !== today) delete data.dailyLimits[day];
 	}
 
 	const limits = data.dailyLimits[today];
@@ -219,6 +224,11 @@ export function checkGuestbookLimit(
 	const today = new Date().toISOString().split('T')[0];
 	if (!data[today]) {
 		data[today] = { globalCount: 0, ips: {} };
+	}
+
+	// Only today's bucket is ever read; drop past days so the JSON stays bounded.
+	for (const day of Object.keys(data)) {
+		if (day !== today) delete data[day];
 	}
 
 	const slot = data[today];

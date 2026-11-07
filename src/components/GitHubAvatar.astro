@@ -9,16 +9,13 @@ let profileUrl = "https://github.com/HakkaYoro";
 let displayName = "Hakka!";
 
 try {
-	const controller = new AbortController();
-	const timeout = setTimeout(() => controller.abort(), 5000);
 	const res = await fetch(`https://api.github.com/users/${username}`, {
-		signal: controller.signal,
+		signal: AbortSignal.timeout(5000),
 		headers: {
 			Accept: "application/vnd.github+json",
 			"User-Agent": "Hakkurei-Shrine/1.0",
 		},
 	});
-	clearTimeout(timeout);
 
 	if (res.ok) {
 		const data = await res.json();

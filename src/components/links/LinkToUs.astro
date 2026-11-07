@@ -26,7 +26,7 @@ const hakkureiHtml = `<a href="https://hakkurei.com" target="_blank">\n  <img sr
 				<button id="btn-copy-code" class="btn-copy-action">
 					<span id="copy-btn-text">Copy Embed HTML</span>
 					<!-- Canvas overlay for copy button sparkles -->
-					<canvas id="copy-sparks-canvas" class="copy-sparks-canvas"></canvas>
+					<canvas id="copy-sparks-canvas" class="copy-sparks-canvas" aria-hidden="true"></canvas>
 				</button>
 			</div>
 		</div>
@@ -49,6 +49,10 @@ const hakkureiHtml = `<a href="https://hakkurei.com" target="_blank">\n  <img sr
 			sparksCanvas.height = btnCopy.offsetHeight;
 		}
 		resizeCanvas();
+		// This script re-runs on every View Transitions navigation to /links; drop the
+		// previous resize handler so stale ones don't pile up on detached canvases.
+		if (window._linkUsResizeHandler) window.removeEventListener('resize', window._linkUsResizeHandler);
+		window._linkUsResizeHandler = resizeCanvas;
 		window.addEventListener('resize', resizeCanvas);
 
 		class Spark {
@@ -132,6 +136,15 @@ const hakkureiHtml = `<a href="https://hakkurei.com" target="_blank">\n  <img sr
 		btnCopy.addEventListener('click', function(e) {
 			// Copy text
 			embedTextarea.select();
+			// navigator.clipboard only exists in secure contexts; the text stays
+			// selected so Ctrl+C still works where the API is missing.
+			if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+				copyText.textContent = "Copy unsupported here — press Ctrl+C";
+				setTimeout(() => {
+					copyText.textContent = "Copy Embed HTML";
+				}, 2000);
+				return;
+			}
 			navigator.clipboard.writeText(embedTextarea.value).then(() => {
 				// Success animation feedback
 				copyText.textContent = "Copied to Clipboard!";

@@ -12,11 +12,11 @@ npm run astro check         # type-check .astro + .ts (no dedicated script; @ast
 docker compose up -d --build   # production container, port 4321
 ```
 
-No test runner, no linter. `tsconfig.json` extends `astro/tsconfigs/strict`. Node >= 22.12.
+No test runner, no linter. `tsconfig.json` extends `astro/tsconfigs/strict`. Node >= 22.23.4.
 
 ## Architecture
 
-Touhou-themed personal portfolio / shrine site. Astro 6 in **SSR mode** via `@astrojs/node` (`mode: 'standalone'`, `astro.config.mjs`) — the server ships as `./dist/server/entry.mjs` and is run directly by Node (`Dockerfile`). There is **no UI framework** (no React/Vue/Svelte): pages are `.astro` files and all interactivity is hand-written vanilla JS inside `<script is:inline>` blocks.
+Touhou-themed personal portfolio / shrine site. Astro 7 in **SSR mode** via `@astrojs/node` (`mode: 'standalone'`, `astro.config.mjs`) — the server ships as `./dist/server/entry.mjs` and is run directly by Node (`Dockerfile`). There is **no UI framework** (no React/Vue/Svelte): pages are `.astro` files and all interactivity is hand-written vanilla JS inside `<script is:inline>` blocks.
 
 ### The database is JSON files (not a real DB)
 
@@ -37,7 +37,7 @@ Pages default to static. Anything that must read live state opts out with `expor
 - `GET /api/guestbook` → entry list; `POST /api/guestbook` → validate + append (name ≤30, message ≤500, avatar allowlisted server-side)
 - `POST /api/donations` → +5 yen with rate-limit check (the box POST reads the total from the response; there is no GET route)
 
-Both POST handlers extract the client IP **proxy-aware**: `x-forwarded-for` first hop, falling back to `clientAddress` (correct behind the reverse proxy / TrueNAS setup). Rate limits: donations 50/IP + 1000 global per day; guestbook 5/IP + 50 global per day, tracked in `guestbook_limits.json`. Limits are enforced in `db.ts` (`checkGuestbookLimit`, `incrementDonations`), not in the routes.
+Both POST handlers extract the client IP **proxy-aware**: with `TRUST_PROXY` set, the **last** `x-forwarded-for` entry (the one the trusted proxy appended; client-supplied entries come first and are spoofable), otherwise `clientAddress` (correct behind the reverse proxy / TrueNAS setup). Rate limits: donations 50/IP + 1000 global per day; guestbook 5/IP + 50 global per day, tracked in `guestbook_limits.json`. Limits are enforced in `db.ts` (`checkGuestbookLimit`, `incrementDonations`), not in the routes.
 
 The donation box POST sends an **empty body** and reads JSON — it uses `request.json()`, not `.formData()`. There is intentionally no CSRF guard on these public, rate-limited, +5-yen endpoints.
 

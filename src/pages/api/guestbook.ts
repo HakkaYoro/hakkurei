@@ -18,6 +18,13 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 	try {
 		const ip = rateLimitIp(request, clientAddress);
 
+		// Cap the parse buffer before json(): Node imposes no default body limit.
+		// Header-only check; chunked bodies bypass it at a 1:1 bandwidth cost.
+		const contentLength = Number(request.headers.get('content-length'));
+		if (Number.isFinite(contentLength) && contentLength > 4096) {
+			return new Response(JSON.stringify({ error: 'Request body too large.' }), { status: 413 });
+		}
+
 		// Malformed bodies get a 400 before any rate-limit quota is touched
 		const body: unknown = await request.json().catch(() => null);
 		if (!body || typeof body !== 'object') {
