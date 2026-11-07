@@ -17,18 +17,23 @@
 				};
 				document.addEventListener('astro:page-load', stopMarqueeIfReduced);
 			}
-</script>
 
-<script>
-			// Load random marquee message
-			fetch('/messages.json')
-				.then(res => res.json())
-				.then(data => {
-					const marquee = document.getElementById('dynamic-marquee');
-					if (marquee && data.length > 0) {
-						marquee.textContent = data[Math.floor(Math.random() * data.length)];
-					}
-				})
-				.catch(err => console.error('Failed to load messages:', err));
-
+			// Random message: the <marquee> is re-created with the default text on every
+			// client-side navigation, so re-fill it on each astro:page-load too.
+			if (!window._marqueeMessageInit) {
+				window._marqueeMessageInit = true;
+				var fillMarqueeMessage = function() {
+					fetch('/messages.json')
+						.then(function(res) { return res.json(); })
+						.then(function(data) {
+							var mq = document.getElementById('dynamic-marquee');
+							if (mq && data.length > 0) {
+								mq.textContent = data[Math.floor(Math.random() * data.length)];
+							}
+						})
+						.catch(function(err) { console.error('Failed to load messages:', err); });
+				};
+				fillMarqueeMessage();
+				document.addEventListener('astro:page-load', fillMarqueeMessage);
+			}
 </script>
