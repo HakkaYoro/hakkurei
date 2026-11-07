@@ -1,0 +1,309 @@
+---
+const hakkureiHtml = `<a href="https://hakkurei.com" target="_blank">\n  <img src="https://hakkurei.com/images/badges/hakkurei.svg" width="88" height="31" border="0" alt="Hakurei Shrine">\n</a>`;
+---
+
+	<div class="link-us-panel">
+		<h3 class="panel-header">Link to Us! (当サイトへのリンク)</h3>
+		
+		<div class="link-us-grid">
+			<div class="banner-display-col">
+				<div class="banner-label">Our 88x31 Badge:</div>
+				
+				<!-- The live animated SVG badge, wrapped exactly like a retro button -->
+				<div class="badge-wrapper-interactive" id="shrine-badge-showcase">
+					<img src="/images/badges/hakkurei.svg" class="badge-img-88x31" alt="Hakurei Shrine Badge" width="88" height="31" />
+					<div class="badge-crt-scanline"></div>
+				</div>
+				<p class="badge-dimensions-hint">Dimensions: 88 × 31 px</p>
+			</div>
+
+			<div class="copy-code-col">
+				<label for="embed-code">Copy HTML Embed Code:</label>
+				<textarea id="embed-code" readonly class="embed-code-area">{hakkureiHtml}</textarea>
+				
+				<button id="btn-copy-code" class="btn-copy-action">
+					<span id="copy-btn-text">Copy Embed HTML</span>
+					<!-- Canvas overlay for copy button sparkles -->
+					<canvas id="copy-sparks-canvas" class="copy-sparks-canvas"></canvas>
+				</button>
+			</div>
+		</div>
+	</div>
+
+<script is:inline>
+(function() {
+		const btnCopy = document.getElementById('btn-copy-code');
+		const embedTextarea = document.getElementById('embed-code');
+		const copyText = document.getElementById('copy-btn-text');
+		const sparksCanvas = document.getElementById('copy-sparks-canvas');
+
+		if (!btnCopy || !embedTextarea || !copyText || !sparksCanvas) return;
+
+		const sparksCtx = sparksCanvas.getContext('2d');
+		const sparks = [];
+
+		function resizeCanvas() {
+			sparksCanvas.width = btnCopy.offsetWidth;
+			sparksCanvas.height = btnCopy.offsetHeight;
+		}
+		resizeCanvas();
+		window.addEventListener('resize', resizeCanvas);
+
+		class Spark {
+			constructor(x, y) {
+				this.x = x;
+				this.y = y;
+				const angle = Math.random() * Math.PI * 2;
+				const speed = 1.5 + Math.random() * 3.5;
+				this.vx = Math.cos(angle) * speed;
+				this.vy = Math.sin(angle) * speed - 1.0;
+				this.size = 2 + Math.random() * 2.5;
+				this.alpha = 1.0;
+				this.decay = 0.02 + Math.random() * 0.03;
+				// Red & gold color palette
+				this.color = Math.random() > 0.5 ? '#FFD700' : '#DB3655';
+			}
+			update() {
+				this.x += this.vx;
+				this.y += this.vy;
+				this.vy += 0.06; // subtle gravity
+				this.alpha -= this.decay;
+			}
+			draw() {
+				sparksCtx.save();
+				sparksCtx.globalAlpha = Math.max(0, this.alpha);
+				sparksCtx.fillStyle = this.color;
+				sparksCtx.beginPath();
+				sparksCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+				sparksCtx.fill();
+				sparksCtx.restore();
+			}
+		}
+
+		let animId = null;
+		function animateSparks() {
+			sparksCtx.clearRect(0, 0, sparksCanvas.width, sparksCanvas.height);
+			
+			for (let i = sparks.length - 1; i >= 0; i--) {
+				const s = sparks[i];
+				s.update();
+				s.draw();
+				if (s.alpha <= 0) {
+					sparks.splice(i, 1);
+				}
+			}
+
+			if (sparks.length > 0) {
+				animId = requestAnimationFrame(animateSparks);
+			} else {
+				animId = null;
+			}
+		}
+
+		// Synthesized Audio chime for Copy Action
+		function playCopyChime() {
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			if (!AudioContext) return;
+			const ctx = new AudioContext();
+			
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+			
+			osc.type = 'triangle';
+			osc.frequency.setValueAtTime(659.25, ctx.currentTime); // E5
+			osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.08); // A5
+			osc.frequency.setValueAtTime(1318.51, ctx.currentTime + 0.16); // E6
+			
+			gain.gain.setValueAtTime(0.12, ctx.currentTime);
+			gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+			
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			
+			osc.start();
+			osc.stop(ctx.currentTime + 0.4);
+		}
+
+		// Click copy embed handler
+		btnCopy.addEventListener('click', function(e) {
+			// Copy text
+			embedTextarea.select();
+			navigator.clipboard.writeText(embedTextarea.value).then(() => {
+				// Success animation feedback
+				copyText.textContent = "Copied to Clipboard!";
+				playCopyChime();
+
+				// Spawn sparks at click point
+				const rect = btnCopy.getBoundingClientRect();
+				const clickX = e.clientX - rect.left;
+				const clickY = e.clientY - rect.top;
+
+				for (let i = 0; i < 20; i++) {
+					sparks.push(new Spark(clickX, clickY));
+				}
+
+				if (!animId) {
+					animateSparks();
+				}
+
+				// Reset button text after 2s
+				setTimeout(() => {
+					copyText.textContent = "Copy Embed HTML";
+				}, 2000);
+			}).catch(err => {
+				console.error("Failed to copy embed code: ", err);
+			});
+		});
+
+})();
+</script>
+
+<style is:global>
+	.link-us-panel {
+		background: var(--surface);
+		border: 2px solid var(--reimu-red);
+		padding: 1.5rem;
+		margin: 2rem 0;
+	}
+
+	.panel-header {
+		color: var(--reimu-red);
+		border-bottom: 1px dashed var(--reimu-red-light);
+		padding-bottom: 0.5rem;
+		margin-bottom: 1.25rem;
+		font-size: 1.1rem;
+	}
+
+	.link-us-grid {
+		display: flex;
+		gap: 2rem;
+		flex-wrap: wrap;
+	}
+
+	.banner-display-col {
+		flex: 0 0 160px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		border-right: 1px dashed var(--border-light);
+		padding-right: 2rem;
+	}
+
+	@media (max-width: 600px) {
+		.banner-display-col {
+			flex: 1 1 100%;
+			border-right: none;
+			border-bottom: 1px dashed var(--border-light);
+			padding-right: 0;
+			padding-bottom: 1.5rem;
+		}
+	}
+
+	.banner-label {
+		font-size: 0.8rem;
+		font-weight: bold;
+		color: var(--text-dim);
+		margin-bottom: 8px;
+	}
+
+	.badge-wrapper-interactive {
+		width: 88px;
+		height: 31px;
+		position: relative;
+		overflow: hidden;
+		box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+		border: 1px solid var(--border);
+		cursor: url('/cursors/Link.png'), pointer;
+	}
+
+	.badge-img-88x31 {
+		width: 88px;
+		height: 31px;
+		display: block;
+		image-rendering: pixelated;
+	}
+
+	.badge-crt-scanline {
+		position: absolute;
+		top: 0; left: 0; width: 100%; height: 100%;
+		background: linear-gradient(
+			rgba(18, 16, 16, 0) 50%, 
+			rgba(0, 0, 0, 0.15) 50%
+		), linear-gradient(
+			90deg, 
+			rgba(255, 0, 0, 0.03), 
+			rgba(0, 255, 0, 0.01), 
+			rgba(0, 0, 255, 0.03)
+		);
+		background-size: 100% 2.5px, 3px 100%;
+		pointer-events: none;
+		z-index: 15;
+	}
+
+	.badge-dimensions-hint {
+		font-size: 0.7rem;
+		color: var(--text-dim);
+		margin-top: 6px;
+		font-style: italic;
+	}
+
+	.copy-code-col {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.copy-code-col label {
+		font-size: 0.85rem;
+		font-weight: bold;
+		color: var(--reimu-red);
+	}
+
+	.embed-code-area {
+		width: 100%;
+		height: 64px;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		border: 2px solid var(--border-light);
+		border-style: inset;
+		background: var(--bg);
+		padding: 6px;
+		resize: none;
+		color: var(--text-dim);
+		overflow: hidden;
+	}
+	.embed-code-area:focus {
+		outline: none;
+		border-color: var(--reimu-red);
+	}
+
+	.btn-copy-action {
+		align-self: flex-start;
+		background: var(--reimu-red);
+		color: white;
+		border: 2px outset var(--reimu-red-light);
+		padding: 6px 16px;
+		font-family: var(--font-sans);
+		font-size: 0.85rem;
+		font-weight: bold;
+		cursor: url('/cursors/Link.png'), pointer;
+		position: relative;
+		box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+		transition: background 0.15s ease;
+	}
+	.btn-copy-action:hover {
+		background: var(--magenta);
+	}
+	.btn-copy-action:active {
+		border-style: inset;
+	}
+
+	.copy-sparks-canvas {
+		position: absolute;
+		top: 0; left: 0; width: 100%; height: 100%;
+		pointer-events: none;
+		z-index: 20;
+	}
+</style>

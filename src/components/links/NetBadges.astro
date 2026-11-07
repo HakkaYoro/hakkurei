@@ -1,0 +1,104 @@
+---
+const netBadges = [
+	{ id: 'netscape', title: 'NETSCAPE NAVIGATOR OPTIMIZED', bg: '#000080', border: '#0000FF', text: 'NETSCAPE', color: '#00FFFF' },
+	{ id: 'ie6', title: 'INTERNET EXPLORER 6.0 COMPATIBLE', bg: '#008080', border: '#00FFFF', text: 'MSIE 6.0', color: '#FFFFFF' },
+	{ id: 'astro', title: 'BUILT WITH ASTRO STATIC ENGINE', bg: '#4f1787', border: '#8c3061', text: 'ASTRO v6', color: '#ff7e67' },
+	{ id: 'cirno', title: 'CIRNO ⑨ CERTIFIED STRONGEST', bg: '#00bfff', border: '#4682b4', text: '⑨ STRONGEST', color: '#FFFFFF' },
+	{ id: 'reimufan', title: 'REIMU HAKUREI FAN CLUB #1', bg: '#db3655', border: '#ffd700', text: 'REIMU ★ FAN', color: '#ffd700' },
+	{ id: 'faith', title: '100% FAITH-ENHANCED SOURCE', bg: '#ffd700', border: '#db3655', text: 'FAITH 100%', color: '#8b0000' },
+	{ id: 'html5', title: 'POWERED BY PURE CLEAN HTML5', bg: '#e34f26', border: '#ef652a', text: 'HTML5 ENGINE', color: '#FFFFFF' },
+	{ id: 'css3', title: 'VALIDATED VANILLA CSS3 STYLES', bg: '#1572b6', border: '#33a9dc', text: 'CSS3 VALID', color: '#FFFFFF' },
+	{ id: 'noai', title: 'MADE BY HUMANS IN GENSOKYO', bg: '#333333', border: '#666666', text: '100% HUMAN', color: '#00FF00' },
+	{ id: 'weirdweb', title: 'KEEP THE PERSONAL WEB WEIRD!', bg: '#8a2be2', border: '#ba55d3', text: 'WEIRD WEB', color: '#7ffd44' }
+];
+---
+
+	<h3 class="section-title">Retro Web Badges (ネットバッジ同盟)</h3>
+	<p class="section-subtitle-desc">Vintage 88x31 webmaster badges representing standard retro web movements, built natively with high-fidelity pixel-accurate borders!</p>
+	
+	<div class="net-badges-grid">
+		{netBadges.map((badge) => (
+			<div class="badge-item-outer" title={badge.title}>
+				<div class="retro-badge-button badge-net-item" style={`background: ${badge.bg}; border: 1.5px outset ${badge.border};`}>
+					<div class="badge-net-glow-text" style={`color: ${badge.color};`}>
+						{badge.text}
+					</div>
+					<div class="badge-net-subtitle">
+						{badge.id === 'netscape' && 'OPTIMIZED'}
+						{badge.id === 'ie6' && 'COMPATIBLE'}
+						{badge.id === 'astro' && 'BUILT'}
+						{badge.id === 'cirno' && 'CERTIFIED'}
+						{badge.id === 'reimufan' && '#1 MEMBER'}
+						{badge.id === 'faith' && 'POWERED'}
+						{badge.id === 'html5' && 'WEB ENGINE'}
+						{badge.id === 'css3' && 'COMPLIANT'}
+						{badge.id === 'noai' && 'GENUINE'}
+						{badge.id === 'weirdweb' && 'FOREVER'}
+					</div>
+					<div class="badge-crt-scanline"></div>
+				</div>
+			</div>
+		))}
+	</div>
+
+<style is:global>
+	.net-badges-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+		gap: 12px;
+		margin: 1.5rem 0;
+		justify-items: center;
+	}
+
+	.badge-item-outer {
+		width: 92px;
+		height: 35px;
+		padding: 2px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--surface);
+		border: 1px dashed var(--border-light);
+	}
+
+	.badge-net-item {
+		width: 88px;
+		height: 31px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		user-select: none;
+		border: 1.5px outset #fff !important;
+		padding: 2px;
+		overflow: hidden;
+		transition: all 0.1s ease;
+	}
+	
+	.badge-net-item:hover {
+		border-style: inset !important;
+		transform: translateY(0.5px);
+	}
+
+	.badge-net-glow-text {
+		font-family: var(--font-mono);
+		font-size: 8px;
+		font-weight: bold;
+		text-shadow: 1px 1px 0px #000;
+		letter-spacing: 0.5px;
+		line-height: 1.1;
+		text-transform: uppercase;
+	}
+
+	.badge-net-subtitle {
+		font-family: var(--font-sans);
+		font-size: 6px;
+		color: #ffffff;
+		margin-top: 1px;
+		letter-spacing: 0.2px;
+		opacity: 0.95;
+		line-height: 1;
+		font-weight: bold;
+	}
+</style>

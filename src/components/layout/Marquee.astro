@@ -1,0 +1,19 @@
+			<div class="marquee-container">
+				<marquee scrollamount="4" truespeed id="dynamic-marquee">
+					◆ Loading network messages... ◆
+				</marquee>
+			</div>
+
+<script>
+			// Load random marquee message
+			fetch('/messages.json')
+				.then(res => res.json())
+				.then(data => {
+					const marquee = document.getElementById('dynamic-marquee');
+					if (marquee && data.length > 0) {
+						marquee.textContent = data[Math.floor(Math.random() * data.length)];
+					}
+				})
+				.catch(err => console.error('Failed to load messages:', err));
+
+</script>

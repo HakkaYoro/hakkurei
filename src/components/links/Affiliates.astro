@@ -1,0 +1,415 @@
+---
+const affiliates = [
+	{
+		id: 'kourindou',
+		name: 'Kourindou (香霖堂)',
+		proprietor: 'Rinnosuke Morichika',
+		description: 'The only antique shop in Gensokyo, specializing in items from the Outside World. Rinnosuke is always willing to explain their "purposes" (even if he is completely wrong).',
+		color: '#8b5a2b',
+		badgeBg: 'linear-gradient(135deg, #5c3a21, #3d2514)',
+		hoverEffect: 'wood-swivel'
+	},
+	{
+		id: 'sdm',
+		name: 'Scarlet Devil Mansion (紅魔館)',
+		proprietor: 'Remilia Scarlet',
+		description: 'A luxurious, scarlet-colored gothic mansion located next to the Misty Lake. Home to the vampire mistress Remilia, her sister Flandre, the librarian Patchouli, and Sakuya the head maid.',
+		color: '#8b0000',
+		badgeBg: 'linear-gradient(135deg, #3d0000, #1b001f)',
+		hoverEffect: 'bat-flutter'
+	},
+	{
+		id: 'eientei',
+		name: 'Eientei Pharmacy (永遠亭)',
+		proprietor: 'Kaguya Houraisan & Eirin Yagokoro',
+		description: 'A massive, ancient mansion hidden deep in the Bamboo Forest of Lost. Famous for Eirin\'s mystical medical capsules and rabbits hopping around under the silver moon.',
+		color: '#006400',
+		badgeBg: 'linear-gradient(135deg, #0b2d13, #04190b)',
+		hoverEffect: 'bunny-bounce'
+	},
+	{
+		id: 'moriya',
+		name: 'Moriya Shrine (守矢神社)',
+		proprietor: 'Kanako Yasaka & Suwako Moriya',
+		description: 'Our rival shinto shrine located on the top of Youkai Mountain. They have massive mechanical gadgets, frogs, snakes, and gather massive amounts of faith! Reimu is highly competitive with them.',
+		color: '#2e8b57',
+		badgeBg: 'linear-gradient(135deg, #124d2d, #092b18)',
+		hoverEffect: 'snake-wiggle'
+	},
+	{
+		id: 'myouren',
+		name: 'Myouren Temple (命蓮寺)',
+		proprietor: 'Byakuren Hijiri',
+		description: 'A Buddhist temple founded by Byakuren Hijiri to promote harmony between humans and youkai. Known for peaceful meditation, sutras, and rather noisy youkai rock concerts in the backyard.',
+		color: '#4b0082',
+		badgeBg: 'linear-gradient(135deg, #2e0854, #120126)',
+		hoverEffect: 'serene-glow'
+	},
+	{
+		id: 'netherworld',
+		name: 'Hakugyokurou (白玉楼)',
+		proprietor: 'Yuyuko Saigyouji',
+		description: 'A gorgeous, massive traditional estate in the Netherworld famous for its expansive gardens of ghosts and the Saigyou Ayakashi cherry blossom tree. Swept daily by Youmu.',
+		color: '#4682b4',
+		badgeBg: 'linear-gradient(135deg, #1a3c5a, #0b1d2e)',
+		hoverEffect: 'ghostly-float'
+	}
+];
+---
+
+	<h3 class="section-title">Allies & Affiliates (盟友・同盟)</h3>
+	<p class="section-subtitle-desc">Clicking these buttons does not navigate away; instead, it triggers a custom retro faction sound and hover effect, highlighting their lore!</p>
+
+	<div class="affiliates-grid">
+		{affiliates.map((aff) => (
+			<div class="affiliate-card" id={`card-${aff.id}`} style={`border-top: 3px solid ${aff.color};`}>
+				<div class="affiliate-top">
+					<h4 class="affiliate-name">{aff.name}</h4>
+					<span class="affiliate-prop">Proprietor: <strong>{aff.proprietor}</strong></span>
+				</div>
+				
+				<div class="affiliate-body">
+					<!-- Custom styled 88x31 SVG retro buttons rendering natively in client -->
+					<div class="badge-container">
+						<div class={`retro-badge-button affiliate-badge-${aff.id} hover-${aff.hoverEffect}`} id={`badge-btn-${aff.id}`} role="button" aria-label={`Activate ${aff.name} Badge`}>
+							{aff.id === 'kourindou' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-kourindou)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#d2b48c" stroke-width="1" />
+									<!-- Magnifying glass / antique symbol -->
+									<circle cx="12" cy="14" r="5" fill="none" stroke="#ffd700" stroke-width="1.5" />
+									<line x1="16" y1="18" x2="21" y2="23" stroke="#ffd700" stroke-width="2" stroke-linecap="round" />
+									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">香霖堂</text>
+									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#ffffff" letter-spacing="0.5">KOURINDOU</text>
+								</svg>
+							)}
+							{aff.id === 'sdm' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-sdm)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.3" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#db3655" stroke-width="1" />
+									<!-- Crimson Moon and Bat -->
+									<circle cx="12" cy="15" r="6" fill="#db3655" />
+									<path d="M 6 15 Q 12 12 18 15 Q 12 17 6 15 Z" fill="#000000" />
+									<path d="M 8 13 L 10 15 L 12 13 L 14 15 L 16 13 M 10 15 L 12 16 L 14 15" stroke="#000000" stroke-width="0.5" fill="none" />
+									<text x="28" y="17" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#db3655" text-shadow="1px 1px 0px #000">紅魔館</text>
+									<text x="28" y="26" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#da70d6" letter-spacing="0.5">DEVIL MANSION</text>
+								</svg>
+							)}
+							{aff.id === 'eientei' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-eientei)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#32cd32" stroke-width="1" />
+									<!-- Bamboo stalk & rabbit outline -->
+									<line x1="8" y1="6" x2="8" y2="25" stroke="#32cd32" stroke-width="2" />
+									<line x1="13" y1="8" x2="13" y2="23" stroke="#228b22" stroke-width="1.5" />
+									<circle cx="16" cy="18" r="3.5" fill="#ffffff" />
+									<!-- Ears -->
+									<ellipse cx="14.5" cy="12" rx="1" ry="3.5" fill="#ffffff" transform="rotate(-15 14.5 12)" />
+									<ellipse cx="17.5" cy="12" rx="1" ry="3.5" fill="#ffffff" transform="rotate(15 17.5 12)" />
+									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffffff" text-shadow="1px 1px 0px #092b18">永遠亭</text>
+									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#32cd32" letter-spacing="0.5">EIENTI CLINIC</text>
+								</svg>
+							)}
+							{aff.id === 'moriya' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-moriya)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#ffd700" stroke-width="1" />
+									<!-- Shinto rope ring & frog eyes -->
+									<circle cx="12" cy="15" r="7" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-dasharray="3 2" />
+									<circle cx="9" cy="10" r="2.5" fill="#ffd700" />
+									<circle cx="15" cy="10" r="2.5" fill="#ffd700" />
+									<circle cx="9" cy="10" r="0.8" fill="#000" />
+									<circle cx="15" cy="10" r="0.8" fill="#000" />
+									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">守矢神社</text>
+									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#00ff7f" letter-spacing="0.2">MORIYA SHRINE</text>
+								</svg>
+							)}
+							{aff.id === 'myouren' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-myouren)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#da70d6" stroke-width="1" />
+									<!-- Lotus Flower silhouette -->
+									<path d="M 12 8 C 8 13 8 20 12 24 C 16 20 16 13 12 8 Z" fill="#da70d6" />
+									<path d="M 12 12 C 5 15 5 21 12 24 C 19 21 19 15 12 12 Z" fill="#ba55d3" opacity="0.7" />
+									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">命蓮寺</text>
+									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#da70d6" letter-spacing="0.5">MYOUREN TEMP</text>
+								</svg>
+							)}
+							{aff.id === 'netherworld' && (
+								<svg viewBox="0 0 88 31" width="88" height="31">
+									<rect width="88" height="31" fill="url(#bg-netherworld)" />
+									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#afeeee" stroke-width="1" />
+									<!-- Cherry blossom petal & ghost flame -->
+									<path d="M 12 10 Q 5 14 12 21 Q 19 14 12 10" fill="#ffb7c5" />
+									<circle cx="12" cy="15" r="2.5" fill="#ffffff" />
+									<path d="M 12 15 Q 16 10 18 6 Q 14 8 12 15 Z" fill="#afeeee" opacity="0.8" />
+									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffc0cb" text-shadow="1px 1px 0px #000">白玉楼</text>
+									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#afeeee" letter-spacing="0.5">NETHERWORLD</text>
+								</svg>
+							)}
+							<div class="badge-crt-scanline"></div>
+						</div>
+					</div>
+
+					<div class="affiliate-desc">
+						<p>{aff.description}</p>
+					</div>
+				</div>
+			</div>
+		))}
+	</div>
+
+	<!-- Shared global SVG patterns for SVG banners -->
+	<svg width="0" height="0" style="position: absolute;">
+		<defs>
+			<pattern id="pixel-grid" width="2" height="2" patternUnits="userSpaceOnUse">
+				<rect width="2" height="2" fill="none" />
+				<path d="M 2 0 L 0 0 0 2" fill="none" stroke="#FFFFFF" stroke-width="0.2" />
+			</pattern>
+			<linearGradient id="bg-kourindou" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#5c3a21" />
+				<stop offset="100%" stop-color="#211003" />
+			</linearGradient>
+			<linearGradient id="bg-sdm" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#3d0000" />
+				<stop offset="100%" stop-color="#0e0012" />
+			</linearGradient>
+			<linearGradient id="bg-eientei" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#0b2d13" />
+				<stop offset="100%" stop-color="#021206" />
+			</linearGradient>
+			<linearGradient id="bg-moriya" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#124d2d" />
+				<stop offset="100%" stop-color="#051f0f" />
+			</linearGradient>
+			<linearGradient id="bg-myouren" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#2e0854" />
+				<stop offset="100%" stop-color="#0b001a" />
+			</linearGradient>
+			<linearGradient id="bg-netherworld" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#122c45" />
+				<stop offset="100%" stop-color="#06121f" />
+			</linearGradient>
+			<linearGradient id="bg-moriya-shrine" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#124d2d" />
+				<stop offset="100%" stop-color="#021206" />
+			</linearGradient>
+			<linearGradient id="bg-touhou-wiki" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#1f3c5c" />
+				<stop offset="100%" stop-color="#0b1726" />
+			</linearGradient>
+			<linearGradient id="bg-thpatch" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#54080e" />
+				<stop offset="100%" stop-color="#1a0104" />
+			</linearGradient>
+			<linearGradient id="bg-team-shanghai-alice" x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0%" stop-color="#694d0e" />
+				<stop offset="100%" stop-color="#261b03" />
+			</linearGradient>
+		</defs>
+	</svg>
+
+<script is:inline>
+(function() {
+		const soundProfiles = {
+			kourindou: { type: 'sine', freqs: [440, 554.37, 659.25], duration: 0.3 },     // Major triad chime (A4-C#5-E5)
+			sdm: { type: 'sawtooth', freqs: [220, 261.63, 196], duration: 0.5 },          // Goth dark chord
+			eientei: { type: 'triangle', freqs: [523.25, 783.99, 1046.50], duration: 0.3 },// Hopping bouncy arpeggio
+			moriya: { type: 'sine', freqs: [392, 523.25, 488.68], duration: 0.4 },        // Serpent wind sound
+			myouren: { type: 'sine', freqs: [293.66, 329.63, 392], duration: 0.6 },       // Soothing Buddhist meditation sine
+			netherworld: { type: 'sine', freqs: [587.33, 783.99, 1174.66], duration: 0.4 } // High ghostly whisper notes
+		};
+
+		function playFactionSound(factionId) {
+			const profile = soundProfiles[factionId];
+			if (!profile) return;
+
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			if (!AudioContext) return;
+			const ctx = new AudioContext();
+
+			const gain = ctx.createGain();
+			gain.gain.setValueAtTime(0.08, ctx.currentTime);
+			gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + profile.duration);
+			gain.connect(ctx.destination);
+
+			profile.freqs.forEach((freq, index) => {
+				const osc = ctx.createOscillator();
+				osc.type = profile.type;
+				osc.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.07);
+				osc.connect(gain);
+				osc.start();
+				osc.stop(ctx.currentTime + profile.duration);
+			});
+		}
+
+		// Wire up faction button clicks using hardcoded list of IDs
+		const affiliateIds = ['kourindou', 'sdm', 'eientei', 'moriya', 'myouren', 'netherworld'];
+		const factionColors = {
+			kourindou: '#8b5a2b',
+			sdm: '#8b0000',
+			eientei: '#006400',
+			moriya: '#2e8b57',
+			myouren: '#4b0082',
+			netherworld: '#4682b4'
+		};
+		affiliateIds.forEach(id => {
+			const badgeBtn = document.getElementById(`badge-btn-${id}`);
+			const card = document.getElementById(`card-${id}`);
+			if (badgeBtn && card) {
+				badgeBtn.addEventListener('click', function() {
+					playFactionSound(id);
+					
+					// Briefly flash the card with faction color
+					card.style.background = (factionColors[id] || '#ffffff') + '0c'; // 5% opacity color flash
+					card.style.transform = 'translateY(-2px)';
+					setTimeout(() => {
+						card.style.background = '';
+						card.style.transform = '';
+					}, 300);
+				});
+			}
+		});
+})();
+</script>
+
+<style is:global>
+	.affiliates-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: 1.25rem;
+		margin: 1.5rem 0;
+	}
+
+	.affiliate-card {
+		border: 1px solid var(--border-light);
+		background: var(--surface);
+		padding: 1rem;
+		box-shadow: 2px 2px 4px rgba(0,0,0,0.03);
+		transition: all 0.2s ease;
+	}
+	.affiliate-card:hover {
+		box-shadow: 3px 3px 8px rgba(0,0,0,0.08);
+	}
+
+	.affiliate-top {
+		display: flex;
+		flex-direction: column;
+		border-bottom: 1px dashed var(--border-light);
+		padding-bottom: 6px;
+		margin-bottom: 10px;
+	}
+
+	.affiliate-name {
+		font-size: 0.95rem;
+		color: var(--text);
+		font-weight: bold;
+	}
+
+	.affiliate-prop {
+		font-size: 0.75rem;
+		color: var(--text-dim);
+		margin-top: 2px;
+	}
+
+	.affiliate-body {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		align-items: center;
+	}
+
+	.badge-container {
+		width: 88px;
+		height: 31px;
+	}
+
+	.retro-badge-button {
+		width: 88px;
+		height: 31px;
+		position: relative;
+		overflow: hidden;
+		box-shadow: 1.5px 1.5px 3px rgba(0,0,0,0.2);
+		cursor: url('/cursors/Link.png'), pointer;
+		border: 1px solid #000000;
+	}
+
+	.retro-badge-button svg {
+		width: 88px;
+		height: 31px;
+		display: block;
+	}
+
+	.affiliate-desc {
+		font-size: 0.8rem;
+		line-height: 1.4;
+		color: var(--text-dim);
+		text-align: center;
+	}
+
+	/* Micro-animations on hover */
+	.retro-badge-button.hover-wood-swivel {
+		transform-origin: 50% 0%;
+		transition: transform 0.25s ease;
+	}
+	.retro-badge-button.hover-wood-swivel:hover {
+		transform: rotate(4deg);
+		animation: swivelHang 1.2s ease-in-out infinite alternate;
+	}
+
+	@keyframes swivelHang {
+		0% { transform: rotate(4deg); }
+		100% { transform: rotate(-4deg); }
+	}
+
+	.retro-badge-button.hover-bat-flutter:hover {
+		animation: batFlutter 0.15s linear infinite;
+	}
+
+	@keyframes batFlutter {
+		0% { transform: translateY(0) rotate(0); }
+		25% { transform: translateY(-1px) rotate(1deg); }
+		75% { transform: translateY(1px) rotate(-1deg); }
+		100% { transform: translateY(0) rotate(0); }
+	}
+
+	.retro-badge-button.hover-bunny-bounce:hover {
+		animation: bunnyBounce 0.4s ease infinite;
+	}
+
+	@keyframes bunnyBounce {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(-3px); }
+	}
+
+	.retro-badge-button.hover-snake-wiggle:hover {
+		animation: snakeWiggle 0.6s ease infinite alternate;
+	}
+
+	@keyframes snakeWiggle {
+		0% { transform: skewX(-2deg); }
+		100% { transform: skewX(2deg); }
+	}
+
+	.retro-badge-button.hover-serene-glow {
+		transition: box-shadow 0.2s ease;
+	}
+	.retro-badge-button.hover-serene-glow:hover {
+		box-shadow: 0 0 8px #da70d6;
+	}
+
+	.retro-badge-button.hover-ghostly-float:hover {
+		animation: ghostlyFloat 1.5s ease-in-out infinite alternate;
+	}
+
+	@keyframes ghostlyFloat {
+		0% { transform: translateY(0) scale(1); opacity: 1; }
+		100% { transform: translateY(-2px) scale(0.98); opacity: 0.85; }
+	}
+</style>

@@ -1,0 +1,28 @@
+		<!-- Animated cursor: is:inline to survive View Transition head swaps -->
+		<script is:inline>
+			if (!window._cursorAnimInit) {
+				window._cursorAnimInit = true;
+				var FRAMES = 8;
+				var FRAME_MS = 96;
+				var normalFrames = [];
+				var linkFrames = [];
+				for (var i = 0; i < FRAMES; i++) {
+					normalFrames.push('/cursors/Normal_frames/' + i + '.png');
+					linkFrames.push('/cursors/Link_frames/' + i + '.png');
+				}
+				// Preload
+				normalFrames.concat(linkFrames).forEach(function(src) { var img = new Image(); img.src = src; });
+				var cursorStyle = document.createElement('style');
+				cursorStyle.id = 'animated-cursor-style';
+				document.head.appendChild(cursorStyle);
+				var frame = 0;
+				setInterval(function() {
+					// Re-attach if style element was removed by View Transition
+					if (!cursorStyle.parentNode) document.head.appendChild(cursorStyle);
+					cursorStyle.textContent =
+						'body { cursor: url(' + normalFrames[frame] + '), auto !important; }' +
+						'a, #click-text, [role="button"], button { cursor: url(' + linkFrames[frame] + '), pointer !important; }';
+					frame = (frame + 1) % FRAMES;
+				}, FRAME_MS);
+			}
+		</script>

@@ -1,0 +1,202 @@
+---
+const communitySites = [
+	{
+		id: 'moriya-shrine',
+		name: 'Moriya Shrine (守矢神社コミュ)',
+		description: 'A massive community hub dedicated to sharing Touhou fanworks, community game downloads, custom mods, and discussion boards.',
+		externalUrl: 'https://moriyashrine.org/',
+		localUrl: '/links/moriya-shrine',
+		color: '#2e8b57'
+	},
+	{
+		id: 'touhou-wiki',
+		name: 'Touhou Wiki (東方Project攻略Wiki)',
+		description: 'The ultimate collaborative encyclopedia covering all official Touhou games, print works, characters, lore, music, and translations.',
+		externalUrl: 'https://en.touhouwiki.net/wiki/Touhou_Wiki',
+		localUrl: '/links/touhou-wiki',
+		color: '#4682b4'
+	},
+	{
+		id: 'thpatch',
+		name: 'Touhou Patch Center (東方パッチ部)',
+		description: 'The official community translation portal providing multi-language patches for all official Touhou games in real time.',
+		externalUrl: 'https://www.thpatch.net/',
+		localUrl: '/links/thpatch',
+		color: '#8b0000'
+	},
+	{
+		id: 'team-shanghai-alice',
+		name: 'Team Shanghai Alice (上海アリス幻樂団)',
+		description: 'ZUN\'s legendary official website where new game trials, development logs, and music CDs are announced.',
+		externalUrl: 'https://www16.big.or.jp/~zun/',
+		localUrl: '/links/team-shanghai-alice',
+		color: '#ffd700'
+	}
+];
+---
+
+	<h3 class="section-title">Related Portals & Resources (関連サイト・資源)</h3>
+	<p class="section-subtitle-desc">Official ZUN projects and primary community resources. Click a banner to enter our portal page, or view external links.</p>
+
+	<div class="community-grid">
+		{communitySites.map((site) => (
+			<div class="community-card" style={`border-top: 3px solid ${site.color};`}>
+				<div class="community-top">
+					<h4 class="community-name">{site.name}</h4>
+				</div>
+				
+				<div class="community-body">
+					<!-- Clickable 88x31 retro SVG button banner -->
+					<div class="badge-container" style="margin-bottom: 10px;">
+						<a href={site.localUrl} class="badge-link-wrapper" title={`Enter our ${site.name} portal page`}>
+							<div class={`retro-badge-button community-badge-${site.id}`}>
+								{site.id === 'moriya-shrine' && (
+									<svg viewBox="0 0 88 31" width="88" height="31">
+										<rect width="88" height="31" fill="url(#bg-moriya-shrine)" />
+										<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+										<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#00ff7f" stroke-width="1" />
+										<ellipse cx="12" cy="15" rx="5" ry="4" fill="#00ff7f" />
+										<circle cx="10" cy="10" r="2.5" fill="#00ff7f" />
+										<circle cx="14" cy="10" r="2.5" fill="#00ff7f" />
+										<circle cx="10" cy="10" r="0.8" fill="#000" />
+										<circle cx="14" cy="10" r="0.8" fill="#000" />
+										<text x="25" y="16" font-family="'VT323', 'Courier New', monospace" font-size="12" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">守矢神社</text>
+										<text x="25" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#ffffff" letter-spacing="0.2">MORIYA SHRINE</text>
+									</svg>
+								)}
+								{site.id === 'touhou-wiki' && (
+									<svg viewBox="0 0 88 31" width="88" height="31">
+										<rect width="88" height="31" fill="url(#bg-touhou-wiki)" />
+										<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+										<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#4682b4" stroke-width="1" />
+										<path d="M 6 18 C 9 13 12 13 15 15 C 15 21 15 21 15 21 C 12 19 9 19 6 24 Z" fill="#ffffff" />
+										<path d="M 24 18 C 21 13 18 13 15 15 C 15 21 15 21 15 21 C 18 19 21 19 24 24 Z" fill="#ffffff" stroke="#4682b4" stroke-width="0.5" />
+										<text x="30" y="16" font-family="'VT323', 'Courier New', monospace" font-size="12" font-weight="bold" fill="#ffffff" text-shadow="1px 1px 0px #000">東方百科</text>
+										<text x="30" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7" fill="#afeeee" letter-spacing="0.5">TOUHOU WIKI</text>
+									</svg>
+								)}
+								{site.id === 'thpatch' && (
+									<svg viewBox="0 0 88 31" width="88" height="31">
+										<rect width="88" height="31" fill="url(#bg-thpatch)" />
+										<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+										<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#ff3333" stroke-width="1" />
+										<circle cx="13" cy="15" r="6" fill="#ff3333" stroke="#ffd700" stroke-width="1" />
+										<line x1="10" y1="15" x2="16" y2="15" stroke="#ffd700" stroke-width="1" />
+										<line x1="13" y1="12" x2="13" y2="18" stroke="#ffd700" stroke-width="1" />
+										<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="12" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">東方翻訳</text>
+										<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#ffffff" letter-spacing="0.2">THPATCH</text>
+									</svg>
+								)}
+								{site.id === 'team-shanghai-alice' && (
+									<svg viewBox="0 0 88 31" width="88" height="31">
+										<rect width="88" height="31" fill="url(#bg-team-shanghai-alice)" />
+										<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
+										<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#ffd700" stroke-width="1" />
+										<rect x="9" y="11" width="8" height="10" rx="1.5" fill="#ffffff" />
+										<path d="M 17 13 H 20 V 18 H 17" fill="none" stroke="#ffffff" stroke-width="1.5" />
+										<rect x="9" y="11" width="8" height="3" fill="#ffe4b5" />
+										<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="11" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">上海アリス</text>
+										<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#ffffff" letter-spacing="0.1">SHANGHAI ALICE</text>
+									</svg>
+								)}
+								<div class="badge-crt-scanline"></div>
+							</div>
+						</a>
+					</div>
+					
+					<div class="community-desc">
+						<p>{site.description}</p>
+					</div>
+
+					<div class="community-actions">
+						<a href={site.localUrl} class="btn-community-local">Design Portal</a>
+						<a href={site.externalUrl} target="_blank" rel="noopener noreferrer" class="btn-community-external">Visit Site</a>
+					</div>
+				</div>
+			</div>
+		))}
+	</div>
+
+<style is:global>
+	.community-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: 1.25rem;
+		margin: 1.5rem 0;
+	}
+
+	.community-card {
+		border: 1px solid var(--border-light);
+		background: var(--surface);
+		padding: 1.25rem;
+		box-shadow: 2px 2px 4px rgba(0,0,0,0.03);
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		transition: all 0.2s ease;
+	}
+	.community-card:hover {
+		box-shadow: 3px 3px 8px rgba(0,0,0,0.08);
+		transform: translateY(-2px);
+	}
+
+	.community-name {
+		font-size: 0.95rem;
+		color: var(--text);
+		font-weight: bold;
+		margin-bottom: 8px;
+		font-family: var(--font-sans);
+	}
+
+	.community-desc {
+		font-size: 0.8rem;
+		line-height: 1.45;
+		color: var(--text-dim);
+		margin-bottom: 12px;
+		flex-grow: 1;
+	}
+
+	.community-actions {
+		display: flex;
+		gap: 8px;
+		margin-top: auto;
+	}
+
+	.btn-community-local {
+		flex: 1;
+		text-align: center;
+		background: var(--reimu-red);
+		color: white !important;
+		border: 2px outset var(--reimu-red-light);
+		padding: 6px 8px;
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+		font-weight: bold;
+		cursor: url('/cursors/Link.png'), pointer;
+		box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+		transition: all 0.15s ease;
+	}
+	.btn-community-local:hover {
+		background: var(--magenta);
+		border-style: inset;
+		text-decoration: none !important;
+	}
+
+	.btn-community-external {
+		flex: 0 0 90px;
+		text-align: center;
+		background: var(--bg);
+		color: var(--reimu-red) !important;
+		border: 2px solid var(--reimu-red-light);
+		padding: 6px 8px;
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+		font-weight: bold;
+		cursor: url('/cursors/Link.png'), pointer;
+		transition: all 0.15s ease;
+	}
+	.btn-community-external:hover {
+		background: var(--reimu-red-light);
+		text-decoration: none !important;
+	}
+</style>

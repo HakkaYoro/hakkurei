@@ -1,0 +1,314 @@
+		<!-- Loading screen overlay — hidden immediately via inline script if already dismissed -->
+		<div id="loading-screen">
+
+			<svg id="ls-ropes-svg">
+				<path id="rope-left-back" class="rope-back" d=""></path>
+				<path id="rope-left-front" class="rope-front" d=""></path>
+				<path id="rope-right-back" class="rope-back" d=""></path>
+				<path id="rope-right-front" class="rope-front" d=""></path>
+				<g id="ls-particles-group"></g>
+			</svg>
+
+			<div class="ls-panel">
+				<div class="ls-panel-ring ls-ring-left"></div>
+				<div class="ls-panel-ring ls-ring-right"></div>
+				<div class="ls-panel-border">
+					<div class="ls-header">⛩️</div>
+					<h1 class="ls-title">博麗神社 ~ Hakurei Shrine</h1>
+					<p class="ls-subtitle">Welcome to hakkurei.com</p>
+
+					<div class="ls-divider">☆ ☆ ☆</div>
+
+					<img src="/images/9.png" class="spinning-logo" alt="Loading..." />
+
+					<div class="ls-progress-container">
+						<div class="ls-progress-track">
+							<div class="ls-progress-fill" id="ls-progress-fill"></div>
+						</div>
+						<div class="ls-progress-label" id="ls-progress-label">Loading...</div>
+					</div>
+
+					<p id="click-text">Click here to enter the Shrine</p>
+
+					<div class="ls-divider">☆ ☆ ☆</div>
+
+					<div class="ls-footer">
+						<span>© 2026 Hakurei Shrine ◆ Best viewed at 1024×768</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Inline script: hides loading screen on initial load AND prevents it from appearing on View Transition navigations -->
+		<script is:inline>
+			// Hide on initial page load if already dismissed
+			if (sessionStorage.getItem('loading-screen-dismissed') === '1') {
+				var ls = document.getElementById('loading-screen');
+				if (ls) ls.remove();
+			} else {
+				// Hide wrapper instantly during loading screen to prevent flash of content under the loading screen
+				var style = document.createElement('style');
+				style.id = 'ls-wrapper-hide';
+				style.textContent = '.wrapper { transform: translate3d(0, -120vh, 0) !important; }';
+				document.head.appendChild(style);
+			}
+			// Prevent loading screen from appearing on any future ClientRouter navigation
+			// by removing it from the incoming document BEFORE Astro swaps the DOM
+			if (!window._loadingScreenSwapHooked) {
+				window._loadingScreenSwapHooked = true;
+				document.addEventListener('astro:before-swap', function(e) {
+					if (sessionStorage.getItem('loading-screen-dismissed') === '1') {
+						var el = e.newDocument.getElementById('loading-screen');
+						if (el) el.remove();
+					}
+				});
+			}
+		</script>
+
+<style is:global>
+			/* ═══════════════════════════════════════════════════
+			   LOADING SCREEN — Matching site's 2000s/Neocities style
+			   ═══════════════════════════════════════════════════ */
+
+			#loading-screen {
+				position: fixed;
+				top: 0; left: 0;
+				width: 100vw; height: 100vh;
+				z-index: 99999;
+				background-color: var(--bg);
+				background-image: url('/wallpaper.webp');
+				background-size: cover;
+				background-position: center;
+				background-attachment: fixed;
+				overflow: hidden;
+				transition: opacity 0.5s ease;
+			}
+
+			.ls-panel {
+				background: var(--bg);
+				border-left: 4px solid var(--magenta);
+				border-right: 4px solid var(--magenta);
+				max-width: 550px;
+				width: 90%;
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+				margin: 0;
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 1px 6px rgba(0, 0, 0, 0.1);
+				z-index: 99990;
+			}
+
+			/* ═══════════════════════════════════════════════════
+			   KUMIHIMO CORDS & HOOKS
+			   ═══════════════════════════════════════════════════ */
+			#ls-ropes-svg {
+				position: absolute;
+				top: 0; left: 0;
+				width: 100%; height: 100%;
+				pointer-events: none;
+				z-index: 99994;
+			}
+
+			.rope-back {
+				fill: none;
+				stroke: var(--reimu-red);
+				stroke-width: 6px;
+				stroke-linecap: round;
+			}
+
+			.rope-front {
+				fill: none;
+				stroke: #FFD700;
+				stroke-width: 3px;
+				stroke-dasharray: 8 6;
+				stroke-linecap: round;
+			}
+
+
+
+			.ls-panel-ring {
+				position: absolute;
+				top: -12px;
+				width: 18px;
+				height: 18px;
+				border: 3px solid var(--reimu-red);
+				background: var(--bg);
+				border-radius: 50%;
+				z-index: 99991;
+				box-shadow: inset 0 0 2px rgba(0,0,0,0.3);
+			}
+
+			.ls-ring-left {
+				left: 20%;
+				transform: translateX(-50%);
+			}
+
+			.ls-ring-right {
+				left: 80%;
+				transform: translateX(-50%);
+			}
+
+			/* Torn paper edges */
+			.ls-panel::before,
+			.ls-panel::after {
+				content: '';
+				position: absolute;
+				left: 0;
+				width: 100%;
+				height: 18px;
+				background: var(--bg);
+				z-index: 1;
+			}
+			.ls-panel::before {
+				top: -16px;
+				clip-path: polygon(
+					0% 100%, 3% 55%, 6% 80%, 10% 45%, 14% 70%, 18% 35%,
+					22% 65%, 26% 30%, 30% 75%, 34% 40%, 38% 60%, 42% 25%,
+					46% 70%, 50% 35%, 54% 65%, 58% 20%, 62% 55%, 66% 40%,
+					70% 75%, 74% 30%, 78% 60%, 82% 45%, 86% 70%, 90% 25%,
+					94% 55%, 97% 40%, 100% 100%
+				);
+			}
+			.ls-panel::after {
+				bottom: -16px;
+				clip-path: polygon(
+					0% 0%, 3% 50%, 7% 20%, 11% 60%, 15% 30%, 19% 70%,
+					23% 25%, 27% 55%, 31% 35%, 35% 75%, 39% 20%, 43% 50%,
+					47% 30%, 51% 65%, 55% 40%, 59% 70%, 63% 15%, 67% 55%,
+					71% 35%, 75% 75%, 79% 25%, 83% 60%, 87% 30%, 91% 65%,
+					95% 45%, 98% 20%, 100% 0%
+				);
+			}
+
+			.ls-panel-border {
+				border: 1px solid var(--reimu-red);
+				margin: 1.5rem;
+				padding: 2rem 2.5rem;
+				border-style: dashed;
+				background: var(--surface);
+				text-align: center;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 0.75rem;
+			}
+
+			/* Torii icon */
+			.ls-header {
+				font-size: 4rem;
+				line-height: 1;
+				text-shadow: 2px 2px 0px var(--text-dim);
+			}
+
+			/* Title */
+			.ls-title {
+				color: var(--reimu-red);
+				font-family: var(--font-sans);
+				font-size: 2rem;
+				margin: 0;
+				letter-spacing: 1px;
+			}
+
+			.ls-subtitle {
+				color: var(--reimu-red);
+				font-family: var(--font-sans);
+				font-size: 0.9rem;
+			}
+
+			/* Dividers */
+			.ls-divider {
+				color: var(--reimu-red);
+				font-size: 0.8rem;
+				letter-spacing: 4px;
+				opacity: 0.6;
+			}
+
+			/* Spinning logo */
+			.spinning-logo {
+				width: 96px;
+				height: 96px;
+				image-rendering: pixelated;
+				animation: spin 2s linear infinite;
+			}
+
+			@keyframes spin {
+				from { transform: rotate(0deg); }
+				to { transform: rotate(360deg); }
+			}
+
+			/* Retro progress bar — outset borders like Win98 */
+			.ls-progress-container {
+				width: 100%;
+				max-width: 300px;
+			}
+
+			.ls-progress-track {
+				height: 18px;
+				border: 2px solid var(--border);
+				border-style: inset;
+				background: var(--bg);
+				padding: 2px;
+			}
+
+			.ls-progress-fill {
+				height: 100%;
+				width: 0%;
+				background: repeating-linear-gradient(
+					90deg,
+					var(--reimu-red) 0px,
+					var(--reimu-red) 10px,
+					var(--magenta) 10px,
+					var(--magenta) 12px
+				);
+				transition: width 0.15s linear;
+			}
+
+			.ls-progress-label {
+				color: var(--text-dim);
+				font-family: var(--font-sans);
+				font-size: 0.75rem;
+				margin-top: 4px;
+				text-align: center;
+				transition: opacity 0.3s ease;
+			}
+
+			#click-text {
+				color: var(--reimu-red);
+				font-family: var(--font-sans);
+				font-size: 1.1rem;
+				font-weight: bold;
+				user-select: none;
+				padding: 0.5rem 1.5rem;
+				border: 2px outset var(--reimu-red-light);
+				background: var(--reimu-red-light);
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.6s ease;
+			}
+			#click-text.ls-visible {
+				opacity: 1;
+				pointer-events: auto;
+				animation: ls-click-pulse 1.5s ease-in-out infinite 0.6s;
+			}
+
+			#click-text:hover {
+				background: var(--reimu-red);
+				color: white;
+				border-style: inset;
+				transition: background 0.2s ease, color 0.2s ease;
+			}
+
+			@keyframes ls-click-pulse {
+				0%, 100% { opacity: 0.7; }
+				50% { opacity: 1; }
+			}
+
+			/* Footer */
+			.ls-footer {
+				color: var(--reimu-red);
+				font-family: var(--font-sans);
+				font-size: 0.7rem;
+				opacity: 0.6;
+			}
+</style>

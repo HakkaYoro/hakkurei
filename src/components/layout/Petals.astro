@@ -1,0 +1,44 @@
+<script>
+			// Sakura Petals Script
+			function createPetal() {
+				const petal = document.createElement('div');
+				petal.className = 'sakura-petal';
+				const img = document.createElement('img'); img.src = Math.random() > 0.5 ? '/particles/power.png' : '/particles/point.png'; img.style.width = '200%'; img.style.height = '200%'; img.style.imageRendering = 'pixelated'; petal.appendChild(img);
+				
+				const startLeft = Math.random() * 100;
+				const duration = Math.random() * 5 + 5;
+				const size = Math.random() * 10 + 15;
+				const rotationStart = Math.random() * 360;
+				const rotationEnd = rotationStart + Math.random() * 720;
+				
+				petal.style.left = startLeft + 'vw';
+				petal.style.width = size + 'px'; petal.style.height = size + 'px';
+				
+				document.body.appendChild(petal);
+				
+				const animation = petal.animate([
+					{ top: '-10vh', transform: 'translateX(0) rotate(' + rotationStart + 'deg)' },
+					{ top: '110vh', transform: 'translateX(' + (Math.random() * 60 - 30) + 'px) rotate(' + rotationEnd + 'deg)' }
+				], {
+					duration: duration * 1000,
+					easing: 'linear'
+				});
+				
+				animation.onfinish = () => petal.remove();
+			}
+
+			// Petals only after loading screen dismiss
+			let _petalInterval: ReturnType<typeof setInterval> | null = null;
+			function startPetals() {
+				if (_petalInterval) return;
+				_petalInterval = setInterval(createPetal, 300);
+			}
+
+			// If already dismissed, start petals directly
+			if (sessionStorage.getItem('loading-screen-dismissed') === '1') {
+				startPetals();
+			}
+
+			window.addEventListener('loading-screen-dismissed', startPetals, { once: true });
+
+</script>

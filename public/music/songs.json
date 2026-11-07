@@ -1,0 +1,138 @@
+[
+	{
+		"file": "th06_01.ogg",
+		"title_ja": "赤より紅い夢",
+		"title_en": "A Dream More Scarlet than Red",
+		"theme_of": "Title screen",
+		"background": "/wallpaper.webp",
+		"palette_hint": "crimson shrine dusk"
+	},
+	{
+		"file": "th06_02.ogg",
+		"title_ja": "ほおずきみたいに紅い魂",
+		"title_en": "A Soul as Scarlet as a Ground Cherry",
+		"theme_of": "Stage 1 theme",
+		"background": "/backgrounds/th06_02.webp",
+		"palette_hint": "deep crimson lantern night"
+	},
+	{
+		"file": "th06_03.ogg",
+		"title_ja": "妖魔夜行",
+		"title_en": "Apparitions Stalk the Night",
+		"theme_of": "Rumia's theme",
+		"background": "/backgrounds/th06_03.webp",
+		"palette_hint": "black amber night"
+	},
+	{
+		"file": "th06_04.ogg",
+		"title_ja": "ルーネイトエルフ",
+		"title_en": "Lunate Elf",
+		"theme_of": "Stage 2 theme",
+		"background": "/backgrounds/th06_04.webp",
+		"palette_hint": "misty lake blue"
+	},
+	{
+		"file": "th06_05.ogg",
+		"title_ja": "おてんば恋娘",
+		"title_en": "Tomboyish Girl in Love",
+		"theme_of": "Cirno's theme",
+		"background": "/backgrounds/th06_05.webp",
+		"palette_hint": "ice cyan"
+	},
+	{
+		"file": "th06_06.ogg",
+		"title_ja": "上海紅茶館 ～ Chinese Tea",
+		"title_en": "Shanghai Scarlet Teahouse ~ Chinese Tea",
+		"theme_of": "Stage 3 theme",
+		"background": "/backgrounds/th06_06.webp",
+		"palette_hint": "teahouse red gold"
+	},
+	{
+		"file": "th06_07.ogg",
+		"title_ja": "明治十七年の上海アリス",
+		"title_en": "Shanghai Alice of Meiji 17",
+		"theme_of": "Hong Meiling's theme",
+		"background": "/backgrounds/th06_07.webp",
+		"palette_hint": "china red gold"
+	},
+	{
+		"file": "th06_08.ogg",
+		"title_ja": "ヴワル魔法図書館",
+		"title_en": "Voile, the Magic Library",
+		"theme_of": "Stage 4 theme",
+		"background": "/backgrounds/th06_08.webp",
+		"palette_hint": "library violet"
+	},
+	{
+		"file": "th06_09.ogg",
+		"title_ja": "ラクトガール ～ 少女密室",
+		"title_en": "Locked Girl ~ The Girl's Sealed Room",
+		"theme_of": "Patchouli Knowledge's theme",
+		"background": "/backgrounds/th06_09.webp",
+		"palette_hint": "violet green library"
+	},
+	{
+		"file": "th06_10.ogg",
+		"title_ja": "メイドと血の懐中時計",
+		"title_en": "The Maid and the Pocket Watch of Blood",
+		"theme_of": "Stage 5 theme",
+		"background": "/backgrounds/th06_10.webp",
+		"palette_hint": "silver blood grey"
+	},
+	{
+		"file": "th06_11.ogg",
+		"title_ja": "月時計 ～ ルナ・ダイアル",
+		"title_en": "Lunar Clock ~ Luna Dial",
+		"theme_of": "Sakuya Izayoi's theme",
+		"background": "/backgrounds/th06_11.webp",
+		"palette_hint": "silver moon steel"
+	},
+	{
+		"file": "th06_12.ogg",
+		"title_ja": "ツェペシュの幼き末裔",
+		"title_en": "The Young Descendant of Tepes",
+		"theme_of": "Stage 6 theme",
+		"background": "/backgrounds/th06_12.webp",
+		"palette_hint": "night blue mansion"
+	},
+	{
+		"file": "th06_13.ogg",
+		"title_ja": "亡き王女の為のセプテット",
+		"title_en": "Septette for a Dead Princess",
+		"theme_of": "Remilia Scarlet's theme",
+		"background": "/backgrounds/th06_13.webp",
+		"palette_hint": "scarlet black"
+	},
+	{
+		"file": "th06_14.ogg",
+		"title_ja": "魔法少女達の百年祭",
+		"title_en": "The Centennial Festival for Magical Girls",
+		"theme_of": "Extra stage theme",
+		"background": "/backgrounds/th06_14.webp",
+		"palette_hint": "carnival pastel magic"
+	},
+	{
+		"file": "th06_15.ogg",
+		"title_ja": "U.N.オーエンは彼女なのか？",
+		"title_en": "U.N. Owen Was Her?",
+		"theme_of": "Flandre Scarlet's theme",
+		"background": "/backgrounds/th06_15.webp",
+		"palette_hint": "crystal orange fire"
+	},
+	{
+		"file": "th06_16.ogg",
+		"title_ja": "紅より儚い永遠",
+		"title_en": "An Eternity More Transient than Scarlet",
+		"theme_of": "Ending theme",
+		"background": "/backgrounds/th06_16.webp",
+		"palette_hint": "soft dawn gold"
+	},
+	{
+		"file": "th06_17.ogg",
+		"title_ja": "紅楼 ～ Eastern Dream...",
+		"title_en": "Scarlet Chamber ~ Eastern Dream...",
+		"theme_of": "Staff roll theme",
+		"background": "/backgrounds/th06_17.webp",
+		"palette_hint": "golden dream"
+	}
+]

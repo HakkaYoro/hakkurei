@@ -1,0 +1,256 @@
+---
+interface Props {
+	avatars: { id: string; name: string; path: string }[];
+}
+
+const { avatars } = Astro.props;
+---
+
+	<!-- ═══════════════════════════════════════════════════
+	     GUESTBOOK FORM
+	     ═══════════════════════════════════════════════════ -->
+	<div class="form-outer">
+		<h3 class="form-header">Sign the Guestbook / Write a Prayer</h3>
+		<form id="gb-form" class="gb-form">
+			<div class="form-group">
+				<label for="gb-name">Your Handle/Name:</label>
+				<input type="text" id="gb-name" name="name" required placeholder="Anonymous Human" maxlength="30" />
+			</div>
+
+			<div class="form-group">
+				<label>Select Avatar:</label>
+				<div class="avatar-selector">
+					{avatars.map((av, index) => (
+						<label class="avatar-option">
+							<input type="radio" name="avatar" value={av.id} checked={index === 0} required />
+							<div class="avatar-wrapper">
+								<img src={av.path} alt={av.name} />
+								<span class="avatar-label">{av.name.split(' ')[0]}</span>
+							</div>
+						</label>
+					))}
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="gb-message">Message / Prayer:</label>
+				<textarea id="gb-message" name="message" required placeholder="May Gensokyo stay safe..." rows="4" maxlength="500"></textarea>
+			</div>
+
+			<button type="submit" class="gb-submit-btn">
+				🧧 Offer Prayer & Submit 🧧
+			</button>
+		</form>
+	</div>
+
+<script is:inline>
+	// Render and handle the guestbook entries logic
+	(function() {
+		const form = document.getElementById('gb-form');
+		if (!form) return;
+
+		// Form submit handler
+		form.addEventListener('submit', function(e) {
+			e.preventDefault();
+			const nameInput = document.getElementById('gb-name');
+			const messageInput = document.getElementById('gb-message');
+			const avatarSelected = form.querySelector('input[name="avatar"]:checked');
+
+			if (!nameInput || !messageInput || !avatarSelected) return;
+
+			const name = nameInput.value.trim();
+			const message = messageInput.value.trim();
+			const avatar = avatarSelected.value;
+
+			// Disable submit button to prevent double post
+			const submitBtn = form.querySelector('.gb-submit-btn');
+			submitBtn.disabled = true;
+
+			fetch('/api/guestbook', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name, avatar, message })
+			})
+			.then(res => res.json())
+			.then(data => {
+				if (data.error) {
+					alert(data.error);
+					submitBtn.disabled = false;
+					return;
+				}
+
+				// Reset inputs
+				nameInput.value = '';
+				messageInput.value = '';
+
+				// Play chime and reload
+				playChimeSound();
+				setTimeout(() => {
+					window.location.reload();
+				}, 500);
+			})
+			.catch(err => {
+				console.error(err);
+				alert("Something went wrong offering your prayer.");
+				submitBtn.disabled = false;
+			});
+		});
+
+		function playChimeSound() {
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			if (!AudioContext) return;
+			const ctx = new AudioContext();
+			
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+			
+			osc.type = 'triangle';
+			osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+			osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+			osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
+			osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.3); // C6
+			
+			gain.gain.setValueAtTime(0.15, ctx.currentTime);
+			gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+			
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			
+			osc.start();
+			osc.stop(ctx.currentTime + 0.55);
+		}
+	})();
+</script>
+
+<style is:global>
+	/* FORM OUTER */
+	.form-outer {
+		border: 1px solid var(--border-light);
+		background: var(--surface);
+		padding: 1.5rem;
+		margin: 2rem 0;
+	}
+
+	.form-header {
+		color: var(--reimu-red);
+		border-bottom: 1px dashed var(--border-light);
+		padding-bottom: 0.5rem;
+		margin-bottom: 1.25rem;
+		font-size: 1.1rem;
+	}
+
+	.gb-form {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+
+	.form-group {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.form-group label {
+		font-family: var(--font-sans);
+		font-size: 0.9rem;
+		font-weight: bold;
+		color: var(--reimu-red);
+	}
+
+	.form-group input[type="text"],
+	.form-group textarea {
+		width: 100%;
+		border: 2px solid var(--border-light);
+		border-style: inset;
+		background: var(--bg);
+		padding: 0.5rem;
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
+		color: var(--text);
+	}
+
+	.form-group input[type="text"]:focus,
+	.form-group textarea:focus {
+		outline: none;
+		border-color: var(--reimu-red);
+	}
+
+	/* AVATAR SELECTOR Retro radio */
+	.avatar-selector {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+		gap: 8px;
+		margin-top: 4px;
+	}
+
+	.avatar-option {
+		cursor: pointer;
+		position: relative;
+	}
+
+	.avatar-option input[type="radio"] {
+		position: absolute;
+		opacity: 0;
+		width: 0; height: 0;
+	}
+
+	.avatar-wrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		border: 2px solid var(--border-light);
+		padding: 8px 6px;
+		background: var(--surface);
+		transition: all 0.15s ease;
+		text-align: center;
+		width: 100%;
+	}
+	.avatar-option input[type="radio"]:checked + .avatar-wrapper {
+		border-color: var(--reimu-red);
+		background: var(--reimu-red-light);
+	}
+
+	.avatar-wrapper img {
+		width: 88px;
+		height: 35px;
+		border: 1px solid var(--border-light);
+		background: var(--bg);
+		image-rendering: auto;
+		object-fit: cover;
+	}
+
+	.avatar-label {
+		font-size: 0.7rem;
+		font-weight: bold;
+		color: var(--text-dim);
+		margin-top: 4px;
+	}
+	.avatar-option input[type="radio"]:checked + .avatar-wrapper .avatar-label {
+		color: var(--reimu-red);
+	}
+
+	.gb-submit-btn {
+		background: var(--reimu-red);
+		color: white;
+		border: 2px outset var(--reimu-red-light);
+		padding: 0.75rem 1.5rem;
+		font-family: var(--font-sans);
+		font-size: 1rem;
+		font-weight: bold;
+		cursor: pointer;
+		align-self: center;
+		box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+		transition: background 0.2s ease;
+	}
+	.gb-submit-btn:hover {
+		background: var(--magenta);
+		border-style: inset;
+	}
+	.gb-submit-btn:disabled {
+		background: var(--border-light);
+		color: var(--text-dim);
+		border-style: inset;
+		cursor: not-allowed;
+	}
+</style>

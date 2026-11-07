@@ -1,0 +1,109 @@
+---
+import type { GuestbookEntry } from '../../lib/db';
+
+interface Props {
+	entries: GuestbookEntry[];
+	avatars: { id: string; name: string; path: string }[];
+}
+
+const { entries, avatars } = Astro.props;
+---
+
+	<h3 class="section-title">Signatures & Prayers</h3>
+	<div class="entries-container" id="entries-container">
+		{entries.map(entry => {
+			const avConfig = avatars.find(a => a.id === entry.avatar);
+			const avPath = avConfig ? avConfig.path : '/images/avatars/reimu.png';
+			return (
+				<div class={`entry-card ${entry.isCharacter ? 'character-entry' : 'user-entry'} avatar-${entry.avatar}`}>
+					<div class="entry-header">
+						<img src={avPath} class="entry-avatar" alt={entry.name} />
+						<div class="entry-meta">
+							<span class="entry-name">{entry.name}</span>
+							<span class="entry-date">{entry.date}</span>
+						</div>
+					</div>
+					<div class="entry-body">
+						<p class="entry-message">{entry.message}</p>
+					</div>
+				</div>
+			);
+		})}
+	</div>
+
+<style is:global>
+	/* GUESTBOOK ENTRIES FEED */
+	.entries-container {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		margin-top: 1.5rem;
+	}
+
+	.entry-card {
+		border: 1px solid var(--border-light);
+		background: var(--surface);
+		padding: 1.25rem;
+		box-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+	}
+
+	.entry-card.character-entry {
+		border-left: 5px solid var(--reimu-red);
+	}
+
+	/* Custom borders depending on character style */
+	.entry-card.avatar-reimu { border-left-color: var(--reimu-red); }
+	.entry-card.avatar-marisa { border-left-color: #ffd700; }
+	.entry-card.avatar-cirno { border-left-color: #00bfff; }
+	.entry-card.avatar-sakuya { border-left-color: #708090; }
+	.entry-card.avatar-sanae { border-left-color: #32cd32; }
+	.entry-card.avatar-youmu { border-left-color: #c0c0c0; }
+
+	.entry-header {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		margin-bottom: 0.75rem;
+		border-bottom: 1px dashed var(--border-light);
+		padding-bottom: 0.5rem;
+	}
+
+	.entry-avatar {
+		width: 90px;
+		height: 36px;
+		border: 1px solid var(--border-light);
+		background: var(--bg);
+		object-fit: cover;
+		border-radius: 2px;
+	}
+
+	.entry-meta {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.entry-name {
+		font-family: var(--font-sans);
+		font-size: 0.95rem;
+		font-weight: bold;
+		color: var(--reimu-red);
+	}
+	.entry-card.avatar-marisa .entry-name { color: #d4af37; }
+	.entry-card.avatar-cirno .entry-name { color: #1e90ff; }
+	.entry-card.avatar-sakuya .entry-name { color: #4f5d6b; }
+	.entry-card.avatar-sanae .entry-name { color: #228b22; }
+	.entry-card.avatar-youmu .entry-name { color: #5f7560; }
+
+	.entry-date {
+		font-size: 0.7rem;
+		color: var(--text-dim);
+		margin-top: 2px;
+	}
+
+	.entry-message {
+		font-size: 0.9rem;
+		line-height: 1.5;
+		color: var(--text);
+		white-space: pre-wrap;
+	}
+</style>

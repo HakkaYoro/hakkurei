@@ -1,0 +1,62 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+let musicFiles: string[] = [];
+try {
+	const musicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'public', 'music');
+	musicFiles = fs.readdirSync(musicDir).filter((f: string) => f.endsWith('.ogg'));
+} catch (_) {
+	// no music dir or error — skip bgm
+}
+---
+
+		<audio id="bgm" transition:persist preload="auto"></audio>
+
+		<!-- BGM logic: needs define:vars for musicFiles, uses is:inline to avoid re-init issues -->
+		<script is:inline define:vars={{ musicFiles }}>
+			// Only initialize BGM once
+			if (!window._bgmInitialized) {
+				window._bgmInitialized = true;
+				var bgm = document.getElementById('bgm');
+				if (bgm && !bgm.getAttribute('src') && musicFiles.length > 0) {
+					var file = musicFiles[Math.floor(Math.random() * musicFiles.length)];
+					bgm.src = '/music/' + file;
+					bgm.volume = 0.15;
+					var fading = false;
+					function pickNextSong() {
+						var next = musicFiles[Math.floor(Math.random() * musicFiles.length)];
+						while (next === file && musicFiles.length > 1) {
+							next = musicFiles[Math.floor(Math.random() * musicFiles.length)];
+						}
+						return next;
+					}
+					function startFadeOut() {
+						if (fading) return;
+						fading = true;
+						var fadeSteps = 30;
+						var stepDuration = 100;
+						var startVol = bgm.volume;
+						var stepVol = startVol / fadeSteps;
+						var fadeInterval = setInterval(function() {
+							bgm.volume = Math.max(0, bgm.volume - stepVol);
+							if (bgm.volume <= 0) {
+								clearInterval(fadeInterval);
+								file = pickNextSong();
+								bgm.src = '/music/' + file;
+								bgm.volume = 0.15;
+								fading = false;
+								bgm.play()['catch'](function() {});
+							}
+						}, stepDuration);
+					}
+					bgm.addEventListener('timeupdate', function() {
+						if (!fading && bgm.duration && (bgm.duration - bgm.currentTime) <= 3.1) {
+							startFadeOut();
+						}
+					});
+					var playMusic = function() { if (bgm.paused) bgm.play(); document.body.removeEventListener('click', playMusic); };
+					bgm.play()['catch'](function() { document.body.addEventListener('click', playMusic); });
+				}
+			}
+		</script>
