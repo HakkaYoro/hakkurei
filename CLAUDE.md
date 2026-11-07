@@ -22,7 +22,7 @@ Touhou-themed personal portfolio / shrine site. Astro 6 in **SSR mode** via `@as
 
 This is the central architectural choice. `src/lib/db.ts` persists all state as plain JSON under `data/` using synchronous `node:fs`:
 
-- `data/guestbook.json` — entries (seeded with hardcoded Touhou-character comments on first run via `ensureFilesExist()`)
+- `data/guestbook.json` — entries (seeded with hardcoded Touhou-character comments on first run via `ensureFilesExist()`; each `addGuestbookEntry` prunes the file to the 500 most recent entries)
 - `data/donations.json` — running donation total + per-day/IP counters
 - `data/guestbook_limits.json` — rate-limit counters
 
@@ -35,7 +35,7 @@ This is the central architectural choice. `src/lib/db.ts` persists all state as 
 Pages default to static. Anything that must read live state opts out with `export const prerender = false;` — currently the `/guestbook` page and both API routes. The API routes are in `src/pages/api/`:
 
 - `GET /api/guestbook` → entry list; `POST /api/guestbook` → validate + append (name ≤30, message ≤500, avatar allowlisted server-side)
-- `GET /api/donations` → `{ total }`; `POST /api/donations` → +5 yen with rate-limit check
+- `POST /api/donations` → +5 yen with rate-limit check (the box POST reads the total from the response; there is no GET route)
 
 Both POST handlers extract the client IP **proxy-aware**: `x-forwarded-for` first hop, falling back to `clientAddress` (correct behind the reverse proxy / TrueNAS setup). Rate limits: donations 50/IP + 1000 global per day; guestbook 5/IP + 50 global per day, tracked in `guestbook_limits.json`. Limits are enforced in `db.ts` (`checkGuestbookLimit`, `incrementDonations`), not in the routes.
 
@@ -57,7 +57,7 @@ The first-visit loading screen (`#loading-screen`) is a sizable piece of vanilla
 
 The whole site leans hard into a **Neocities / early-2000s web aesthetic**, filtered through **Touhou Project** (the shrine, characters, music, spell cards, Gensokyo flavor). Anime/toho retro is the dominant lens — copy, art assets, sounds, and the loading-screen/cursor gimmicks all serve that tone, not a "modern minimal" look. When adding UI, match the busy nostalgic vibe (border styles, red/magenta palette, Japanese + emoji flavor text) rather than flattening it into a generic modern design.
 
-Theme tokens are CSS custom properties in `:root` inside `src/styles/global.css` (`--reimu-red`, `--magenta`, `--bg`, `--surface`, `--font-sans`, etc.). Pages embed component styles in scoped `<style is:global>` blocks. The display font (`DFPPOPCorn-W12`) is loaded from an external CDN in `global.css`. Cursors, music, particles, and `messages.json` (marquee lines) all live in `public/`.
+Theme tokens are CSS custom properties in `:root` inside `src/styles/global.css` (`--reimu-red`, `--magenta`, `--bg`, `--surface`, `--font-sans`, etc.). Pages embed component styles in scoped `<style is:global>` blocks. The display font (`DFPPOPCorn-W12`, a DynaComware commercial typeface) is self-hosted in `public/fonts/` and served from `/fonts/` via `@font-face` in `global.css`. Cursors, music, particles, and `messages.json` (marquee lines) all live in `public/`.
 
 ## Deployment
 

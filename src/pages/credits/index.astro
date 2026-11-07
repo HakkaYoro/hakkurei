@@ -1,0 +1,226 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Per-song EoSD backgrounds: descriptions came from the site's graphify vision
+// extraction; the illustrations are fanart found in the repository with no
+// documented origin. Nothing here is invented - unknown means unknown.
+const backgrounds = [
+	{ file: 'th06_02.webp', track: 'Track 02 — Stage 1 theme — A Soul as Scarlet as a Ground Cherry', desc: 'War-torn Gensokyo street with a scarlet sky', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_03.webp', track: "Track 03 — Rumia's theme — Apparitions Stalk the Night", desc: 'Rumia under a scarlet full moon', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_04.webp', track: 'Track 04 — Stage 2 theme — Lunate Elf', desc: 'Lakeside meadow with a blonde bow-wearing girl', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_05.webp', track: "Track 05 — Cirno's theme — Tomboyish Girl in Love", desc: 'Boat on a flower pond', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_06.webp', track: 'Track 06 — Stage 3 theme — Shanghai Scarlet Teahouse', desc: 'Golden dragon over a sunset', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_07.webp', track: "Track 07 — Meiling's theme — Shanghai Alice of Meiji 17", desc: 'Hong Meiling before a rose hedge', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_08.webp', track: 'Track 08 — Stage 4 theme — Voile, the Magic Library', desc: 'Witch girl inside the Voile magic library', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_09.webp', track: "Track 09 — Patchouli's theme — Locked Girl", desc: 'Purple-haired girl among doves, holding a book', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_10.webp', track: 'Track 10 — Stage 5 theme — The Maid and the Pocket Watch of Blood', desc: 'Silver-haired profile under snowy branches', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_11.webp', track: "Track 11 — Sakuya's theme — Lunar Clock ~ Luna Dial", desc: 'Silver hair close-up with a crescent moon ornament', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_12.webp', track: 'Track 12 — Stage 6 theme — The Young Descendant of Tepes', desc: 'Remilia Scarlet before a full moon', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_13.webp', track: "Track 13 — Remilia's theme — Septette for a Dead Princess", desc: 'Scarlet Devil Mansion banquet', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_14.webp', track: 'Track 14 — Extra stage theme — The Centennial Festival for Magical Girls', desc: 'Two girls dancing in a sunlit sky', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_15.webp', track: "Track 15 — Flandre's theme — U.N. Owen Was Her?", desc: 'Flandre Scarlet with crystal wings', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_16.webp', track: 'Track 16 — Ending theme — An Eternity More Transient than Scarlet', desc: 'Golden-hour sunset with power lines', origin: 'Fanart, artist unknown' },
+	{ file: 'th06_17.webp', track: 'Track 17 — Staff roll theme — Scarlet Chamber ~ Eastern Dream', desc: 'Reimu and Marisa on a porch', origin: 'Fanart, artist unknown' },
+];
+
+// Touhou stamps (~90x50) collected via SpaceHey layout 101676, originally hosted
+// on the Pinterest CDN (i.pinimg.com). Filenames keep the original hash so each
+// row maps 1:1 to its source URL.
+const stampSources: Array<[string, string]> = [
+	['0b21898d94ace76d6dcff30c64021e92.gif', 'https://i.pinimg.com/originals/0b/21/89/0b21898d94ace76d6dcff30c64021e92.gif'],
+	['0b2d7d6fb45f1758f22935d2ad9d11f4.gif', 'https://i.pinimg.com/originals/0b/2d/7d/0b2d7d6fb45f1758f22935d2ad9d11f4.gif'],
+	['0d8d927af399ec02c991ad4dedfbeb57.gif', 'https://i.pinimg.com/originals/0d/8d/92/0d8d927af399ec02c991ad4dedfbeb57.gif'],
+	['108fb6ff296c4bddf35befbd4973d239.gif', 'https://i.pinimg.com/originals/10/8f/b6/108fb6ff296c4bddf35befbd4973d239.gif'],
+	['124a538bca0ac2ab1cea993855a646a0.gif', 'https://i.pinimg.com/originals/12/4a/53/124a538bca0ac2ab1cea993855a646a0.gif'],
+	['13ebb1a48c8bf4a021058c5e2fe1a581.gif', 'https://i.pinimg.com/originals/13/eb/b1/13ebb1a48c8bf4a021058c5e2fe1a581.gif'],
+	['179968a31ee8d347321063ad1ba86a7d.gif', 'https://i.pinimg.com/originals/17/99/68/179968a31ee8d347321063ad1ba86a7d.gif'],
+	['2ccb9cb0a41daf60321bb4a20adda7d1.gif', 'https://i.pinimg.com/originals/2c/cb/9c/2ccb9cb0a41daf60321bb4a20adda7d1.gif'],
+	['30219c1f331be24f73fb923da33889cf.gif', 'https://i.pinimg.com/originals/30/21/9c/30219c1f331be24f73fb923da33889cf.gif'],
+	['344ffb65518cdcdc575f7c7d1ed048c8.gif', 'https://i.pinimg.com/originals/34/4f/fb/344ffb65518cdcdc575f7c7d1ed048c8.gif'],
+	['36ce7f19e23442e11fc70ee146f614fc.gif', 'https://i.pinimg.com/originals/36/ce/7f/36ce7f19e23442e11fc70ee146f614fc.gif'],
+	['3e58fe17650c1e99b230c2d95b8eb47a.gif', 'https://i.pinimg.com/originals/3e/58/fe/3e58fe17650c1e99b230c2d95b8eb47a.gif'],
+	['40b9a8f02caa8d33d6324ee67edba1c4.gif', 'https://i.pinimg.com/originals/40/b9/a8/40b9a8f02caa8d33d6324ee67edba1c4.gif'],
+	['681bc5d6e871e4d386cc1c97884b4128.gif', 'https://i.pinimg.com/originals/68/1b/c5/681bc5d6e871e4d386cc1c97884b4128.gif'],
+	['72b89d8781ded519e24c029202a3a894.gif', 'https://i.pinimg.com/originals/72/b8/9d/72b89d8781ded519e24c029202a3a894.gif'],
+	['81e5ae572ce15b0e382e9d3bd8376216.gif', 'https://i.pinimg.com/originals/81/e5/ae/81e5ae572ce15b0e382e9d3bd8376216.gif'],
+	['a7946c46a6199a25a35dc602b56c6a7b.gif', 'https://i.pinimg.com/originals/a7/94/6c/a7946c46a6199a25a35dc602b56c6a7b.gif'],
+	['ac73ab7064d3d086ec0016ac384b5506.gif', 'https://i.pinimg.com/originals/ac/73/ab/ac73ab7064d3d086ec0016ac384b5506.gif'],
+	['c7c4ab7c0efb88af11310e8147ca5853.gif', 'https://i.pinimg.com/originals/c7/c4/ab/c7c4ab7c0efb88af11310e8147ca5853.gif'],
+	['d64b620a1f63bbfe48d03119d3833d43.gif', 'https://i.pinimg.com/originals/d6/4b/62/d64b620a1f63bbfe48d03119d3833d43.gif'],
+	['e896690ee4a0324d7f08ce76594d05c1.gif', 'https://i.pinimg.com/originals/e8/96/69/e896690ee4a0324d7f08ce76594d05c1.gif'],
+	['ef62898b57f35c8e145400f571917c4f.gif', 'https://i.pinimg.com/originals/ef/62/89/ef62898b57f35c8e145400f571917c4f.gif'],
+	['690520a5b6ad365de15b846795ef9085.jpg', 'https://i.pinimg.com/564x/69/05/20/690520a5b6ad365de15b846795ef9085.jpg'],
+	['88943c26378482e59ada21c647c9fb97.jpg', 'https://i.pinimg.com/564x/88/94/3c/88943c26378482e59ada21c647c9fb97.jpg'],
+	['fe5d9ee2275b7dad2317db8423b3d64d.jpg', 'https://i.pinimg.com/236x/fe/5d/9e/fe5d9ee2275b7dad2317db8423b3d64d.jpg'],
+];
+---
+
+<Layout title="Credits">
+	<h2 class="section-title">クレジット ~ Credits & Provenance</h2>
+
+	<div class="links-intro">
+		<p>
+			<strong>Touhou Project</strong> and all its characters are © <strong>ZUN / Team Shanghai Alice</strong>.
+			This is a fan-made, non-profit website. No copyright infringement intended — all listed works belong to their respective owners.
+		</p>
+	</div>
+
+	<h3 class="section-title">Per-song Backgrounds (背景)</h3>
+	<p class="section-subtitle-desc">
+		The 16 backgrounds in <code>public/backgrounds/</code> were collected before this credits page existed.
+		Their content descriptions come from the site's graphify vision extraction; a web search could not trace
+		them to a specific artist or page, so where the source is unknown it simply says so — no invented URLs here.
+	</p>
+	<div class="provenance-table-wrap">
+		<table class="provenance-table">
+			<thead>
+				<tr><th>File</th><th>Track / Theme</th><th>Shown</th><th>Origin</th></tr>
+			</thead>
+			<tbody>
+				{backgrounds.map((bg) => (
+					<tr>
+						<td><code>{bg.file}</code></td>
+						<td>{bg.track}</td>
+						<td>{bg.desc}</td>
+						<td>{bg.origin} — preexisting repository asset (origin not documented)</td>
+					</tr>
+				))}
+			</tbody>
+		</table>
+	</div>
+
+	<h3 class="section-title">Music (音楽)</h3>
+	<p class="section-subtitle-desc">
+		The BGM playlist features the OST of <em>東方紅魔郷 ~ the Embodiment of Scarlet Devil</em> (2002),
+		composed by <strong>ZUN / Team Shanghai Alice</strong>. All rights to the music belong to them.
+	</p>
+
+	<h3 class="section-title">Font (フォント)</h3>
+	<p class="section-subtitle-desc">
+		The display font is <strong>DFPPOPCorn-W12</strong>, a commercial typeface by <strong>DynaComware Japan</strong>.
+		It is self-hosted in <code>/fonts/</code> for display purposes only; the font remains the property of DynaComware,
+		and its usage on this site does not imply endorsement. If you redistribute this site, review DynaComware's license terms first.
+	</p>
+
+	<h3 class="section-title">Buttons & Blinkies (バナー)</h3>
+	<p class="section-subtitle-desc">
+		Real graphics only — see our <a href="/links">button collection</a>. Each item's provenance:
+	</p>
+	<ul class="credits-list">
+		<li>
+			<code>88x31/moriya.png</code> — Moriya Shrine's official button, courtesy of
+			<a href="https://moriya-shrine.org" target="_blank" rel="noopener noreferrer">moriya-shrine.org</a>.
+		</li>
+		<li><code>88x31/reimoo.png</code> — our own button, drawn for this page (that's us!).</li>
+		<li>
+			<code>blinkies/88x31-touhoubutton.gif</code> — the classic red 「TOUHOU!」 button, collected from the
+			<a href="https://88x31.nl" target="_blank" rel="noopener noreferrer">88x31.nl button archive</a>
+			(<a href="https://88x31.nl/gifs/touhoubutton.gif" target="_blank" rel="noopener noreferrer">source file</a>).
+		</li>
+		<li>
+			<code>blinkies/*.gif</code> + <code>blinkies/*.jpg</code> — 25 Touhou animated stamps, collected via
+			<a href="https://layouts.spacehey.com/layout?id=101676" target="_blank" rel="noopener noreferrer">SpaceHey layout 101676</a>
+			(alojados en Pinterest CDN). Original artists unknown — if one of these is yours, write in the guestbook and we'll credit you!
+		</li>
+		<li>
+			<code>marisa-flying.gif</code> — Marisa Kirisame flying across the screen, via
+			<a href="https://layouts.spacehey.com/layout?id=89719" target="_blank" rel="noopener noreferrer">Tenor (SpaceHey layout 89719)</a>.
+		</li>
+	</ul>
+
+	<details class="stamp-details">
+		<summary>Full list of the 25 collected stamps (with original URLs)</summary>
+		<div class="provenance-table-wrap">
+			<table class="provenance-table">
+				<thead>
+					<tr><th>Local file</th><th>Original URL</th></tr>
+				</thead>
+				<tbody>
+					{stampSources.map(([local, url]) => (
+						<tr><td><code>{local}</code></td><td><a href={url} target="_blank" rel="noopener noreferrer">{url}</a></td></tr>
+					))}
+				</tbody>
+			</table>
+		</div>
+	</details>
+
+	<h3 class="section-title">Cursors (カーソル)</h3>
+	<p class="section-subtitle-desc">
+		The custom Windows cursor set in <code>public/cursors/</code> (<code>.ani</code> files + PNG frames) is
+		<strong>Hakurei Reimu's Pixel Cursors</strong> by <strong>乱涂乱画BEN</strong>, available as
+		<a href="https://ko-fi.com/s/f5e44fa511" target="_blank" rel="noopener noreferrer">pay-what-you-want on Ko-fi</a>.
+		Go grab it — the shrine maiden cursor is the best part of this site.
+	</p>
+
+	<h3 class="section-title">Other Assets (その他)</h3>
+	<ul class="credits-list">
+		<li><code>public/images/avatars/*.png</code> — guestbook avatars (Reimu, Marisa, Cirno, Sakuya, Sanae, Youmu): preexisting in the repository, origin not documented.</li>
+		<li><code>public/wallpaper.webp</code> — the Reimu &amp; Marisa hanami picnic wallpaper (3840×2400 fanart): preexisting in the repository, artist unknown.</li>
+	</ul>
+</Layout>
+
+<style is:global>
+	.provenance-table-wrap {
+		overflow-x: auto;
+		margin: 1.5rem 0;
+	}
+
+	.provenance-table {
+		width: 100%;
+		border-collapse: collapse;
+		background: var(--surface);
+		border: 2px solid var(--reimu-red);
+		font-size: 0.8rem;
+	}
+
+	.provenance-table th {
+		background: var(--reimu-red);
+		color: #fff;
+		padding: 6px 8px;
+		text-align: left;
+		font-size: 0.75rem;
+		letter-spacing: 1px;
+		text-transform: uppercase;
+	}
+
+	.provenance-table td {
+		padding: 6px 8px;
+		border-bottom: 1px dashed var(--border-light);
+		color: var(--text-dim);
+		vertical-align: top;
+	}
+
+	.provenance-table tr:hover td {
+		background: rgba(219, 54, 85, 0.06);
+	}
+
+	.credits-list {
+		background: var(--surface);
+		border: 1px dashed var(--reimu-red);
+		padding: 1.25rem 1.5rem;
+		margin: 1.5rem 0;
+		font-size: 0.9rem;
+		line-height: 1.8;
+		color: var(--text-dim);
+		list-style-type: '★ ';
+		padding-left: 2.2rem;
+	}
+
+	.stamp-details {
+		background: var(--surface);
+		border: 1px dashed var(--border-light);
+		padding: 0.75rem 1rem;
+		margin: 1rem 0 2rem;
+		font-size: 0.85rem;
+	}
+
+	.stamp-details summary {
+		cursor: url('/cursors/Link.png'), pointer;
+		color: var(--reimu-red);
+		font-weight: bold;
+	}
+
+	.stamp-details[open] summary {
+		margin-bottom: 0.5rem;
+	}
+</style>

@@ -100,12 +100,16 @@ export function getGuestbookEntries(): GuestbookEntry[] {
 	}
 }
 
+// Keep only the most recent 500 entries so the JSON file cannot grow unbounded.
+const MAX_GUESTBOOK_ENTRIES = 500;
+
 export function addGuestbookEntry(entry: GuestbookEntry): void {
 	ensureFilesExist();
 	try {
 		const entries = getGuestbookEntries();
 		entries.push(entry);
-		fs.writeFileSync(GUESTBOOK_PATH, JSON.stringify(entries, null, 2), 'utf-8');
+		const trimmed = entries.slice(-MAX_GUESTBOOK_ENTRIES);
+		fs.writeFileSync(GUESTBOOK_PATH, JSON.stringify(trimmed, null, 2), 'utf-8');
 	} catch (err) {
 		console.error('Error writing to guestbook database file:', err);
 	}

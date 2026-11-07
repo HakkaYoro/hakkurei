@@ -1,9 +1,8 @@
 @font-face {
 	font-family: "DFPPOPCorn-W12";
-	src: url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.woff2") format("woff2"),
-	     url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.woff") format("woff"),
-	     url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.ttf") format("truetype");
-	/* swap: show fallback text while the remote font loads instead of hiding it (FOIT) */
+	src: url("/fonts/DFPPOPCorn-W12.woff2") format("woff2"),
+	     url("/fonts/DFPPOPCorn-W12.ttf") format("truetype");
+	/* swap: show fallback text while the font loads instead of hiding it (FOIT) */
 	font-display: swap;
 }
 
@@ -32,6 +31,40 @@
 html {
 	font-size: 16px;
 	scroll-behavior: smooth;
+}
+
+/* Marisa crossing the screen (original 'fly' animation from SpaceHey layout 89719) */
+.marisa-fly {
+	position: fixed;
+	left: -120px;
+	bottom: 8px;
+	width: 100px;
+	z-index: 60;
+	pointer-events: none;
+	animation: marisa-fly 5s linear infinite;
+}
+
+@keyframes marisa-fly {
+	0% {
+		transform: translate(0, 0);
+		opacity: 0;
+	}
+	5% {
+		opacity: 1;
+	}
+	95% {
+		opacity: 1;
+	}
+	100% {
+		transform: translate(110vw, 0);
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.marisa-fly {
+		display: none;
+	}
 }
 
 body {

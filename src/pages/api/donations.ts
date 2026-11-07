@@ -1,18 +1,8 @@
 import type { APIRoute } from 'astro';
-import { getDonationsData, incrementDonations } from '../../lib/db';
+import { incrementDonations } from '../../lib/db';
 import { rateLimitIp } from '../../lib/ip';
 
 export const prerender = false;
-
-export const GET: APIRoute = async () => {
-	const data = getDonationsData();
-	return new Response(JSON.stringify({ total: data.total }), {
-		status: 200,
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	});
-};
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
 	try {

@@ -3,7 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import LinkToUs from '../../components/links/LinkToUs.astro';
 import Affiliates from '../../components/links/Affiliates.astro';
 import CommunityPortals from '../../components/links/CommunityPortals.astro';
-import NetBadges from '../../components/links/NetBadges.astro';
+import ButtonCollection from '../../components/links/ButtonCollection.astro';
 ---
 
 <Layout title="Links">
@@ -11,11 +11,15 @@ import NetBadges from '../../components/links/NetBadges.astro';
 
 	<div class="links-intro">
 		<p>
-			Welcome to the <strong>Genso-Net Webring & Link Exchange</strong>! Below you will find our official 88x31 web banner to link back to the Hakurei Shrine, alongside the banners of our allies across Gensokyo and vintage web badges. If you're a webmaster, feel free to add us to your personal directory!
+			Welcome to the <strong>Genso-Net Webring & Link Exchange</strong>! Below you will find our official 88x31 web banner to link back to the Hakurei Shrine, alongside the banners of our allies across Gensokyo and a collection of real buttons gathered from the web. If you're a webmaster, feel free to add us to your personal directory!
 		</p>
 	</div>
 
 	<LinkToUs />
+
+	<div class="divider"><span class="divider-orb"></span></div>
+
+	<ButtonCollection />
 
 	<div class="divider"><span class="divider-orb"></span></div>
 
@@ -24,10 +28,6 @@ import NetBadges from '../../components/links/NetBadges.astro';
 	<div class="divider"><span class="divider-orb"></span></div>
 
 	<CommunityPortals />
-
-	<div class="divider"><span class="divider-orb"></span></div>
-
-	<NetBadges />
 </Layout>
 
 <style is:global>

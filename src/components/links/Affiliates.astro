@@ -2,6 +2,7 @@
 const affiliates = [
 	{
 		id: 'kourindou',
+		badgeText: '香霖堂',
 		name: 'Kourindou (香霖堂)',
 		proprietor: 'Rinnosuke Morichika',
 		description: 'The only antique shop in Gensokyo, specializing in items from the Outside World. Rinnosuke is always willing to explain their "purposes" (even if he is completely wrong).',
@@ -10,6 +11,7 @@ const affiliates = [
 	},
 	{
 		id: 'sdm',
+		badgeText: '紅魔館',
 		name: 'Scarlet Devil Mansion (紅魔館)',
 		proprietor: 'Remilia Scarlet',
 		description: 'A luxurious, scarlet-colored gothic mansion located next to the Misty Lake. Home to the vampire mistress Remilia, her sister Flandre, the librarian Patchouli, and Sakuya the head maid.',
@@ -18,6 +20,7 @@ const affiliates = [
 	},
 	{
 		id: 'eientei',
+		badgeText: '永遠亭',
 		name: 'Eientei Pharmacy (永遠亭)',
 		proprietor: 'Kaguya Houraisan & Eirin Yagokoro',
 		description: 'A massive, ancient mansion hidden deep in the Bamboo Forest of Lost. Famous for Eirin\'s mystical medical capsules and rabbits hopping around under the silver moon.',
@@ -26,6 +29,7 @@ const affiliates = [
 	},
 	{
 		id: 'moriya',
+		badgeText: '守矢神社',
 		name: 'Moriya Shrine (守矢神社)',
 		proprietor: 'Kanako Yasaka & Suwako Moriya',
 		description: 'Our rival shinto shrine located on the top of Youkai Mountain. They have massive mechanical gadgets, frogs, snakes, and gather massive amounts of faith! Reimu is highly competitive with them.',
@@ -34,6 +38,7 @@ const affiliates = [
 	},
 	{
 		id: 'myouren',
+		badgeText: '命蓮寺',
 		name: 'Myouren Temple (命蓮寺)',
 		proprietor: 'Byakuren Hijiri',
 		description: 'A Buddhist temple founded by Byakuren Hijiri to promote harmony between humans and youkai. Known for peaceful meditation, sutras, and rather noisy youkai rock concerts in the backyard.',
@@ -42,6 +47,7 @@ const affiliates = [
 	},
 	{
 		id: 'netherworld',
+		badgeText: '白玉楼',
 		name: 'Hakugyokurou (白玉楼)',
 		proprietor: 'Yuyuko Saigyouji',
 		description: 'A gorgeous, massive traditional estate in the Netherworld famous for its expansive gardens of ghosts and the Saigyou Ayakashi cherry blossom tree. Swept daily by Youmu.',
@@ -61,93 +67,12 @@ const affiliates = [
 					<h4 class="affiliate-name">{aff.name}</h4>
 					<span class="affiliate-prop">Proprietor: <strong>{aff.proprietor}</strong></span>
 				</div>
-				
+
 				<div class="affiliate-body">
-					<!-- Custom styled 88x31 SVG retro buttons rendering natively in client -->
+					<!-- No fake badge art: text-only badge, sound gimmick preserved -->
 					<div class="badge-container">
-						<div class={`retro-badge-button affiliate-badge-${aff.id} hover-${aff.hoverEffect}`} id={`badge-btn-${aff.id}`} role="button" tabindex="0" aria-label={`Activate ${aff.name} Badge`}>
-							{aff.id === 'kourindou' && (
-								<svg viewBox="0 0 88 31" width="88" height="31">
-									<rect width="88" height="31" fill="url(#bg-kourindou)" />
-									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
-									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#d2b48c" stroke-width="1" />
-									<!-- Magnifying glass / antique symbol -->
-									<circle cx="12" cy="14" r="5" fill="none" stroke="#ffd700" stroke-width="1.5" />
-									<line x1="16" y1="18" x2="21" y2="23" stroke="#ffd700" stroke-width="2" stroke-linecap="round" />
-									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">香霖堂</text>
-									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#ffffff" letter-spacing="0.5">KOURINDOU</text>
-								</svg>
-							)}
-							{aff.id === 'sdm' && (
-								<svg viewBox="0 0 88 31" width="88" height="31">
-									<rect width="88" height="31" fill="url(#bg-sdm)" />
-									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.3" />
-									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#db3655" stroke-width="1" />
-									<!-- Crimson Moon and Bat -->
-									<circle cx="12" cy="15" r="6" fill="#db3655" />
-									<path d="M 6 15 Q 12 12 18 15 Q 12 17 6 15 Z" fill="#000000" />
-									<path d="M 8 13 L 10 15 L 12 13 L 14 15 L 16 13 M 10 15 L 12 16 L 14 15" stroke="#000000" stroke-width="0.5" fill="none" />
-									<text x="28" y="17" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#db3655" text-shadow="1px 1px 0px #000">紅魔館</text>
-									<text x="28" y="26" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#da70d6" letter-spacing="0.5">DEVIL MANSION</text>
-								</svg>
-							)}
-							{aff.id === 'eientei' && (
-								<svg viewBox="0 0 88 31" width="88" height="31">
-									<rect width="88" height="31" fill="url(#bg-eientei)" />
-									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
-									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#32cd32" stroke-width="1" />
-									<!-- Bamboo stalk & rabbit outline -->
-									<line x1="8" y1="6" x2="8" y2="25" stroke="#32cd32" stroke-width="2" />
-									<line x1="13" y1="8" x2="13" y2="23" stroke="#228b22" stroke-width="1.5" />
-									<circle cx="16" cy="18" r="3.5" fill="#ffffff" />
-									<!-- Ears -->
-									<ellipse cx="14.5" cy="12" rx="1" ry="3.5" fill="#ffffff" transform="rotate(-15 14.5 12)" />
-									<ellipse cx="17.5" cy="12" rx="1" ry="3.5" fill="#ffffff" transform="rotate(15 17.5 12)" />
-									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffffff" text-shadow="1px 1px 0px #092b18">永遠亭</text>
-									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#32cd32" letter-spacing="0.5">EIENTI CLINIC</text>
-								</svg>
-							)}
-							{aff.id === 'moriya' && (
-								<svg viewBox="0 0 88 31" width="88" height="31">
-									<rect width="88" height="31" fill="url(#bg-moriya)" />
-									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
-									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#ffd700" stroke-width="1" />
-									<!-- Shinto rope ring & frog eyes -->
-									<circle cx="12" cy="15" r="7" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-dasharray="3 2" />
-									<circle cx="9" cy="10" r="2.5" fill="#ffd700" />
-									<circle cx="15" cy="10" r="2.5" fill="#ffd700" />
-									<circle cx="9" cy="10" r="0.8" fill="#000" />
-									<circle cx="15" cy="10" r="0.8" fill="#000" />
-									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">守矢神社</text>
-									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#00ff7f" letter-spacing="0.2">MORIYA SHRINE</text>
-								</svg>
-							)}
-							{aff.id === 'myouren' && (
-								<svg viewBox="0 0 88 31" width="88" height="31">
-									<rect width="88" height="31" fill="url(#bg-myouren)" />
-									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
-									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#da70d6" stroke-width="1" />
-									<!-- Lotus Flower silhouette -->
-									<path d="M 12 8 C 8 13 8 20 12 24 C 16 20 16 13 12 8 Z" fill="#da70d6" />
-									<path d="M 12 12 C 5 15 5 21 12 24 C 19 21 19 15 12 12 Z" fill="#ba55d3" opacity="0.7" />
-									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffd700" text-shadow="1px 1px 0px #000">命蓮寺</text>
-									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#da70d6" letter-spacing="0.5">MYOUREN TEMP</text>
-								</svg>
-							)}
-							{aff.id === 'netherworld' && (
-								<svg viewBox="0 0 88 31" width="88" height="31">
-									<rect width="88" height="31" fill="url(#bg-netherworld)" />
-									<rect width="88" height="31" fill="url(#pixel-grid)" opacity="0.2" />
-									<rect x="0.5" y="0.5" width="87" height="30" fill="none" stroke="#afeeee" stroke-width="1" />
-									<!-- Cherry blossom petal & ghost flame -->
-									<path d="M 12 10 Q 5 14 12 21 Q 19 14 12 10" fill="#ffb7c5" />
-									<circle cx="12" cy="15" r="2.5" fill="#ffffff" />
-									<path d="M 12 15 Q 16 10 18 6 Q 14 8 12 15 Z" fill="#afeeee" opacity="0.8" />
-									<text x="28" y="16" font-family="'VT323', 'Courier New', monospace" font-size="13" font-weight="bold" fill="#ffc0cb" text-shadow="1px 1px 0px #000">白玉楼</text>
-									<text x="28" y="25" font-family="'VT323', 'Courier New', monospace" font-size="7.5" fill="#afeeee" letter-spacing="0.5">NETHERWORLD</text>
-								</svg>
-							)}
-							<div class="badge-crt-scanline"></div>
+						<div class={`retro-badge-button affiliate-text-badge hover-${aff.hoverEffect}`} id={`badge-btn-${aff.id}`} role="button" tabindex="0" aria-label={`Activate ${aff.name} Badge`}>
+							<span class="affiliate-badge-kanji">{aff.badgeText}</span>
 						</div>
 					</div>
 
@@ -158,56 +83,6 @@ const affiliates = [
 			</div>
 		))}
 	</div>
-
-	<!-- Shared global SVG patterns for SVG banners -->
-	<svg width="0" height="0" style="position: absolute;">
-		<defs>
-			<pattern id="pixel-grid" width="2" height="2" patternUnits="userSpaceOnUse">
-				<rect width="2" height="2" fill="none" />
-				<path d="M 2 0 L 0 0 0 2" fill="none" stroke="#FFFFFF" stroke-width="0.2" />
-			</pattern>
-			<linearGradient id="bg-kourindou" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="#5c3a21" />
-				<stop offset="100%" stop-color="#211003" />
-			</linearGradient>
-			<linearGradient id="bg-sdm" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="#3d0000" />
-				<stop offset="100%" stop-color="#0e0012" />
-			</linearGradient>
-			<linearGradient id="bg-eientei" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="#0b2d13" />
-				<stop offset="100%" stop-color="#021206" />
-			</linearGradient>
-			<linearGradient id="bg-moriya" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="#124d2d" />
-				<stop offset="100%" stop-color="#051f0f" />
-			</linearGradient>
-			<linearGradient id="bg-myouren" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="#2e0854" />
-				<stop offset="100%" stop-color="#0b001a" />
-			</linearGradient>
-			<linearGradient id="bg-netherworld" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="#122c45" />
-				<stop offset="100%" stop-color="#06121f" />
-			</linearGradient>
-			<linearGradient id="bg-moriya-shrine" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="#124d2d" />
-				<stop offset="100%" stop-color="#021206" />
-			</linearGradient>
-			<linearGradient id="bg-touhou-wiki" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="#1f3c5c" />
-				<stop offset="100%" stop-color="#0b1726" />
-			</linearGradient>
-			<linearGradient id="bg-thpatch" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="#54080e" />
-				<stop offset="100%" stop-color="#1a0104" />
-			</linearGradient>
-			<linearGradient id="bg-team-shanghai-alice" x1="0" y1="0" x2="1" y2="1">
-				<stop offset="0%" stop-color="#694d0e" />
-				<stop offset="100%" stop-color="#261b03" />
-			</linearGradient>
-		</defs>
-	</svg>
 
 <script is:inline>
 (function() {
@@ -336,10 +211,22 @@ const affiliates = [
 		border: 1px solid #000000;
 	}
 
-	.retro-badge-button svg {
-		width: 88px;
-		height: 31px;
-		display: block;
+	.affiliate-text-badge {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--surface);
+		border: 1px solid var(--text-dim);
+		box-shadow: inset 1px 1px 0 rgba(255,255,255,0.6);
+	}
+
+	.affiliate-badge-kanji {
+		font-size: 11px;
+		font-weight: bold;
+		color: var(--reimu-red);
+		text-shadow: 1px 1px 0 var(--border-light);
+		letter-spacing: 1px;
+		user-select: none;
 	}
 
 	.affiliate-desc {

@@ -1,0 +1,117 @@
+---
+// Every file below is a REAL graphic downloaded and served locally - no generated badges.
+// Provenance per file is annotated in the HTML comments and mirrored on /credits.
+import { Image } from 'astro:assets';
+
+const siteButtons = [
+	{
+		src: '/images/88x31/moriya.png',
+		alt: 'Moriya Shrine 88x31 button',
+		href: 'https://moriya-shrine.org',
+		title: 'Moriya Shrine — courtesy of moriya-shrine.org',
+	},
+	{
+		src: '/images/88x31/reimoo.png',
+		alt: 'Hakkurei Shrine 88x31 button',
+		href: 'https://hakkurei.com',
+		title: 'Hakkurei Shrine — this site\'s own button',
+	},
+];
+
+// Touhou! logo button collected from the 88x31.nl archive
+const collected88x31 = [
+	{
+		src: '/images/blinkies/88x31-touhoubutton.gif',
+		alt: 'TOUHOU! 88x31 button',
+		origin: 'https://88x31.nl/gifs/touhoubutton.gif',
+	},
+];
+
+// Touhou stamps (~90x50) collected via SpaceHey layout 101676, originally hosted on i.pinimg.com
+const stampHashes = [
+	'0b21898d94ace76d6dcff30c64021e92.gif',
+	'0b2d7d6fb45f1758f22935d2ad9d11f4.gif',
+	'0d8d927af399ec02c991ad4dedfbeb57.gif',
+	'108fb6ff296c4bddf35befbd4973d239.gif',
+	'124a538bca0ac2ab1cea993855a646a0.gif',
+	'13ebb1a48c8bf4a021058c5e2fe1a581.gif',
+	'179968a31ee8d347321063ad1ba86a7d.gif',
+	'2ccb9cb0a41daf60321bb4a20adda7d1.gif',
+	'30219c1f331be24f73fb923da33889cf.gif',
+	'344ffb65518cdcdc575f7c7d1ed048c8.gif',
+	'36ce7f19e23442e11fc70ee146f614fc.gif',
+	'3e58fe17650c1e99b230c2d95b8eb47a.gif',
+	'40b9a8f02caa8d33d6324ee67edba1c4.gif',
+	'681bc5d6e871e4d386cc1c97884b4128.gif',
+	'72b89d8781ded519e24c029202a3a894.gif',
+	'81e5ae572ce15b0e382e9d3bd8376216.gif',
+	'a7946c46a6199a25a35dc602b56c6a7b.gif',
+	'ac73ab7064d3d086ec0016ac384b5506.gif',
+	'c7c4ab7c0efb88af11310e8147ca5853.gif',
+	'd64b620a1f63bbfe48d03119d3833d43.gif',
+	'e896690ee4a0324d7f08ce76594d05c1.gif',
+	'ef62898b57f35c8e145400f571917c4f.gif',
+	'690520a5b6ad365de15b846795ef9085.jpg',
+	'88943c26378482e59ada21c647c9fb97.jpg',
+	'fe5d9ee2275b7dad2317db8423b3d64d.jpg',
+];
+---
+
+	<h3 class="section-title">Button Collection (バナーコレクション)</h3>
+	<p class="section-subtitle-desc">Real 88x31 buttons and Touhou stamps collected from the web and served from this shrine. Save them, share them, hotlink the shrine way!</p>
+
+	<div class="button-collection">
+		<div class="button-collection-row">
+			{siteButtons.map((btn) => (
+				<a href={btn.href} target="_blank" rel="noopener noreferrer" class="button-cell" title={btn.title}>
+					<Image src={btn.src} alt={btn.alt} width="88" height="31" loading="lazy" class="badge-img-88x31" />
+				</a>
+			))}
+			{collected88x31.map((btn) => (
+				<span class="button-cell" title={`Collected from ${btn.origin}`}>
+					<img src={btn.src} alt={btn.alt} width="88" height="31" loading="lazy" class="badge-img-88x31" />
+				</span>
+			))}
+		</div>
+
+		<div class="button-collection-row stamps">
+			{stampHashes.map((hash) => (
+				<img src={`/images/blinkies/${hash}`} alt="Touhou stamp" width="90" height="50" loading="lazy" class="stamp-img" />
+			))}
+		</div>
+	</div>
+
+<style is:global>
+	.button-collection {
+		background: var(--surface);
+		border: 1px dashed var(--reimu-red);
+		padding: 1.25rem;
+		margin: 1.5rem 0;
+	}
+
+	.button-collection-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.button-collection-row.stamps {
+		margin-top: 14px;
+		padding-top: 12px;
+		border-top: 1px dashed var(--border-light);
+	}
+
+	.button-cell {
+		display: inline-flex;
+		line-height: 0;
+	}
+
+	.stamp-img {
+		width: 90px;
+		height: 50px;
+		border: 1px solid var(--border-light);
+		object-fit: cover;
+	}
+</style>
