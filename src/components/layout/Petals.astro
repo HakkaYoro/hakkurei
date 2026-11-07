@@ -12,24 +12,26 @@
 				const rotationEnd = rotationStart + Math.random() * 720;
 				
 				petal.style.left = startLeft + 'vw';
+				petal.style.top = '0';
 				petal.style.width = size + 'px'; petal.style.height = size + 'px';
-				
+
 				document.body.appendChild(petal);
-				
+
 				const animation = petal.animate([
-					{ top: '-10vh', transform: 'translateX(0) rotate(' + rotationStart + 'deg)' },
-					{ top: '110vh', transform: 'translateX(' + (Math.random() * 60 - 30) + 'px) rotate(' + rotationEnd + 'deg)' }
+					{ transform: 'translateY(-10vh) translateX(0) rotate(' + rotationStart + 'deg)' },
+					{ transform: 'translateY(110vh) translateX(' + (Math.random() * 60 - 30) + 'px) rotate(' + rotationEnd + 'deg)' }
 				], {
 					duration: duration * 1000,
 					easing: 'linear'
 				});
-				
+
 				animation.onfinish = () => petal.remove();
 			}
 
 			// Petals only after loading screen dismiss
 			let _petalInterval: ReturnType<typeof setInterval> | null = null;
 			function startPetals() {
+				if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 				if (_petalInterval) return;
 				_petalInterval = setInterval(createPetal, 300);
 			}

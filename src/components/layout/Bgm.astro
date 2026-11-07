@@ -5,6 +5,8 @@ import path from 'node:path';
 interface SongEntry {
 	file: string;
 	background: string;
+	title_ja: string;
+	title_en: string;
 }
 
 let songs: SongEntry[] = [];
@@ -13,7 +15,7 @@ try {
 	const manifestPath = path.join(process.cwd(), 'public', 'music', 'songs.json');
 	songs = (JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as SongEntry[])
 		.filter((s) => s.file && s.background)
-		.map(({ file, background }) => ({ file, background }));
+		.map(({ file, background, title_ja, title_en }) => ({ file, background, title_ja, title_en }));
 } catch (_) {
 	// no manifest — no BGM and no per-song background
 }
@@ -25,12 +27,23 @@ try {
 		<div id="bg-song-a" class="bg-song-layer" transition:persist></div>
 		<div id="bg-song-b" class="bg-song-layer" transition:persist></div>
 
+		<!-- Now Playing: Win9x retro widget; persisted so state survives View Transitions -->
+		<div id="now-playing" class="now-playing" transition:persist>
+			<span class="np-label">♪ NOW PLAYING</span>
+			<span id="np-title" class="np-title">…</span>
+			<button id="np-mute" class="np-btn" type="button" aria-label="Mute or unmute BGM" aria-pressed="false">♪</button>
+		</div>
+
 		<!-- BGM logic: needs define:vars for songs, uses is:inline to avoid re-init issues -->
 		<script is:inline define:vars={{ songList: songs }}>
 			// Only initialize BGM once
 			if (!window._bgmInitialized) {
 				window._bgmInitialized = true;
 				var bgm = document.getElementById('bgm');
+				if (!songList.length) {
+					var npWidget = document.getElementById('now-playing');
+					if (npWidget) npWidget.style.display = 'none';
+				}
 				var songLayers = [
 					document.getElementById('bg-song-a'),
 					document.getElementById('bg-song-b')
@@ -40,10 +53,26 @@ try {
 
 				function songId(file) { return file.replace(/\.ogg$/, ''); }
 
+				// Mirror the playing track into the footer widget (re-queried per call: View Transitions swap the DOM)
+				function renderNowPlaying() {
+					var titleEl = document.getElementById('np-title');
+					if (titleEl) {
+						titleEl.textContent = currentSong
+							? currentSong.title_ja + ' — ' + currentSong.title_en
+							: '…';
+					}
+					var btn = document.getElementById('np-mute');
+					if (btn && bgm) {
+						btn.textContent = bgm.muted ? '🔇' : '♪';
+						btn.setAttribute('aria-pressed', bgm.muted ? 'true' : 'false');
+					}
+				}
+
 				// Preload the image, then crossfade: incoming layer fades in over the outgoing one
 				function applySong(song) {
 					currentSong = song;
 					document.body.dataset.song = songId(song.file);
+					renderNowPlaying();
 					var incoming = songLayers[1 - activeLayer];
 					var outgoing = songLayers[activeLayer];
 					var img = new Image();
@@ -98,9 +127,18 @@ try {
 					var playMusic = function() { if (bgm.paused) bgm.play(); document.body.removeEventListener('click', playMusic); };
 					bgm.play()['catch'](function() { document.body.addEventListener('click', playMusic); });
 
-					// ClientRouter swaps <body> on navigation: re-apply the active song marker
+					// ClientRouter swaps <body> on navigation: re-apply the active song marker + widget
 					document.addEventListener('astro:page-load', function() {
 						if (currentSong) document.body.dataset.song = songId(currentSong.file);
+						renderNowPlaying();
+					});
+
+					// Mute toggle via delegation — survives View Transition DOM swaps
+					document.addEventListener('click', function(e) {
+						var target = e.target instanceof Element ? e.target.closest('#np-mute') : null;
+						if (!target || !bgm) return;
+						bgm.muted = !bgm.muted;
+						renderNowPlaying();
 					});
 				}
 			}
@@ -117,5 +155,49 @@ try {
 		transition: opacity 1.5s ease;
 		pointer-events: none;
 		z-index: 0;
+	}
+
+	/* Now Playing — Win9x outset box, bottom corner */
+	.now-playing {
+		position: fixed;
+		right: 10px;
+		bottom: 10px;
+		z-index: 5000;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		max-width: min(340px, calc(100vw - 20px));
+		padding: 4px 6px 4px 10px;
+		background: var(--surface);
+		border: 2px outset var(--border-light);
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		color: var(--text);
+		box-shadow: 2px 2px 0 rgba(0,0,0,0.35);
+	}
+	.now-playing .np-label {
+		color: var(--reimu-red);
+		font-weight: bold;
+		white-space: nowrap;
+	}
+	.now-playing .np-title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.now-playing .np-btn {
+		flex-shrink: 0;
+		width: 26px;
+		height: 26px;
+		padding: 0;
+		background: var(--bg);
+		border: 2px outset var(--border-light);
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		line-height: 1;
+		cursor: pointer;
+	}
+	.now-playing .np-btn:active {
+		border-style: inset;
 	}
 </style>

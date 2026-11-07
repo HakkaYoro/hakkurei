@@ -175,8 +175,9 @@ const { totalDonations } = Astro.props;
 			}
 		}
 
-		// Animation loop
+		// Animation loop — runs only while there is something to simulate
 		let lastTime = performance.now();
+		let rafId = null;
 		function animate() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			const now = performance.now();
@@ -203,9 +204,17 @@ const { totalDonations } = Astro.props;
 				}
 			}
 
-			requestAnimationFrame(animate);
+			if (activeCoins.length || activeSparks.length) {
+				rafId = requestAnimationFrame(animate);
+			} else {
+				rafId = null;
+			}
 		}
-		requestAnimationFrame(animate);
+		function startCoinLoop() {
+			if (rafId !== null) return;
+			lastTime = performance.now();
+			rafId = requestAnimationFrame(animate);
+		}
 
 		// Click trigger with API limit checks
 		saisenbako.addEventListener('mousedown', function(e) {
@@ -249,6 +258,8 @@ const { totalDonations } = Astro.props;
 				for (let i = 0; i < 8; i++) {
 					activeSparks.push(new Spark(clickX, clickY));
 				}
+
+				startCoinLoop();
 			})
 			.catch(err => {
 				saisenbako.dataset.donating = 'false';
@@ -341,6 +352,7 @@ const { totalDonations } = Astro.props;
 	/* SAISENBAKO 2.5D WOODEN BOX */
 	.saisenbako {
 		width: 220px;
+		max-width: 100%;
 		height: 120px;
 		background: linear-gradient(135deg, #7c3b17, #59250a);
 		border: 5px solid #361403;

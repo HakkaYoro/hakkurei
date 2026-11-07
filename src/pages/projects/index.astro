@@ -159,7 +159,7 @@ const langColors: Record<string, string> = {
 <style>
 	.projects-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
 		gap: 1rem;
 		margin-bottom: 2rem;
 	}
@@ -205,6 +205,7 @@ const langColors: Record<string, string> = {
 
 	.project-meta {
 		display: flex;
+		flex-wrap: wrap;
 		gap: 0.75rem;
 		align-items: center;
 		font-size: 0.75rem;
@@ -289,7 +290,7 @@ const langColors: Record<string, string> = {
 
 	.skills-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
 		gap: 1rem;
 		margin-bottom: 2rem;
 	}

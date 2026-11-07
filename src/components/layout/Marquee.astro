@@ -4,6 +4,21 @@
 				</marquee>
 			</div>
 
+<script is:inline>
+			// Reduced motion: the legacy <marquee> element only stops via its stop() method.
+			// The element is swapped on every navigation, so re-stop on each astro:page-load
+			// (is:inline + one-shot guard, same pattern as the BGM init).
+			if (!window._marqueeReducedMotionInit) {
+				window._marqueeReducedMotionInit = true;
+				var stopMarqueeIfReduced = function() {
+					if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+					var mq = document.getElementById('dynamic-marquee');
+					if (mq && typeof mq.stop === 'function') mq.stop();
+				};
+				document.addEventListener('astro:page-load', stopMarqueeIfReduced);
+			}
+</script>
+
 <script>
 			// Load random marquee message
 			fetch('/messages.json')
