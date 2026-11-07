@@ -87,9 +87,12 @@
 	text-overflow: ellipsis;
 }
 
-/* Viewport: the legacy .wrapper (untouched) lives inside */
+/* Viewport: the legacy .wrapper (untouched) lives inside. Restores the theme
+   text color — .browser sets #000 for the chrome, and without this the
+   per-song dark palettes render their cream text as black-on-dark. */
 .browser-viewport {
 	background: var(--bg);
+	color: var(--text);
 }
 
 /* Status bar: fixed greeting + the marquee relocated here from the wrapper */
@@ -144,6 +147,21 @@
 	line-height: 1.4;
 }
 
+/* th06_01/th06_03: white-on-accent measures 4.49/4.22:1 (FASE 5B e2e audit) and
+   no lighter ink exists — black clears 4.5:1 (4.67 / 4.97). The other 15
+   palettes keep the white-on-accent chip. */
+body:not([data-song]) .section-tab,
+body[data-song="th06_01"] .section-tab,
+body[data-song="th06_03"] .section-tab {
+	color: #000;
+}
+
+body:not([data-song]) .mini-tab.is-active,
+body[data-song="th06_01"] .mini-tab.is-active,
+body[data-song="th06_03"] .mini-tab.is-active {
+	color: #000;
+}
+
 /* --- Win98 pixel scrollbar ------------------------------------------------ */
 
 ::-webkit-scrollbar {
@@ -193,99 +211,116 @@
 	background: #dfdfdf;
 }
 
-/* Desktop: the right-hand Now Playing widget steps aside for the mini window
-   (its #np-title/#np-mute nodes stay in the DOM — the mirror reads them) */
-@media (min-width: 1280px) {
-	.now-playing {
-		display: none;
-	}
-}
+/* The corner Now Playing widget is retired (display:none lives in Bgm.astro,
+   its own stylesheet — the mini window below is the only player) */
 
-/* --- Mini window (desktop only): Now Playing mirror + mood --------------- */
+/* --- Mini window (all widths): Now Playing mirror + mood ------------------ */
 
 .mini-window {
+	display: flex;
+	flex-direction: column;
+	position: fixed;
+	left: 12px;
+	bottom: 12px;
+	width: 240px;
+	z-index: 4900;
+	background: #fff;
+	border: 1px solid #000;
+	box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
+	font-family: var(--font-chrome);
+	color: #000;
+}
+
+.mini-tabs {
+	display: flex;
+	gap: 2px;
+	padding: 3px 4px 0;
+	border-bottom: 1px solid #000;
+}
+
+.mini-tab {
+	font-family: var(--font-chrome);
+	font-size: 0.75rem;
+	padding: 2px 10px 1px;
+	border: 1px solid #000;
+	border-bottom: none;
+	border-radius: 8px 8px 0 0;
+	background: #fff;
+	color: #000;
+	cursor: url('/cursors/Link.png'), pointer;
+}
+
+.mini-tab.is-active {
+	background: var(--accent);
+	color: #fff;
+}
+
+.mini-pane {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 26px;
+	padding: 4px 8px;
+	font-size: 0.75rem;
+}
+
+.mini-pane.hidden {
 	display: none;
 }
 
-@media (min-width: 1280px) {
-	.mini-window {
-		display: flex;
-		flex-direction: column;
-		position: fixed;
-		left: 12px;
-		bottom: 12px;
-		width: 240px;
-		z-index: 4900;
-		background: #fff;
-		border: 1px solid #000;
-		box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
-		font-family: var(--font-chrome);
-		color: #000;
-	}
+.mini-np-title {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
 
-	.mini-tabs {
-		display: flex;
-		gap: 2px;
-		padding: 3px 4px 0;
-		border-bottom: 1px solid #000;
+.mini-mute {
+	flex-shrink: 0;
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	background: #fff;
+	border: 1px solid #000;
+	font-family: var(--font-chrome);
+	font-size: 0.7rem;
+	line-height: 1;
+	cursor: url('/cursors/Link.png'), pointer;
+}
+
+.mini-mute:active {
+	box-shadow: inset 1px 1px 2px #0a0a0a;
+}
+
+.mini-mood-text {
+	flex: 1;
+}
+
+/* Compact variant: below 1280px the browser fills the viewport, so shrink the
+   window to keep it from covering content */
+@media (max-width: 1279.98px) {
+	.mini-window {
+		width: 168px;
+		bottom: 8px;
+		left: 8px;
+		box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
 	}
 
 	.mini-tab {
-		font-family: var(--font-chrome);
-		font-size: 0.75rem;
-		padding: 2px 10px 1px;
-		border: 1px solid #000;
-		border-bottom: none;
-		border-radius: 8px 8px 0 0;
-		background: #fff;
-		color: #000;
-		cursor: url('/cursors/Link.png'), pointer;
-	}
-
-	.mini-tab.is-active {
-		background: var(--accent);
-		color: #fff;
+		font-size: 0.6rem;
+		padding: 2px 6px 1px;
 	}
 
 	.mini-pane {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		min-height: 26px;
-		padding: 4px 8px;
-		font-size: 0.75rem;
-	}
-
-	.mini-pane.hidden {
-		display: none;
-	}
-
-	.mini-np-title {
-		flex: 1;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		min-height: 20px;
+		padding: 2px 6px;
+		font-size: 0.6rem;
 	}
 
 	.mini-mute {
-		flex-shrink: 0;
-		width: 22px;
-		height: 22px;
-		padding: 0;
-		background: #fff;
-		border: 1px solid #000;
-		font-family: var(--font-chrome);
-		font-size: 0.7rem;
-		line-height: 1;
-		cursor: url('/cursors/Link.png'), pointer;
-	}
-
-	.mini-mute:active {
-		box-shadow: inset 1px 1px 2px #0a0a0a;
-	}
-
-	.mini-mood-text {
-		flex: 1;
+		width: 18px;
+		height: 18px;
+		font-size: 0.6rem;
 	}
 }
 

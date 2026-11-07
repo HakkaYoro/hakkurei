@@ -168,47 +168,9 @@ try {
 		z-index: 0;
 	}
 
-	/* Now Playing — Win9x outset box, bottom corner */
+	/* Now Playing widget retired: the mini window is the only player. The node
+	   stays in the DOM (display:none) — #np-title/#np-mute feed the mini mirror. */
 	.now-playing {
-		position: fixed;
-		right: 10px;
-		bottom: 10px;
-		z-index: 5000;
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		max-width: min(340px, calc(100vw - 20px));
-		padding: 4px 6px 4px 10px;
-		background: var(--surface);
-		border: 2px outset var(--border-light);
-		font-family: var(--font-mono);
-		font-size: 0.7rem;
-		color: var(--text);
-		box-shadow: 2px 2px 0 rgba(0,0,0,0.35);
-	}
-	.now-playing .np-label {
-		color: var(--reimu-red);
-		font-weight: bold;
-		white-space: nowrap;
-	}
-	.now-playing .np-title {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	.now-playing .np-btn {
-		flex-shrink: 0;
-		width: 26px;
-		height: 26px;
-		padding: 0;
-		background: var(--bg);
-		border: 2px outset var(--border-light);
-		font-family: var(--font-mono);
-		font-size: 0.8rem;
-		line-height: 1;
-		cursor: pointer;
-	}
-	.now-playing .np-btn:active {
-		border-style: inset;
+		display: none;
 	}
 </style>

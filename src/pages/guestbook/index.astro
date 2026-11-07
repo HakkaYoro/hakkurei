@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
+import YinYangOrb from '../../components/layout/YinYangOrb.astro';
 import Saisenbako from '../../components/guestbook/Saisenbako.astro';
 import GuestbookForm from '../../components/guestbook/GuestbookForm.astro';
 import GuestbookEntries from '../../components/guestbook/GuestbookEntries.astro';
@@ -34,11 +35,11 @@ const totalDonations = getDonationsTotal();
 
 	<Saisenbako totalDonations={totalDonations} />
 
-	<div class="divider"><span class="divider-orb"></span></div>
+	<div class="divider"><YinYangOrb /></div>
 
 	<GuestbookForm avatars={defaultAvatars} />
 
-	<div class="divider"><span class="divider-orb"></span></div>
+	<div class="divider"><YinYangOrb /></div>
 
 	<GuestbookEntries entries={allEntries} avatars={defaultAvatars} />
 </Layout>

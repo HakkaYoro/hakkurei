@@ -50,62 +50,6 @@
 
 				setTimeout(advanceProgress, 300);
 
-				function startWrapperDrop() {
-				const wrapper = document.querySelector<HTMLElement>('.wrapper');
-				if (!wrapper) return;
-				const wrap = wrapper;
-
-					// Remove the FOUC style tag to let the inline transform take effect
-					const hideStyle = document.getElementById('ls-wrapper-hide');
-					if (hideStyle) hideStyle.remove();
-
-					// Physical states for both vertical movement and tilt rotation
-					let wy = -window.innerHeight - 150; // Start off-screen at the top
-					let vy = 0;
-					let wangle = 0.07; // Start with a subtle tilt in radians (approx. 4 degrees)
-					let womega = 0;
-
-					// Physics parameters (weighty spring, low damping for 2-3 natural bounces)
-					const K_spring = 160.0;
-					const D_damping = 9.5;
-					const K_rot = 130.0;
-					const D_rot = 8.0;
-					
-					let lastTime = performance.now();
-
-					function animateDrop() {
-						const now = performance.now();
-						let dt = (now - lastTime) / 1000;
-						lastTime = now;
-
-						// Cap dt to prevent physics exploding
-						if (dt > 0.03) dt = 0.03;
-
-						// 1. Vertical translation physics (spring-mass-damper)
-						const ay = -K_spring * wy - D_damping * vy;
-						vy += ay * dt;
-						wy += vy * dt;
-
-						// 2. Angular rotation physics (spring-mass-damper pulling angle back to 0)
-						const a_rot = -K_rot * wangle - D_rot * womega;
-						womega += a_rot * dt;
-						wangle += womega * dt;
-
-						// Apply 2D rigid-body physical transform (translation + tilt)
-						wrap.style.transform = `translate3d(0, ${wy}px, 0) rotate(${wangle}rad)`;
-
-						// Stop condition: when both vertical bounce and rotational wobble are fully settled
-						if (Math.abs(wy) < 0.2 && Math.abs(vy) < 0.2 && Math.abs(wangle) < 0.002 && Math.abs(womega) < 0.002) {
-							wrap.style.transform = ''; // Reset to default static layout
-							return;
-						}
-
-						requestAnimationFrame(animateDrop);
-					}
-
-					requestAnimationFrame(animateDrop);
-				}
-
 				function dismiss() {
 					sessionStorage.setItem('loading-screen-dismissed', '1');
 					window.dispatchEvent(new CustomEvent('loading-screen-dismissed'));
@@ -117,8 +61,11 @@
 						(document.getElementById('bgm') as HTMLAudioElement | null)?.play()?.catch(() => {});
 					} catch (_) {}
 
-					// Start the wrapper drop animation
-					startWrapperDrop();
+					// The wrapper simply appears in place: drop the FOUC hide-style, no animation
+					const hideStyle = document.getElementById('ls-wrapper-hide');
+					if (hideStyle) hideStyle.remove();
+					const wrapper = document.querySelector<HTMLElement>('.wrapper');
+					if (wrapper) wrapper.style.transform = '';
 
 					setTimeout(() => {
 						screen.remove();

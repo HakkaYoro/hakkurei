@@ -337,7 +337,9 @@ const emptyBoxMessage = emptyBoxMessages[Math.floor(Math.random() * emptyBoxMess
 		padding: 0.75rem 1.25rem;
 		font-size: 0.9rem;
 		font-weight: bold;
-		color: var(--reimu-red);
+		/* 50/50 mix with --text: pure --reimu-red measures 4.43:1 on the default
+		   palette's --surface (FASE 5B e2e audit); the mix clears 4.5:1 on all 17 */
+		color: color-mix(in srgb, var(--reimu-red) 50%, var(--text));
 		box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 	}
 	.reimu-speech-bubble::before {
@@ -373,7 +375,8 @@ const emptyBoxMessage = emptyBoxMessages[Math.floor(Math.random() * emptyBoxMess
 		100% { transform: scale(1); }
 	}
 
-	/* SAISENBAKO — real illustration with transparency (public/images/saisenbako.png) */
+	/* SAISENBAKO — chunky pixel-art rendition with real alpha
+	   (public/images/saisenbako.png, generated for this site) */
 	.saisenbako {
 		width: 220px;
 		max-width: 100%;
@@ -397,6 +400,7 @@ const emptyBoxMessage = emptyBoxMessages[Math.floor(Math.random() * emptyBoxMess
 		width: 100%;
 		height: 100%;
 		pointer-events: none;
+		image-rendering: pixelated;
 	}
 
 	.saisen-text {

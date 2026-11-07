@@ -134,7 +134,9 @@ const { avatars } = Astro.props;
 	}
 
 	.form-header {
-		color: var(--reimu-red);
+		/* 50/50 mix with --text: pure --reimu-red measures 4.43:1 on the default
+		   palette (FASE 5B e2e audit); the mix clears 4.5:1 on all 17 */
+		color: color-mix(in srgb, var(--reimu-red) 50%, var(--text));
 		border-bottom: 1px dashed var(--border-light);
 		padding-bottom: 0.5rem;
 		margin-bottom: 1.25rem;
@@ -157,7 +159,8 @@ const { avatars } = Astro.props;
 		font-family: var(--font-sans);
 		font-size: 0.9rem;
 		font-weight: bold;
-		color: var(--reimu-red);
+		/* same 50/50 mix as .form-header — pure red fails 4.5:1 on the default palette */
+		color: color-mix(in srgb, var(--reimu-red) 50%, var(--text));
 	}
 
 	.form-group input[type="text"],
@@ -229,7 +232,9 @@ const { avatars } = Astro.props;
 		margin-top: 4px;
 	}
 	.avatar-option input[type="radio"]:checked + .avatar-wrapper .avatar-label {
-		color: var(--reimu-red);
+		/* var(--text) clears 4.5:1 on the --reimu-red-light chip in every palette
+		   (the old red measured 2.74:1 on the default one) */
+		color: var(--text);
 	}
 
 	.gb-submit-btn {
@@ -248,6 +253,18 @@ const { avatars } = Astro.props;
 	.gb-submit-btn:hover {
 		background: var(--magenta);
 		border-style: inset;
+	}
+
+	/* th06_01 (default): the --bg ink on the red button measures 4.12:1 and no
+	   light ink passes 4.5:1 on that fill — black does (4.67:1). The hover keeps
+	   --bg, which clears 4.5:1 on --magenta in every palette. */
+	body:not([data-song]) .gb-submit-btn,
+	body[data-song="th06_01"] .gb-submit-btn {
+		color: #000;
+	}
+	body:not([data-song]) .gb-submit-btn:hover,
+	body[data-song="th06_01"] .gb-submit-btn:hover {
+		color: var(--bg);
 	}
 	.gb-submit-btn:disabled {
 		background: var(--border-light);

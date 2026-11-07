@@ -2,54 +2,45 @@
 import Layout from '../../layouts/Layout.astro';
 import YinYangOrb from '../../components/layout/YinYangOrb.astro';
 
+// Baked from the live GitHub API (verified 2026-11-07 with gh api): starred
+// repos first, then by commit count desc, capped at 6. The server HTML ships
+// in this order — the client script below only refines it.
 const repos = [
 	{
-		name: "Corozal",
-		desc: "Fabric mod with venezuelan foods!",
-		lang: "Java",
-		url: "https://github.com/HakkaYoro/Corozal",
-	},
-	{
-		name: "AutoHMWRK",
-		desc: "Why do it yourself when a script can do it better? Academic automation.",
+		name: "app-bcv",
+		desc: "Currency exchange app that scrapes Venezuela's official BCV rates — Flet/Python, offline cache, built-in converter.",
 		lang: "Python",
-		url: "https://github.com/HakkaYoro/AutoHMWRK",
+		url: "https://github.com/YuiStarLord/app-bcv",
 	},
 	{
-		name: "SubTranstator",
-		desc: "Breaking language barriers in media. Subtitle translation utilities.",
-		lang: "Python",
-		url: "https://github.com/HakkaYoro/SubTranstator",
+		name: "Hakkurin",
+		desc: "AI-personality Discord bot (NestJS/TypeScript port) — encrypted per-user memory, music playback, Gemma/OpenRouter brain.",
+		lang: "TypeScript",
+		url: "https://github.com/HakkaYoro/Hakkurin",
 	},
 	{
-		name: "osuDwn",
-		desc: "Userscript to automatically download beatmaps on official Osu! website.",
-		lang: "JavaScript",
-		url: "https://github.com/HakkaYoro/osuDwn",
+		name: "HakkuAuto",
+		desc: "Code Redeemer for Gacha Games!",
+		lang: "TypeScript",
+		url: "https://github.com/HakkaYoro/HakkuAuto",
 	},
 	{
 		name: "SpotiLinkConv",
-		desc: "Spotify link converter utility.",
+		desc: "GUI/CLI bridge between Spotify metadata and Qobuz hi-fi downloads, landing files straight on your NAS/SMB share.",
 		lang: "Python",
 		url: "https://github.com/HakkaYoro/SpotiLinkConv",
 	},
 	{
-		name: "Navidrome-AI-Curator",
-		desc: "AI-assisted music curation for Navidrome.",
+		name: "AutoHMWRK",
+		desc: "LLM-powered homework generator — GUI to LaTeX to PDF, with automatic image scraping.",
 		lang: "Python",
-		url: "https://github.com/HakkaYoro/Navidrome-AI-Curator",
+		url: "https://github.com/HakkaYoro/AutoHMWRK",
 	},
 	{
-		name: "FanficForge",
-		desc: "Modern fanfic generator via LLMs!",
-		lang: "Python",
-		url: "https://github.com/HakkaYoro/FanficForge",
-	},
-	{
-		name: "Hakkurin",
-		desc: "Discord Chatbot!",
-		lang: "Python",
-		url: "https://github.com/HakkaYoro/Hakkurin",
+		name: "order-api",
+		desc: "NestJS API playground — orders, pings, guards and interceptors.",
+		lang: "TypeScript",
+		url: "https://github.com/HakkaYoro/order-api",
 	},
 ];
 
@@ -179,7 +170,9 @@ const langColors: Record<string, string> = {
 
 	.project-card-header {
 		background: var(--reimu-red-light);
-		color: var(--reimu-red);
+		/* 50/50 mix with --text: pure --reimu-red measures 4.43:1 on this band in
+		   the default palette (FASE 5B e2e audit); the mix clears 4.5:1 on all 17 */
+		color: color-mix(in srgb, var(--reimu-red) 50%, var(--text));
 		font-family: var(--font-sans);
 		font-size: 1rem;
 		font-weight: bold;
@@ -234,7 +227,9 @@ const langColors: Record<string, string> = {
 		border: 1px solid var(--border-light);
 		padding: 2px 8px;
 		background: var(--reimu-red-light);
-		color: var(--reimu-red);
+		/* var(--text) clears 4.5:1 on this chip in both states (rest + hover on
+		   --surface) and across all 17 palettes; the old red measured 2.74:1 */
+		color: var(--text);
 		font-weight: bold;
 		font-size: 0.75rem;
 		transition: background 0.2s ease, border-color 0.2s ease;
@@ -252,7 +247,8 @@ const langColors: Record<string, string> = {
 
 	.project-link {
 		font-size: 0.8rem;
-		color: var(--reimu-red);
+		/* 50/50 mix with --text: pure --reimu-red fails 4.5:1 on the default palette */
+		color: color-mix(in srgb, var(--reimu-red) 50%, var(--text));
 		font-weight: bold;
 	}
 
@@ -276,6 +272,25 @@ const langColors: Record<string, string> = {
 	.github-btn:hover {
 		background: var(--magenta);
 		border-style: inset !important;
+		/* var(--bg) on --magenta clears 4.5:1 on all 17 palettes; the resting
+		   --surface ink fails the hover on th06_02/06/11 (3.94-4.49:1) */
+		color: var(--bg) !important;
+	}
+
+	/* th06_01 (default) has the brightest red fill: --surface ink sits at
+	   4.12-4.43:1 there and no light ink passes 4.5:1 — black does (4.67:1).
+	   Every other palette keeps its designed ink. */
+	body:not([data-song]) .project-card:hover .project-card-header,
+	body[data-song="th06_01"] .project-card:hover .project-card-header {
+		color: #000;
+	}
+	body:not([data-song]) .github-btn,
+	body[data-song="th06_01"] .github-btn {
+		color: #000 !important;
+	}
+	body:not([data-song]) .github-btn:hover,
+	body[data-song="th06_01"] .github-btn:hover {
+		color: var(--bg) !important;
 	}
 
 
@@ -293,7 +308,8 @@ const langColors: Record<string, string> = {
 	}
 
 	.skill-header {
-		color: var(--reimu-red);
+		/* 50/50 mix with --text: pure --reimu-red fails 4.5:1 on the default palette */
+		color: color-mix(in srgb, var(--reimu-red) 50%, var(--text));
 		padding: 0.75rem 1rem;
 		border-bottom: 1px dashed var(--border-light);
 		margin: 0;
@@ -309,16 +325,18 @@ const langColors: Record<string, string> = {
 
 	.skill-list li::before {
 		content: ":: ";
-		color: var(--reimu-red);
+		/* same mix as .skill-header: pure red fails 4.5:1 on the default palette */
+		color: color-mix(in srgb, var(--reimu-red) 50%, var(--text));
 		font-weight: bold;
 	}
 </style>
 
 <script>
-	// Dynamically fetch GitHub stars (Donations) for HakkaYoro's repositories,
-	// then reorder the cards: starred repos first, then by commit count desc.
-	// The final order is cached in localStorage for 1h (GitHub allows 60
-	// requests/h without a token); on any failure the current DOM order stays.
+	// Progressive enhancement over the baked card order: fetch live stars
+	// (Donations) per card — owner and repo taken from each card's own GitHub
+	// URL, so non-HakkaYoro cards (app-bcv) count too — then re-sort starred
+	// repos first, commits desc. Cached 1h in localStorage; on any failure the
+	// baked DOM order stays untouched.
 	(function() {
 		const CACHE_KEY = 'gh-repo-order';
 		const CACHE_TTL = 3600000;
@@ -335,7 +353,7 @@ const langColors: Record<string, string> = {
 
 		function applyOrder(order: string[]) {
 			const grid = document.querySelector('.projects-grid');
-			if (!grid) return false;
+			if (!grid) return;
 			const cards = new Map();
 			grid.querySelectorAll('.project-card').forEach(card => {
 				const badge = card.querySelector('.project-donations');
@@ -346,60 +364,66 @@ const langColors: Record<string, string> = {
 				if (card) { grid.appendChild(card); cards.delete(name); }
 			});
 			cards.forEach(card => grid.appendChild(card));
-			return true;
 		}
 
 		// per_page=1 makes the rel="last" page number equal the total commit count
-		function commitCount(name: string) {
-			return fetch(`https://api.github.com/repos/HakkaYoro/${name}/commits?per_page=1`)
+		// null on failure — a partial fetch must not degrade the baked order
+		function commitCount(fullName: string) {
+			return fetch(`https://api.github.com/repos/${fullName}/commits?per_page=1`)
 				.then(res => {
-					if (!res.ok) return 0;
+					if (!res.ok) return null;
 					const last = (res.headers.get('Link') || '').match(/page=(\d+)>;\s*rel="last"/);
 					if (last) return parseInt(last[1], 10);
 					return res.json().then(arr => (Array.isArray(arr) ? arr.length : 0));
 				})
-				.catch(() => 0);
+				.catch(() => null);
 		}
 
 		const cached = readCache();
 		if (cached) applyOrder(cached.order);
 
-		fetch('https://api.github.com/users/HakkaYoro/repos')
-			.then(res => res.json())
-			.then(async data => {
-				if (!Array.isArray(data)) return;
-				data.forEach(repo => {
-					const badge = document.getElementById(`donations-${repo.name}`);
+		const grid = document.querySelector('.projects-grid');
+		if (!grid) return;
+		const cards = [...grid.querySelectorAll('.project-card')].map(card => {
+			const anchor = card as HTMLAnchorElement;
+			const badge = anchor.querySelector('.project-donations');
+			const fullName = new URL(anchor.href).pathname.replace(/^\/+|\/+$/g, '');
+			return { name: badge && badge.id.startsWith('donations-') ? badge.id.slice(10) : fullName, fullName, card: anchor };
+		});
+		if (!cards.length) return;
+
+		(async function() {
+			try {
+				const stats: Record<string, { stars: number; commits: number | null }> = {};
+				let allOk = true;
+				await Promise.all(cards.map(async ({ name, fullName }) => {
+					const repo = await fetch(`https://api.github.com/repos/${fullName}`)
+						.then(res => (res.ok ? res.json() : null))
+						.catch(() => null);
+					const commits = await commitCount(fullName);
+					if (!repo || commits === null) allOk = false;
+					stats[name] = { stars: repo ? repo.stargazers_count || 0 : 0, commits };
+					const badge = document.getElementById(`donations-${name}`);
 					if (badge) {
 						const countEl = badge.querySelector('.count');
-						if (countEl) {
-							countEl.textContent = repo.stargazers_count;
-						}
-						// If stargazers_count > 0, make sure it is visible, otherwise hide
-						badge.style.display = repo.stargazers_count > 0 ? 'flex' : 'none';
+						if (countEl) countEl.textContent = String(stats[name].stars);
+						badge.style.display = stats[name].stars > 0 ? 'flex' : 'none';
 					}
+				}));
+				// Partial data would reorder blindly — keep the baked order instead
+				if (cached || !allOk) return;
+				const names = cards.map(c => c.name);
+				names.sort((a, b) => {
+					const starredA = stats[a] && stats[a].stars > 0 ? 1 : 0;
+					const starredB = stats[b] && stats[b].stars > 0 ? 1 : 0;
+					if (starredA !== starredB) return starredB - starredA;
+					return (stats[b]?.commits ?? 0) - (stats[a]?.commits ?? 0);
 				});
-
-				if (cached) return;
-				try {
-					const stats: Record<string, { stars: number; commits: number }> = {};
-					await Promise.all(data.map(async repo => {
-						stats[repo.name] = { stars: repo.stargazers_count || 0, commits: await commitCount(repo.name) };
-					}));
-					const names = data.map(repo => repo.name)
-						.filter(name => document.getElementById(`donations-${name}`));
-					names.sort((a, b) => {
-						const starredA = stats[a].stars > 0 ? 1 : 0;
-						const starredB = stats[b].stars > 0 ? 1 : 0;
-						if (starredA !== starredB) return starredB - starredA;
-						return stats[b].commits - stats[a].commits;
-					});
-					applyOrder(names);
-					localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), order: names }));
-				} catch (err) {
-					console.error('Failed to fetch commit counts, keeping current order:', err);
-				}
-			})
-			.catch(err => console.error('Failed to fetch dynamic github donations:', err));
+				applyOrder(names);
+				localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), order: names }));
+			} catch (_) {
+				// silent fallback: the baked order stays
+			}
+		})();
 	})();
 </script>

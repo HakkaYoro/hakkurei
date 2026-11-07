@@ -159,7 +159,9 @@ h3 { font-size: 1.2rem; }
 	margin: 0 1rem;
 	padding: 0.65rem 0.5rem;
 	font-weight: bold;
-	color: var(--reimu-red);
+	/* var(--text): the only ink that clears 4.5:1 on the --reimu-red-light band
+	   across all 17 palettes (the old red measured 2.74:1 on the default one) */
+	color: var(--text);
 	text-decoration: none;
 	border: none;
 }
@@ -254,7 +256,9 @@ footer a { border: none; font-weight: bold; margin: 0 0.5rem; }
 }
 
 .avatar-caption {
-	color: var(--reimu-red);
+	/* 50/50 mix with --text: pure --reimu-red measures 4.43:1 on the default
+	   palette's --bg (FASE 5B e2e audit); the mix clears 4.5:1 on all 17 */
+	color: color-mix(in srgb, var(--reimu-red) 50%, var(--text));
 	font-size: 0.85rem;
 	line-height: 1.5;
 }

@@ -126,11 +126,26 @@ const communitySites = [
 		text-decoration: none !important;
 	}
 
+	/* th06_01 (default): the --bg ink on the red button measures 4.12:1 and no
+	   light ink passes 4.5:1 on that fill — black does (4.67:1). The hover keeps
+	   --bg, which clears 4.5:1 on --magenta in every palette (FASE 5B e2e audit). */
+	body:not([data-song]) .btn-community-local,
+	body[data-song="th06_01"] .btn-community-local {
+		color: #000 !important;
+	}
+	body:not([data-song]) .btn-community-local:hover,
+	body[data-song="th06_01"] .btn-community-local:hover {
+		color: var(--bg) !important;
+	}
+
 	.btn-community-external {
 		flex: 0 0 90px;
 		text-align: center;
 		background: var(--bg);
-		color: var(--reimu-red) !important;
+		/* 50/50 mix with --text: pure --reimu-red fails 4.5:1 on the default
+		   palette's --bg chip; the mix passes on --bg and on the --reimu-red-light
+		   hover in all 17 palettes */
+		color: color-mix(in srgb, var(--reimu-red) 50%, var(--text)) !important;
 		border: 2px solid var(--reimu-red-light);
 		padding: 6px 8px;
 		font-family: var(--font-sans);

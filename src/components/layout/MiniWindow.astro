@@ -13,9 +13,9 @@
 </div>
 
 <script is:inline>
-	// Desktop-only second view of the Now Playing widget: the widget itself is
-	// neither moved nor re-implemented — the mirror reads #np-title/#np-mute via
-	// MutationObserver and forwards mute clicks to the real button.
+	// Second view of the Now Playing widget (the retired corner widget is CSS-hidden):
+	// the mirror reads #np-title/#np-mute via MutationObserver and forwards mute
+	// clicks to the real button. Visible at every viewport width.
 	if (!window._miniWindowInit) {
 		window._miniWindowInit = true;
 		var wireMiniWindow = function() {

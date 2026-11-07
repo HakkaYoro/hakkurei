@@ -167,7 +167,7 @@ const stampSources: Array<[string, string]> = [
 			<a href="https://commons.wikimedia.org/wiki/File:Shinto_torii_icon_vermillion.svg" target="_blank" rel="noopener noreferrer">Shinto torii icon vermillion.svg</a>
 			by Washiucho (Wikimedia Commons, public domain): sphere frame removed, vector re-rendered.
 		</li>
-		<li><code>public/images/saisenbako.png</code> — the wooden offering-box illustration, drawn for this site (that's us!).</li>
+		<li><code>public/images/saisenbako.png</code> — the chunky pixel-art offering box (110×60 grid, posterized wood palette), generated programmatically — made by HakkaYoro (this site).</li>
 		<li><code>public/images/9-16.png</code>, <code>9-96.png</code> — pre-scaled ⑨ renditions of <code>9.png</code> (Mitchell/Lanczos via ImageMagick), drawn for this site.</li>
 	</ul>
 </Layout>
@@ -205,6 +205,24 @@ const stampSources: Array<[string, string]> = [
 
 	.provenance-table tr:hover td {
 		background: rgba(219, 54, 85, 0.06);
+	}
+
+	.provenance-table a {
+		/* 50/50 mix with --text: pure var(--link) dips to 1.61-2.57:1 on --surface
+		   in 12 of the 17 palettes (FASE 5B e2e audit); the mix keeps the link hue
+		   and clears 4.5:1 everywhere — base, hover and focus included */
+		color: color-mix(in srgb, var(--link) 50%, var(--text));
+	}
+
+	.provenance-table a:hover {
+		color: color-mix(in srgb, var(--link-hover) 50%, var(--text));
+	}
+
+	/* th06_01 (default): the --bg ink on the red header band measures 4.12:1 —
+	   the only palette where no light ink passes 4.5:1; black clears it (4.67:1) */
+	body:not([data-song]) .provenance-table th,
+	body[data-song="th06_01"] .provenance-table th {
+		color: #000;
 	}
 
 	.credits-list {
