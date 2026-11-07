@@ -65,7 +65,7 @@ const affiliates = [
 				<div class="affiliate-body">
 					<!-- Custom styled 88x31 SVG retro buttons rendering natively in client -->
 					<div class="badge-container">
-						<div class={`retro-badge-button affiliate-badge-${aff.id} hover-${aff.hoverEffect}`} id={`badge-btn-${aff.id}`} role="button" aria-label={`Activate ${aff.name} Badge`}>
+						<div class={`retro-badge-button affiliate-badge-${aff.id} hover-${aff.hoverEffect}`} id={`badge-btn-${aff.id}`} role="button" tabindex="0" aria-label={`Activate ${aff.name} Badge`}>
 							{aff.id === 'kourindou' && (
 								<svg viewBox="0 0 88 31" width="88" height="31">
 									<rect width="88" height="31" fill="url(#bg-kourindou)" />
@@ -233,6 +233,7 @@ const affiliates = [
 			gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + profile.duration);
 			gain.connect(ctx.destination);
 
+			let lastOsc = null;
 			profile.freqs.forEach((freq, index) => {
 				const osc = ctx.createOscillator();
 				osc.type = profile.type;
@@ -240,7 +241,10 @@ const affiliates = [
 				osc.connect(gain);
 				osc.start();
 				osc.stop(ctx.currentTime + profile.duration);
+				lastOsc = osc;
 			});
+			// Free the per-click AudioContext once the last oscillator finishes
+			if (lastOsc) lastOsc.onended = function() { if (typeof ctx.close === 'function') ctx.close(); };
 		}
 
 		// Wire up faction button clicks; id and flash color come from the card itself
@@ -248,7 +252,7 @@ const affiliates = [
 			const id = card.id.replace(/^card-/, '');
 			const badgeBtn = document.getElementById(`badge-btn-${id}`);
 			if (!badgeBtn) return;
-			badgeBtn.addEventListener('click', function() {
+			const activate = function() {
 				playFactionSound(id);
 
 				// Briefly flash the card with faction color
@@ -258,6 +262,14 @@ const affiliates = [
 					card.style.background = '';
 					card.style.transform = '';
 				}, 300);
+			};
+			badgeBtn.addEventListener('click', activate);
+			// role="button" keyboard operability (WCAG 2.1.1)
+			badgeBtn.addEventListener('keydown', function(e) {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					activate();
+				}
 			});
 		});
 })();

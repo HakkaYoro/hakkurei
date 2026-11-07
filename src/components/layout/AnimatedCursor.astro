@@ -15,7 +15,6 @@
 					// Preload
 					normalFrames.concat(linkFrames).forEach(function(src) { var img = new Image(); img.src = src; });
 					var cursorStyle = document.createElement('style');
-					cursorStyle.id = 'animated-cursor-style';
 					document.head.appendChild(cursorStyle);
 					var frame = 0;
 					setInterval(function() {

@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getDonationsData, incrementDonations } from '../../lib/db';
+import { rateLimitIp } from '../../lib/ip';
 
 export const prerender = false;
 
@@ -15,15 +16,7 @@ export const GET: APIRoute = async () => {
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
 	try {
-		// Rate-limit key: the real connection IP by default. Only with TRUST_PROXY
-		// set (deployment behind a reverse proxy) is x-forwarded-for honored, taking
-		// the LAST entry — the one the trusted proxy appended (client-supplied
-		// entries come first and are spoofable). Same logic as the guestbook endpoint.
-		let ip = clientAddress || '127.0.0.1';
-		if (process.env.TRUST_PROXY) {
-			const lastForwarded = request.headers.get('x-forwarded-for')?.split(',').pop()?.trim();
-			if (lastForwarded) ip = lastForwarded;
-		}
+		const ip = rateLimitIp(request, clientAddress);
 
 		const result = incrementDonations(ip, 5);
 

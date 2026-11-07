@@ -6,56 +6,48 @@ const repos = [
 		name: "Corozal",
 		desc: "Fabric mod with venezuelan foods!",
 		lang: "Java",
-		stars: 1,
 		url: "https://github.com/HakkaYoro/Corozal",
 	},
 	{
 		name: "AutoHMWRK",
 		desc: "Why do it yourself when a script can do it better? Academic automation.",
 		lang: "Python",
-		stars: 0,
 		url: "https://github.com/HakkaYoro/AutoHMWRK",
 	},
 	{
 		name: "SubTranstator",
 		desc: "Breaking language barriers in media. Subtitle translation utilities.",
 		lang: "Python",
-		stars: 0,
 		url: "https://github.com/HakkaYoro/SubTranstator",
 	},
 	{
 		name: "osuDwn",
 		desc: "Userscript to automatically download beatmaps on official Osu! website.",
 		lang: "JavaScript",
-		stars: 0,
 		url: "https://github.com/HakkaYoro/osuDwn",
 	},
 	{
 		name: "SpotiLinkConv",
 		desc: "Spotify link converter utility.",
 		lang: "Python",
-		stars: 0,
 		url: "https://github.com/HakkaYoro/SpotiLinkConv",
 	},
 	{
 		name: "Navidrome-AI-Curator",
 		desc: "AI-assisted music curation for Navidrome.",
 		lang: "Python",
-		stars: 0,
 		url: "https://github.com/HakkaYoro/Navidrome-AI-Curator",
 	},
 	{
 		name: "FanficForge",
 		desc: "Modern fanfic generator via LLMs!",
 		lang: "Python",
-		stars: 0,
 		url: "https://github.com/HakkaYoro/FanficForge",
 	},
 	{
 		name: "Hakkurin",
 		desc: "Discord Chatbot!",
 		lang: "Python",
-		stars: 0,
 		url: "https://github.com/HakkaYoro/Hakkurin",
 	},
 ];
@@ -84,7 +76,8 @@ const langColors: Record<string, string> = {
 							<span class="lang-dot" style={`background: ${langColors[repo.lang] || 'var(--reimu-red)'};`}></span>
 							{repo.lang}
 						</span>
-						<span class="project-donations" id={`donations-${repo.name}`} style={repo.stars > 0 ? 'display: flex;' : 'display: none;'}>
+						<!-- Hidden until the client fetch confirms a live star count -->
+						<span class="project-donations" id={`donations-${repo.name}`} style="display: none;">
 							<svg class="yinyang-svg" viewBox="0 0 24 24" width="14" height="14">
 								<circle cx="12" cy="12" r="11" fill="#FEFDFC" stroke="var(--reimu-red)" stroke-width="1.8"/>
 								<path d="M 12 1 A 11 11 0 0 1 12 23 Z" fill="var(--reimu-red)"/>
@@ -93,7 +86,7 @@ const langColors: Record<string, string> = {
 								<circle cx="12" cy="6.5" r="1.8" fill="#FEFDFC"/>
 								<circle cx="12" cy="17.5" r="1.8" fill="var(--reimu-red)"/>
 							</svg>
-							<span>Donations: <span class="count">{repo.stars}</span></span>
+							<span>Donations: <span class="count"></span></span>
 						</span>
 					</div>
 					<div class="project-link">[ View on GitHub ]</div>
@@ -251,11 +244,6 @@ const langColors: Record<string, string> = {
 	.yinyang-svg {
 		flex-shrink: 0;
 		animation: spin-slow 4s linear infinite;
-	}
-
-	@keyframes spin-slow {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
 	}
 
 	.project-link {

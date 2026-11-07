@@ -1,11 +1,10 @@
 @font-face {
 	font-family: "DFPPOPCorn-W12";
-	src: url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.eot");
-	src: url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.eot?#iefix") format("embedded-opentype"),
-	     url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.woff2") format("woff2"),
+	src: url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.woff2") format("woff2"),
 	     url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.woff") format("woff"),
-	     url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.ttf") format("truetype"),
-	     url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.svg#DFPPOPCorn-W12") format("svg");
+	     url("https://db.onlinewebfonts.com/t/a56f956c8246b0f4dd0c5b24fce859f1.ttf") format("truetype");
+	/* swap: show fallback text while the remote font loads instead of hiding it (FOIT) */
+	font-display: swap;
 }
 
 :root {
@@ -70,7 +69,6 @@ a:hover {
 }
 
 h1, h2, h3 {
-	font-family: var(--font-sans);
 	color: var(--reimu-red);
 	letter-spacing: 1px;
 }
@@ -178,7 +176,6 @@ h3 { font-size: 1.2rem; }
 	color: var(--reimu-red);
 	font-size: 1.5rem;
 	margin-bottom: 1.5rem;
-	font-family: var(--font-sans);
 	font-weight: bold;
 }
 
@@ -205,7 +202,6 @@ footer .badges {
 	background: var(--reimu-red);
 	color: white;
 	text-transform: uppercase;
-	font-family: var(--font-sans);
 }
 .badge.blue { background: #0044cc; }
 .badge.cyan { background: #0088cc; }
@@ -222,7 +218,6 @@ footer a { border: none; font-weight: bold; margin: 0 0.5rem; }
 	box-shadow: 4px 4px 0px var(--border);
 	display: block;
 	margin: 1rem auto;
-	image-rendering: auto;
 }
 
 /* About Layout */
@@ -296,7 +291,6 @@ footer a { border: none; font-weight: bold; margin: 0 0.5rem; }
 	color: var(--reimu-red);
 	font-weight: bold;
 	user-select: none;
-	border: none;
 }
 
 .divider::before,

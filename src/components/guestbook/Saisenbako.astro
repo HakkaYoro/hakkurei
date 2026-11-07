@@ -10,12 +10,12 @@ const { totalDonations } = Astro.props;
 	<div class="saisen-panel">
 		<div class="reimu-bubble-container">
 			<Image src="/images/avatars/reimu.png" class="reimu-bubble-avatar" alt="Reimu" width="600" height="258" loading="eager" />
-			<div class="reimu-speech-bubble" id="reimu-bubble">
+			<div class="reimu-speech-bubble" id="reimu-bubble" aria-live="polite">
 				Sigh... The donation box is empty again today.
 			</div>
 		</div>
 
-		<div class="saisenbako" id="saisenbako">
+		<div class="saisenbako" id="saisenbako" role="button" tabindex="0" aria-label="Donation box — make a 5-yen offering">
 			<div class="saisen-grille"></div>
 			<div class="saisen-text">賽銭</div>
 			<!-- Canvas overlay for falling coin physics -->
@@ -55,6 +55,12 @@ const { totalDonations } = Astro.props;
 		];
 
 		let sessionClicks = 0;
+		function flashBubble(text) {
+			reimuBubble.textContent = text;
+			reimuBubble.style.animation = 'none';
+			void reimuBubble.offsetWidth; // trigger reflow
+			reimuBubble.style.animation = 'speech-pulse 0.4s ease';
+		}
 		function updateReimuDialogue() {
 			sessionClicks++;
 			let text = "";
@@ -68,10 +74,7 @@ const { totalDonations } = Astro.props;
 				const pool = [dialogues[3], dialogues[7]];
 				text = pool[Math.floor(Math.random() * pool.length)];
 			}
-			reimuBubble.textContent = text;
-			reimuBubble.style.animation = 'none';
-			void reimuBubble.offsetWidth; // trigger reflow
-			reimuBubble.style.animation = 'speech-pulse 0.4s ease';
+			flashBubble(text);
 		}
 
 		// Sound Synthesizers — one parametrized blip; coin = sine B5→E6, buzzer = sawtooth 150→110
@@ -95,6 +98,8 @@ const { totalDonations } = Astro.props;
 
 			osc.start();
 			osc.stop(audioCtx.currentTime + 0.35);
+			// Free the per-sound AudioContext once the oscillator finishes
+			osc.onended = function() { if (typeof audioCtx.close === 'function') audioCtx.close(); };
 		}
 		function playCoinSound() { playBlip('sine', 987.77, 1318.51, 0.08, 0.1); }
 		function playBuzzerSound() { playBlip('sawtooth', 150, 110, 0.15, 0.12); }
@@ -107,6 +112,9 @@ const { totalDonations } = Astro.props;
 			canvas.width = saisenbako.offsetWidth;
 			canvas.height = saisenbako.offsetHeight;
 		}
+		// is:inline re-runs per navigation — swap the window listener so they don't accumulate
+		if (window._saisenResizeHandler) window.removeEventListener('resize', window._saisenResizeHandler);
+		window._saisenResizeHandler = resizeCanvas;
 		window.addEventListener('resize', resizeCanvas);
 		resizeCanvas();
 
@@ -216,8 +224,8 @@ const { totalDonations } = Astro.props;
 			rafId = requestAnimationFrame(animate);
 		}
 
-		// Click trigger with API limit checks
-		saisenbako.addEventListener('mousedown', function(e) {
+		// Click/keyboard trigger with API limit checks
+		function offerCoin(clientX, clientY) {
 			if (saisenbako.dataset.donating === 'true') return;
 			saisenbako.dataset.donating = 'true';
 
@@ -248,8 +256,8 @@ const { totalDonations } = Astro.props;
 
 				// Physics placement
 				const rect = saisenbako.getBoundingClientRect();
-				const clickX = e.clientX - rect.left;
-				const clickY = e.clientY - rect.top;
+				const clickX = clientX - rect.left;
+				const clickY = clientY - rect.top;
 
 				// Add Coin
 				activeCoins.push(new Coin(clickX, clickY));
@@ -267,11 +275,18 @@ const { totalDonations } = Astro.props;
 				playBuzzerSound();
 
 				// Reimu warning dialogue
-				reimuBubble.textContent = err.message || "That's enough donations for today!";
-				reimuBubble.style.animation = 'none';
-				void reimuBubble.offsetWidth; // trigger reflow
-				reimuBubble.style.animation = 'speech-pulse 0.4s ease';
+				flashBubble(err.message || "That's enough donations for today!");
 			});
+		}
+		saisenbako.addEventListener('mousedown', function(e) {
+			offerCoin(e.clientX, e.clientY);
+		});
+		// role="button" keyboard operability (WCAG 2.1.1); coin drops from the center
+		saisenbako.addEventListener('keydown', function(e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				offerCoin(saisenbako.offsetWidth / 2, saisenbako.offsetHeight / 2);
+			}
 		});
 	})();
 </script>
@@ -413,7 +428,8 @@ const { totalDonations } = Astro.props;
 	}
 
 	.saisen-counter {
-		background: var(--text);
+		/* var(--border) keeps the gold readable in every per-song palette (--text goes light on dark palettes) */
+		background: var(--border);
 		color: #ffd700;
 		padding: 6px 16px;
 		font-family: var(--font-mono);

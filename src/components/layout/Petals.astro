@@ -3,6 +3,7 @@
 			function createPetal() {
 				const petal = document.createElement('div');
 				petal.className = 'sakura-petal';
+				petal.setAttribute('aria-hidden', 'true');
 				const img = document.createElement('img'); img.src = Math.random() > 0.5 ? '/particles/power.png' : '/particles/point.png'; img.style.width = '200%'; img.style.height = '200%'; img.style.imageRendering = 'pixelated'; petal.appendChild(img);
 				
 				const startLeft = Math.random() * 100;
