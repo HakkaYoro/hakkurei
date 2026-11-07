@@ -40,29 +40,20 @@
 				});
 			}
 
-			var miniTitle = document.getElementById('mini-np-title');
-			var realTitle = document.getElementById('np-title');
-			if (miniTitle) {
-				miniTitle.textContent = realTitle ? realTitle.textContent : '…';
-				if (realTitle && !miniTitle._mo) {
-					miniTitle._mo = new MutationObserver(function() {
-						miniTitle.textContent = realTitle.textContent;
+			// Mirror the real Now Playing nodes (always rendered by Bgm.astro,
+			// persisted across View Transitions) into the mini window.
+			[['mini-np-title', 'np-title'], ['mini-np-mute', 'np-mute']].forEach(function(ids) {
+				var mini = document.getElementById(ids[0]);
+				var real = document.getElementById(ids[1]);
+				if (!mini || !real) return;
+				mini.textContent = real.textContent;
+				if (!mini._mo) {
+					mini._mo = new MutationObserver(function() {
+						mini.textContent = real.textContent;
 					});
-					miniTitle._mo.observe(realTitle, { childList: true, characterData: true, subtree: true });
+					mini._mo.observe(real, { childList: true, characterData: true, subtree: true });
 				}
-			}
-
-			var miniMuteBtn = document.getElementById('mini-np-mute');
-			var realMute = document.getElementById('np-mute');
-			if (miniMuteBtn) {
-				miniMuteBtn.textContent = realMute ? realMute.textContent : '♪';
-				if (realMute && !miniMuteBtn._mo) {
-					miniMuteBtn._mo = new MutationObserver(function() {
-						miniMuteBtn.textContent = realMute.textContent;
-					});
-					miniMuteBtn._mo.observe(realMute, { childList: true, characterData: true, subtree: true });
-				}
-			}
+			});
 
 			var moodEl = document.getElementById('mini-mood-text');
 			if (moodEl && !moodEl._loaded) {

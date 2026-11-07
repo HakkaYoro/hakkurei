@@ -4,7 +4,7 @@
 
 @font-face {
 	font-family: "Monapo";
-	src: url("/fonts/monapo.ttf") format("truetype");
+	src: url("/fonts/monapo.woff2") format("woff2");
 	font-display: swap;
 }
 
@@ -161,10 +161,6 @@
 	background: #dfdfdf;
 	border: 1px solid #0a0a0a;
 	box-shadow: inset 2px 2px 2px #ffffff, inset -2px -2px 2px #0a0a0a;
-}
-
-::-webkit-scrollbar-thumb:horizontal {
-	border: 1px solid #0a0a0a;
 }
 
 ::-webkit-scrollbar-button:single-button {
