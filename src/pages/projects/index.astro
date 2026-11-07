@@ -4,43 +4,50 @@ import YinYangOrb from '../../components/layout/YinYangOrb.astro';
 
 // Baked from the live GitHub API (verified 2026-11-07 with gh api): starred
 // repos first, then by commit count desc, capped at 6. The server HTML ships
-// in this order — the client script below only refines it.
+// in this order AND with its star counts — the client script below only
+// refines both live.
 const repos = [
 	{
 		name: "app-bcv",
 		desc: "Currency exchange app that scrapes Venezuela's official BCV rates — Flet/Python, offline cache, built-in converter.",
 		lang: "Python",
 		url: "https://github.com/YuiStarLord/app-bcv",
+		stars: 1,
 	},
 	{
 		name: "Hakkurin",
 		desc: "AI-personality Discord bot (NestJS/TypeScript port) — encrypted per-user memory, music playback, Gemma/OpenRouter brain.",
 		lang: "TypeScript",
 		url: "https://github.com/HakkaYoro/Hakkurin",
+		stars: 1,
 	},
 	{
 		name: "HakkuAuto",
 		desc: "Code Redeemer for Gacha Games!",
 		lang: "TypeScript",
 		url: "https://github.com/HakkaYoro/HakkuAuto",
+		stars: 1,
 	},
 	{
 		name: "SpotiLinkConv",
 		desc: "GUI/CLI bridge between Spotify metadata and Qobuz hi-fi downloads, landing files straight on your NAS/SMB share.",
 		lang: "Python",
 		url: "https://github.com/HakkaYoro/SpotiLinkConv",
+		stars: 0,
 	},
 	{
 		name: "AutoHMWRK",
 		desc: "LLM-powered homework generator — GUI to LaTeX to PDF, with automatic image scraping.",
 		lang: "Python",
 		url: "https://github.com/HakkaYoro/AutoHMWRK",
+		stars: 0,
 	},
 	{
 		name: "order-api",
 		desc: "NestJS API playground — orders, pings, guards and interceptors.",
 		lang: "TypeScript",
 		url: "https://github.com/HakkaYoro/order-api",
+		stars: 0,
 	},
 ];
 
@@ -68,8 +75,8 @@ const langColors: Record<string, string> = {
 							<span class="lang-dot" style={`background: ${langColors[repo.lang] || 'var(--reimu-red)'};`}></span>
 							{repo.lang}
 						</span>
-						<!-- Hidden until the client fetch confirms a live star count -->
-						<span class="project-donations" id={`donations-${repo.name}`} style="display: none;">
+						<!-- Star count baked from gh at build time; the client script only refines it live -->
+						<span class="project-donations" id={`donations-${repo.name}`} style={`display: ${repo.stars ? 'flex' : 'none'};`}>
 							<svg class="yinyang-svg" viewBox="0 0 24 24" width="14" height="14">
 								<circle cx="12" cy="12" r="11" fill="var(--surface)" stroke="var(--reimu-red)" stroke-width="1.8"/>
 								<path d="M 12 1 A 11 11 0 0 1 12 23 Z" fill="var(--reimu-red)"/>
@@ -78,7 +85,7 @@ const langColors: Record<string, string> = {
 								<circle cx="12" cy="6.5" r="1.8" fill="var(--surface)"/>
 								<circle cx="12" cy="17.5" r="1.8" fill="var(--reimu-red)"/>
 							</svg>
-							<span>Donations: <span class="count"></span></span>
+							<span>Donations: <span class="count">{repo.stars}</span></span>
 						</span>
 					</div>
 					<div class="project-link">[ View on GitHub ]</div>
@@ -332,14 +339,16 @@ const langColors: Record<string, string> = {
 </style>
 
 <script>
-	// Progressive enhancement over the baked card order: fetch live stars
+	// Progressive enhancement over the baked cards: fetch live stars
 	// (Donations) per card — owner and repo taken from each card's own GitHub
 	// URL, so non-HakkaYoro cards (app-bcv) count too — then re-sort starred
-	// repos first, commits desc. Cached 1h in localStorage; on any failure the
-	// baked DOM order stays untouched.
+	// repos first, commits desc. Cached 1h in localStorage (order + star
+	// counts); on any failure the baked DOM order and counts stay untouched.
 	(function() {
-		const CACHE_KEY = 'gh-repo-order';
+		const CACHE_KEY = 'gh-repo-order-v2';
 		const CACHE_TTL = 3600000;
+
+		type Stat = { stars: number | null; commits: number | null };
 
 		function readCache() {
 			try {
@@ -366,6 +375,19 @@ const langColors: Record<string, string> = {
 			cards.forEach(card => grid.appendChild(card));
 		}
 
+		// stars === null means "unknown" (fetch failed): leave the baked DOM alone
+		function applyBadges(stats: Record<string, Stat>) {
+			Object.keys(stats).forEach(name => {
+				const stars = stats[name].stars;
+				if (stars === null || stars === undefined) return;
+				const badge = document.getElementById(`donations-${name}`);
+				if (!badge) return;
+				const countEl = badge.querySelector('.count');
+				if (countEl) countEl.textContent = String(stars);
+				badge.style.display = stars > 0 ? 'flex' : 'none';
+			});
+		}
+
 		// per_page=1 makes the rel="last" page number equal the total commit count
 		// null on failure — a partial fetch must not degrade the baked order
 		function commitCount(fullName: string) {
@@ -379,51 +401,73 @@ const langColors: Record<string, string> = {
 				.catch(() => null);
 		}
 
-		const cached = readCache();
-		if (cached) applyOrder(cached.order);
-
-		const grid = document.querySelector('.projects-grid');
-		if (!grid) return;
-		const cards = [...grid.querySelectorAll('.project-card')].map(card => {
-			const anchor = card as HTMLAnchorElement;
-			const badge = anchor.querySelector('.project-donations');
-			const fullName = new URL(anchor.href).pathname.replace(/^\/+|\/+$/g, '');
-			return { name: badge && badge.id.startsWith('donations-') ? badge.id.slice(10) : fullName, fullName, card: anchor };
-		});
-		if (!cards.length) return;
-
-		(async function() {
-			try {
-				const stats: Record<string, { stars: number; commits: number | null }> = {};
-				let allOk = true;
-				await Promise.all(cards.map(async ({ name, fullName }) => {
-					const repo = await fetch(`https://api.github.com/repos/${fullName}`)
-						.then(res => (res.ok ? res.json() : null))
-						.catch(() => null);
-					const commits = await commitCount(fullName);
-					if (!repo || commits === null) allOk = false;
-					stats[name] = { stars: repo ? repo.stargazers_count || 0 : 0, commits };
-					const badge = document.getElementById(`donations-${name}`);
-					if (badge) {
-						const countEl = badge.querySelector('.count');
-						if (countEl) countEl.textContent = String(stats[name].stars);
-						badge.style.display = stats[name].stars > 0 ? 'flex' : 'none';
-					}
-				}));
-				// Partial data would reorder blindly — keep the baked order instead
-				if (cached || !allOk) return;
-				const names = cards.map(c => c.name);
-				names.sort((a, b) => {
-					const starredA = stats[a] && stats[a].stars > 0 ? 1 : 0;
-					const starredB = stats[b] && stats[b].stars > 0 ? 1 : 0;
-					if (starredA !== starredB) return starredB - starredA;
-					return (stats[b]?.commits ?? 0) - (stats[a]?.commits ?? 0);
-				});
-				applyOrder(names);
-				localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), order: names }));
-			} catch (_) {
-				// silent fallback: the baked order stays
+		function applyCached() {
+			const cached = readCache();
+			if (cached) {
+				applyOrder(cached.order);
+				if (cached.stats) applyBadges(cached.stats);
 			}
-		})();
+			return !!cached;
+		}
+
+		function enhance() {
+			if (applyCached()) return;
+
+			const grid = document.querySelector('.projects-grid');
+			if (!grid) return;
+			const cards = [...grid.querySelectorAll('.project-card')].map(card => {
+				const anchor = card as HTMLAnchorElement;
+				const badge = anchor.querySelector('.project-donations');
+				const fullName = new URL(anchor.href).pathname.replace(/^\/+|\/+$/g, '');
+				return { name: badge && badge.id.startsWith('donations-') ? badge.id.slice(10) : fullName, fullName, card: anchor };
+			});
+			if (!cards.length) return;
+
+			(async function() {
+				try {
+					const stats: Record<string, Stat> = {};
+					let allOk = true;
+					await Promise.all(cards.map(async ({ name, fullName }) => {
+						const repo = await fetch(`https://api.github.com/repos/${fullName}`)
+							.then(res => (res.ok ? res.json() : null))
+							.catch(() => null);
+						const commits = await commitCount(fullName);
+						if (!repo || commits === null) allOk = false;
+						// A failed fetch knows nothing: keep the baked count/visibility
+						stats[name] = { stars: repo ? repo.stargazers_count || 0 : null, commits };
+						if (repo) {
+							const badge = document.getElementById(`donations-${name}`);
+							if (badge) {
+								const countEl = badge.querySelector('.count');
+								if (countEl) countEl.textContent = String(stats[name].stars);
+								badge.style.display = (stats[name].stars ?? 0) > 0 ? 'flex' : 'none';
+							}
+						}
+					}));
+					// Partial data would reorder blindly — keep the baked order instead
+					if (!allOk) return;
+					const names = cards.map(c => c.name);
+					names.sort((a, b) => {
+						const starredA = (stats[a]?.stars ?? 0) > 0 ? 1 : 0;
+						const starredB = (stats[b]?.stars ?? 0) > 0 ? 1 : 0;
+						if (starredA !== starredB) return starredB - starredA;
+						return (stats[b]?.commits ?? 0) - (stats[a]?.commits ?? 0);
+					});
+					applyOrder(names);
+					localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), order: names, stats }));
+				} catch (_) {
+					// silent fallback: the baked order and counts stay
+				}
+			})();
+		}
+
+		enhance();
+
+		// ClientRouter swaps the DOM on soft navigation (e.g. clicking Projects
+		// again while already there): the fresh cards ship the baked star
+		// counts, and a fresh cache — if any — refines them without refetching.
+		document.addEventListener('astro:page-load', function() {
+			if (document.querySelector('.projects-grid')) applyCached();
+		});
 	})();
 </script>
