@@ -68,7 +68,9 @@ body {
 .sakura-petal {
 	position: fixed;
 	pointer-events: none;
-	z-index: 9999;
+	/* Below the browser frame (z-index 10): talismans must never ride over the
+	   page text, the mini window or the fake 2002 chrome */
+	z-index: 5;
 	user-select: none;
 }
 
