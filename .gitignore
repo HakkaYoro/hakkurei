@@ -44,3 +44,6 @@ graphify-out/
 *.swo
 *~
 Thumbs.db
+
+# zcode session artifacts (plans, workflow drafts)
+.zcode/
