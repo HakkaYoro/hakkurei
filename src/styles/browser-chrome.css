@@ -1,0 +1,316 @@
+/* FASE 4 — hakkurei × インターウェブ: fake 2002 japanese browser chrome.
+   Everything here WRAPS the existing site — the Win9x outset boxes, the
+   loading screen and the per-song palettes inside are untouched. */
+
+@font-face {
+	font-family: "Monapo";
+	src: url("/fonts/monapo.ttf") format("truetype");
+	font-display: swap;
+}
+
+:root {
+	--font-chrome: "Monapo", "MS PGothic", "IPAMonaPGothic", sans-serif;
+}
+
+/* --- Browser frame ------------------------------------------------------- */
+
+.browser {
+	position: relative;
+	z-index: 10;
+	max-width: 944px;
+	margin: 10px auto;
+	background: #fff;
+	border: 1px solid #000;
+	font-family: var(--font-chrome);
+	color: #000;
+	box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* Menu bar: 家 / ブラウズ / ヘルプ + decorative search field */
+.browser-menu {
+	display: flex;
+	align-items: center;
+	gap: 1.25rem;
+	min-height: 28px;
+	padding: 0 10px;
+	border-bottom: 1px solid #000;
+	font-size: 0.8rem;
+}
+
+.browser-menu a {
+	color: #000;
+	text-decoration: underline;
+	border: none;
+	transition: none;
+}
+
+.browser-menu a:hover {
+	text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 70%, #000);
+}
+
+.browser-search {
+	margin-left: auto;
+	white-space: nowrap;
+}
+
+.browser-search-field {
+	display: inline-block;
+	width: 130px;
+	height: 16px;
+	vertical-align: middle;
+	border: 1px solid #000;
+	background: #fff;
+	box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Address bar: favicon + pseudo-URL of the current page */
+.browser-address {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 26px;
+	padding: 0 10px;
+	border-bottom: 1px solid #000;
+	font-size: 0.8rem;
+	overflow: hidden;
+}
+
+.browser-favicon {
+	width: 16px;
+	height: 16px;
+	image-rendering: pixelated;
+	flex-shrink: 0;
+}
+
+.browser-url {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Viewport: the legacy .wrapper (untouched) lives inside */
+.browser-viewport {
+	background: var(--bg);
+}
+
+/* Status bar: fixed greeting + the marquee relocated here from the wrapper */
+.browser-status {
+	display: flex;
+	align-items: stretch;
+	min-height: 26px;
+	border-top: 1px solid #000;
+	font-size: 0.8rem;
+	overflow: hidden;
+}
+
+.browser-welcome {
+	display: flex;
+	align-items: center;
+	padding: 0 10px;
+	border-right: 1px solid #000;
+	white-space: nowrap;
+}
+
+.browser-status .marquee-container {
+	flex: 1;
+	min-width: 0;
+	margin-bottom: 0;
+	display: flex;
+	align-items: center;
+	overflow: hidden;
+}
+
+/* --- Section tabs: folder tab riding on the content box ------------------ */
+
+.section-tab-row {
+	padding: 0 1.5rem;
+	line-height: 0;
+}
+
+.section-tab {
+	display: inline-block;
+	position: relative;
+	top: 1px;
+	z-index: 1;
+	padding: 3px 14px 2px;
+	border: 1px solid #000;
+	border-bottom: none;
+	border-radius: 10px 10px 0 0;
+	background: var(--accent);
+	color: #fff;
+	font-family: var(--font-chrome);
+	font-size: 0.8rem;
+	font-weight: bold;
+	letter-spacing: 1px;
+	line-height: 1.4;
+}
+
+/* --- Win98 pixel scrollbar ------------------------------------------------ */
+
+::-webkit-scrollbar {
+	width: 16px;
+	height: 16px;
+}
+
+::-webkit-scrollbar-track {
+	background: #dfdfdf;
+	border-left: 1px solid #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #dfdfdf;
+	border: 1px solid #0a0a0a;
+	box-shadow: inset 2px 2px 2px #ffffff, inset -2px -2px 2px #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+	border: 1px solid #0a0a0a;
+}
+
+::-webkit-scrollbar-button:single-button {
+	display: block;
+	width: 16px;
+	height: 16px;
+	background-color: #dfdfdf;
+	border: 1px solid #0a0a0a;
+	box-shadow: inset 2px 2px 2px #ffffff, inset -2px -2px 2px #0a0a0a;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+::-webkit-scrollbar-button:single-button:vertical:decrement {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'%3E%3Cpath d='M8 5 L12 11 L4 11 Z' fill='%230a0a0a'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar-button:single-button:vertical:increment {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'%3E%3Cpath d='M8 11 L12 5 L4 5 Z' fill='%230a0a0a'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar-button:single-button:horizontal:decrement {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'%3E%3Cpath d='M5 8 L11 4 L11 12 Z' fill='%230a0a0a'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar-button:single-button:horizontal:increment {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'%3E%3Cpath d='M11 8 L5 4 L5 12 Z' fill='%230a0a0a'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar-corner {
+	background: #dfdfdf;
+}
+
+/* --- Mini window (desktop only): Now Playing mirror + mood --------------- */
+
+.mini-window {
+	display: none;
+}
+
+@media (min-width: 1280px) {
+	.mini-window {
+		display: flex;
+		flex-direction: column;
+		position: fixed;
+		left: 12px;
+		bottom: 12px;
+		width: 240px;
+		z-index: 4900;
+		background: #fff;
+		border: 1px solid #000;
+		box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
+		font-family: var(--font-chrome);
+		color: #000;
+	}
+
+	.mini-tabs {
+		display: flex;
+		gap: 2px;
+		padding: 3px 4px 0;
+		border-bottom: 1px solid #000;
+	}
+
+	.mini-tab {
+		font-family: var(--font-chrome);
+		font-size: 0.75rem;
+		padding: 2px 10px 1px;
+		border: 1px solid #000;
+		border-bottom: none;
+		border-radius: 8px 8px 0 0;
+		background: #fff;
+		color: #000;
+		cursor: url('/cursors/Link.png'), pointer;
+	}
+
+	.mini-tab.is-active {
+		background: var(--accent);
+		color: #fff;
+	}
+
+	.mini-pane {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		min-height: 26px;
+		padding: 4px 8px;
+		font-size: 0.75rem;
+	}
+
+	.mini-pane.hidden {
+		display: none;
+	}
+
+	.mini-np-title {
+		flex: 1;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.mini-mute {
+		flex-shrink: 0;
+		width: 22px;
+		height: 22px;
+		padding: 0;
+		background: #fff;
+		border: 1px solid #000;
+		font-family: var(--font-chrome);
+		font-size: 0.7rem;
+		line-height: 1;
+		cursor: url('/cursors/Link.png'), pointer;
+	}
+
+	.mini-mute:active {
+		box-shadow: inset 1px 1px 2px #0a0a0a;
+	}
+
+	.mini-mood-text {
+		flex: 1;
+	}
+}
+
+/* --- Mobile: compact chrome ---------------------------------------------- */
+
+@media (max-width: 600px) {
+	.browser {
+		margin: 4px;
+	}
+
+	.browser-menu {
+		gap: 0.75rem;
+	}
+
+	.browser-hide-mobile {
+		display: none;
+	}
+
+	.browser-search {
+		display: none;
+	}
+
+	.browser-status {
+		min-height: 22px;
+		font-size: 0.7rem;
+	}
+
+	.browser-welcome {
+		padding: 0 6px;
+	}
+}

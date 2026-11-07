@@ -1,0 +1,79 @@
+<div class="mini-window" id="mini-window">
+	<div class="mini-tabs">
+		<button class="mini-tab is-active" id="mini-tab-music" type="button">ミュージック</button>
+		<button class="mini-tab" id="mini-tab-mood" type="button">気分</button>
+	</div>
+	<div class="mini-pane" id="mini-pane-music">
+		<span class="mini-np-title" id="mini-np-title">…</span>
+		<button class="mini-mute" id="mini-np-mute" type="button" aria-label="Mute or unmute BGM">♪</button>
+	</div>
+	<div class="mini-pane hidden" id="mini-pane-mood">
+		<span class="mini-mood-text" id="mini-mood-text">…</span>
+	</div>
+</div>
+
+<script is:inline>
+	// Desktop-only second view of the Now Playing widget: the widget itself is
+	// neither moved nor re-implemented — the mirror reads #np-title/#np-mute via
+	// MutationObserver and forwards mute clicks to the real button.
+	if (!window._miniWindowInit) {
+		window._miniWindowInit = true;
+		var wireMiniWindow = function() {
+			var tabs = document.querySelectorAll('#mini-window .mini-tab');
+			tabs.forEach(function(t) {
+				if (t._wired) return;
+				t._wired = true;
+				t.addEventListener('click', function() {
+					tabs.forEach(function(o) { o.classList.remove('is-active'); });
+					t.classList.add('is-active');
+					document.getElementById('mini-pane-music').classList.toggle('hidden', t.id !== 'mini-tab-music');
+					document.getElementById('mini-pane-mood').classList.toggle('hidden', t.id !== 'mini-tab-mood');
+				});
+			});
+
+			var miniMute = document.getElementById('mini-np-mute');
+			if (miniMute && !miniMute._wired) {
+				miniMute._wired = true;
+				miniMute.addEventListener('click', function() {
+					var real = document.getElementById('np-mute');
+					if (real) real.click();
+				});
+			}
+
+			var miniTitle = document.getElementById('mini-np-title');
+			var realTitle = document.getElementById('np-title');
+			if (miniTitle) {
+				miniTitle.textContent = realTitle ? realTitle.textContent : '…';
+				if (realTitle && !miniTitle._mo) {
+					miniTitle._mo = new MutationObserver(function() {
+						miniTitle.textContent = realTitle.textContent;
+					});
+					miniTitle._mo.observe(realTitle, { childList: true, characterData: true, subtree: true });
+				}
+			}
+
+			var miniMuteBtn = document.getElementById('mini-np-mute');
+			var realMute = document.getElementById('np-mute');
+			if (miniMuteBtn) {
+				miniMuteBtn.textContent = realMute ? realMute.textContent : '♪';
+				if (realMute && !miniMuteBtn._mo) {
+					miniMuteBtn._mo = new MutationObserver(function() {
+						miniMuteBtn.textContent = realMute.textContent;
+					});
+					miniMuteBtn._mo.observe(realMute, { childList: true, characterData: true, subtree: true });
+				}
+			}
+
+			var moodEl = document.getElementById('mini-mood-text');
+			if (moodEl && !moodEl._loaded) {
+				moodEl._loaded = true;
+				fetch('/mood.json')
+					.then(function(res) { return res.json(); })
+					.then(function(data) { if (moodEl && data && data.text) moodEl.textContent = data.text; })
+					.catch(function() {});
+			}
+		};
+		wireMiniWindow();
+		document.addEventListener('astro:page-load', wireMiniWindow);
+	}
+</script>
