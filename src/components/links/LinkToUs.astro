@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+
 const hakkureiHtml = `<a href="https://hakkurei.com" target="_blank">\n  <img src="https://hakkurei.com/images/badges/hakkurei.svg" width="88" height="31" border="0" alt="Hakurei Shrine">\n</a>`;
 ---
 
@@ -11,7 +13,7 @@ const hakkureiHtml = `<a href="https://hakkurei.com" target="_blank">\n  <img sr
 				
 				<!-- The live animated SVG badge, wrapped exactly like a retro button -->
 				<div class="badge-wrapper-interactive" id="shrine-badge-showcase">
-					<img src="/images/badges/hakkurei.svg" class="badge-img-88x31" alt="Hakurei Shrine Badge" width="88" height="31" />
+					<Image src="/images/badges/hakkurei.svg" class="badge-img-88x31" alt="Hakurei Shrine Badge" width="88" height="31" loading="eager" />
 					<div class="badge-crt-scanline"></div>
 				</div>
 				<p class="badge-dimensions-hint">Dimensions: 88 × 31 px</p>

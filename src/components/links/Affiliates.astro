@@ -62,7 +62,7 @@ const affiliates = [
 
 	<div class="affiliates-grid">
 		{affiliates.map((aff) => (
-			<div class="affiliate-card" id={`card-${aff.id}`} style={`border-top: 3px solid ${aff.color};`}>
+			<div class="affiliate-card" id={`card-${aff.id}`} data-color={aff.color} style={`border-top: 3px solid ${aff.color};`}>
 				<div class="affiliate-top">
 					<h4 class="affiliate-name">{aff.name}</h4>
 					<span class="affiliate-prop">Proprietor: <strong>{aff.proprietor}</strong></span>
@@ -249,32 +249,22 @@ const affiliates = [
 			});
 		}
 
-		// Wire up faction button clicks using hardcoded list of IDs
-		const affiliateIds = ['kourindou', 'sdm', 'eientei', 'moriya', 'myouren', 'netherworld'];
-		const factionColors = {
-			kourindou: '#8b5a2b',
-			sdm: '#8b0000',
-			eientei: '#006400',
-			moriya: '#2e8b57',
-			myouren: '#4b0082',
-			netherworld: '#4682b4'
-		};
-		affiliateIds.forEach(id => {
+		// Wire up faction button clicks; id and flash color come from the card itself
+		document.querySelectorAll('.affiliate-card').forEach(card => {
+			const id = card.id.replace(/^card-/, '');
 			const badgeBtn = document.getElementById(`badge-btn-${id}`);
-			const card = document.getElementById(`card-${id}`);
-			if (badgeBtn && card) {
-				badgeBtn.addEventListener('click', function() {
-					playFactionSound(id);
-					
-					// Briefly flash the card with faction color
-					card.style.background = (factionColors[id] || '#ffffff') + '0c'; // 5% opacity color flash
-					card.style.transform = 'translateY(-2px)';
-					setTimeout(() => {
-						card.style.background = '';
-						card.style.transform = '';
-					}, 300);
-				});
-			}
+			if (!badgeBtn) return;
+			badgeBtn.addEventListener('click', function() {
+				playFactionSound(id);
+
+				// Briefly flash the card with faction color
+				card.style.background = (card.dataset.color || '#ffffff') + '0c'; // 5% opacity color flash
+				card.style.transform = 'translateY(-2px)';
+				setTimeout(() => {
+					card.style.background = '';
+					card.style.transform = '';
+				}, 300);
+			});
 		});
 })();
 </script>

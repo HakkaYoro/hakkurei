@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+
 const { totalDonations } = Astro.props;
 ---
 
@@ -7,7 +9,7 @@ const { totalDonations } = Astro.props;
 	     ═══════════════════════════════════════════════════ -->
 	<div class="saisen-panel">
 		<div class="reimu-bubble-container">
-			<img src="/images/avatars/reimu.png" class="reimu-bubble-avatar" alt="Reimu" />
+			<Image src="/images/avatars/reimu.png" class="reimu-bubble-avatar" alt="Reimu" width="600" height="258" loading="eager" />
 			<div class="reimu-speech-bubble" id="reimu-bubble">
 				Sigh... The donation box is empty again today.
 			</div>
@@ -72,50 +74,30 @@ const { totalDonations } = Astro.props;
 			reimuBubble.style.animation = 'speech-pulse 0.4s ease';
 		}
 
-		// Sound Synthesizers
-		function playCoinSound() {
+		// Sound Synthesizers — one parametrized blip; coin = sine B5→E6, buzzer = sawtooth 150→110
+		function playBlip(type, f1, f2, delay, vol) {
 			const AudioContext = window.AudioContext || window.webkitAudioContext;
 			if (!AudioContext) return;
 			const audioCtx = new AudioContext();
-			
-			const osc = audioCtx.createOscillator();
-			const gain = audioCtx.createGain();
-			
-			osc.type = 'sine';
-			osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5
-			osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.08); // E6
-			
-			gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-			gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-			
-			osc.connect(gain);
-			gain.connect(audioCtx.destination);
-			
-			osc.start();
-			osc.stop(audioCtx.currentTime + 0.35);
-		}
 
-		function playBuzzerSound() {
-			const AudioContext = window.AudioContext || window.webkitAudioContext;
-			if (!AudioContext) return;
-			const audioCtx = new AudioContext();
-			
 			const osc = audioCtx.createOscillator();
 			const gain = audioCtx.createGain();
-			
-			osc.type = 'sawtooth';
-			osc.frequency.setValueAtTime(150, audioCtx.currentTime); // Low buzz
-			osc.frequency.setValueAtTime(110, audioCtx.currentTime + 0.15); // Lower buzz
-			
-			gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+
+			osc.type = type;
+			osc.frequency.setValueAtTime(f1, audioCtx.currentTime);
+			osc.frequency.setValueAtTime(f2, audioCtx.currentTime + delay);
+
+			gain.gain.setValueAtTime(vol, audioCtx.currentTime);
 			gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-			
+
 			osc.connect(gain);
 			gain.connect(audioCtx.destination);
-			
+
 			osc.start();
 			osc.stop(audioCtx.currentTime + 0.35);
 		}
+		function playCoinSound() { playBlip('sine', 987.77, 1318.51, 0.08, 0.1); }
+		function playBuzzerSound() { playBlip('sawtooth', 150, 110, 0.15, 0.12); }
 
 		// Coin physics array
 		const activeCoins = [];

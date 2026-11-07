@@ -1,15 +1,15 @@
 ---
 const netBadges = [
-	{ id: 'netscape', title: 'NETSCAPE NAVIGATOR OPTIMIZED', bg: '#000080', border: '#0000FF', text: 'NETSCAPE', color: '#00FFFF' },
-	{ id: 'ie6', title: 'INTERNET EXPLORER 6.0 COMPATIBLE', bg: '#008080', border: '#00FFFF', text: 'MSIE 6.0', color: '#FFFFFF' },
-	{ id: 'astro', title: 'BUILT WITH ASTRO STATIC ENGINE', bg: '#4f1787', border: '#8c3061', text: 'ASTRO v6', color: '#ff7e67' },
-	{ id: 'cirno', title: 'CIRNO ⑨ CERTIFIED STRONGEST', bg: '#00bfff', border: '#4682b4', text: '⑨ STRONGEST', color: '#FFFFFF' },
-	{ id: 'reimufan', title: 'REIMU HAKUREI FAN CLUB #1', bg: '#db3655', border: '#ffd700', text: 'REIMU ★ FAN', color: '#ffd700' },
-	{ id: 'faith', title: '100% FAITH-ENHANCED SOURCE', bg: '#ffd700', border: '#db3655', text: 'FAITH 100%', color: '#8b0000' },
-	{ id: 'html5', title: 'POWERED BY PURE CLEAN HTML5', bg: '#e34f26', border: '#ef652a', text: 'HTML5 ENGINE', color: '#FFFFFF' },
-	{ id: 'css3', title: 'VALIDATED VANILLA CSS3 STYLES', bg: '#1572b6', border: '#33a9dc', text: 'CSS3 VALID', color: '#FFFFFF' },
-	{ id: 'noai', title: 'MADE BY HUMANS IN GENSOKYO', bg: '#333333', border: '#666666', text: '100% HUMAN', color: '#00FF00' },
-	{ id: 'weirdweb', title: 'KEEP THE PERSONAL WEB WEIRD!', bg: '#8a2be2', border: '#ba55d3', text: 'WEIRD WEB', color: '#7ffd44' }
+	{ title: 'NETSCAPE NAVIGATOR OPTIMIZED', bg: '#000080', border: '#0000FF', text: 'NETSCAPE', color: '#00FFFF', subtitle: 'OPTIMIZED' },
+	{ title: 'INTERNET EXPLORER 6.0 COMPATIBLE', bg: '#008080', border: '#00FFFF', text: 'MSIE 6.0', color: '#FFFFFF', subtitle: 'COMPATIBLE' },
+	{ title: 'BUILT WITH ASTRO STATIC ENGINE', bg: '#4f1787', border: '#8c3061', text: 'ASTRO v6', color: '#ff7e67', subtitle: 'BUILT' },
+	{ title: 'CIRNO ⑨ CERTIFIED STRONGEST', bg: '#00bfff', border: '#4682b4', text: '⑨ STRONGEST', color: '#FFFFFF', subtitle: 'CERTIFIED' },
+	{ title: 'REIMU HAKUREI FAN CLUB #1', bg: '#db3655', border: '#ffd700', text: 'REIMU ★ FAN', color: '#ffd700', subtitle: '#1 MEMBER' },
+	{ title: '100% FAITH-ENHANCED SOURCE', bg: '#ffd700', border: '#db3655', text: 'FAITH 100%', color: '#8b0000', subtitle: 'POWERED' },
+	{ title: 'POWERED BY PURE CLEAN HTML5', bg: '#e34f26', border: '#ef652a', text: 'HTML5 ENGINE', color: '#FFFFFF', subtitle: 'WEB ENGINE' },
+	{ title: 'VALIDATED VANILLA CSS3 STYLES', bg: '#1572b6', border: '#33a9dc', text: 'CSS3 VALID', color: '#FFFFFF', subtitle: 'COMPLIANT' },
+	{ title: 'MADE BY HUMANS IN GENSOKYO', bg: '#333333', border: '#666666', text: '100% HUMAN', color: '#00FF00', subtitle: 'GENUINE' },
+	{ title: 'KEEP THE PERSONAL WEB WEIRD!', bg: '#8a2be2', border: '#ba55d3', text: 'WEIRD WEB', color: '#7ffd44', subtitle: 'FOREVER' }
 ];
 ---
 
@@ -24,16 +24,7 @@ const netBadges = [
 						{badge.text}
 					</div>
 					<div class="badge-net-subtitle">
-						{badge.id === 'netscape' && 'OPTIMIZED'}
-						{badge.id === 'ie6' && 'COMPATIBLE'}
-						{badge.id === 'astro' && 'BUILT'}
-						{badge.id === 'cirno' && 'CERTIFIED'}
-						{badge.id === 'reimufan' && '#1 MEMBER'}
-						{badge.id === 'faith' && 'POWERED'}
-						{badge.id === 'html5' && 'WEB ENGINE'}
-						{badge.id === 'css3' && 'COMPLIANT'}
-						{badge.id === 'noai' && 'GENUINE'}
-						{badge.id === 'weirdweb' && 'FOREVER'}
+						{badge.subtitle}
 					</div>
 					<div class="badge-crt-scanline"></div>
 				</div>

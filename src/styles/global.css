@@ -131,19 +131,6 @@ h3 { font-size: 1.2rem; }
 	margin-top: 0.5rem;
 }
 
-.visitor-counter {
-	background: var(--text);
-	display: inline-block;
-	padding: 4px 8px;
-	margin-top: 1rem;
-	border: 2px outset var(--border);
-	font-family: monospace;
-	font-size: 0.9rem;
-	letter-spacing: 2px;
-}
-.visitor-counter .label { color: #00ff00; margin-right: 8px;}
-.visitor-counter .digits { color: var(--reimu-red); }
-
 .marquee-container {
 	background: var(--reimu-red);
 	color: var(--surface);
@@ -236,17 +223,6 @@ footer a { border: none; font-weight: bold; margin: 0 0.5rem; }
 	display: block;
 	margin: 1rem auto;
 	image-rendering: auto;
-}
-
-/* ASCII art */
-.ascii {
-	white-space: pre;
-	color: var(--reimu-red);
-	font-size: 0.55rem;
-	line-height: 1;
-	text-align: center;
-	margin: 1rem 0;
-	font-family: monospace;
 }
 
 /* About Layout */

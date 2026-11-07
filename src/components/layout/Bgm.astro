@@ -1,36 +1,75 @@
 ---
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-let musicFiles: string[] = [];
+
+interface SongEntry {
+	file: string;
+	background: string;
+}
+
+let songs: SongEntry[] = [];
 try {
-	const musicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'public', 'music');
-	musicFiles = fs.readdirSync(musicDir).filter((f: string) => f.endsWith('.ogg'));
+	// cwd-based like db.ts — import.meta.url is unreliable across dev/prerender/runtime bundling
+	const manifestPath = path.join(process.cwd(), 'public', 'music', 'songs.json');
+	songs = (JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as SongEntry[])
+		.filter((s) => s.file && s.background)
+		.map(({ file, background }) => ({ file, background }));
 } catch (_) {
-	// no music dir or error — skip bgm
+	// no manifest — no BGM and no per-song background
 }
 ---
 
 		<audio id="bgm" transition:persist preload="auto"></audio>
 
-		<!-- BGM logic: needs define:vars for musicFiles, uses is:inline to avoid re-init issues -->
-		<script is:inline define:vars={{ musicFiles }}>
+		<!-- Per-song background layers (crossfade); transition:persist keeps the live one across View Transitions -->
+		<div id="bg-song-a" class="bg-song-layer" transition:persist></div>
+		<div id="bg-song-b" class="bg-song-layer" transition:persist></div>
+
+		<!-- BGM logic: needs define:vars for songs, uses is:inline to avoid re-init issues -->
+		<script is:inline define:vars={{ songList: songs }}>
 			// Only initialize BGM once
 			if (!window._bgmInitialized) {
 				window._bgmInitialized = true;
 				var bgm = document.getElementById('bgm');
-				if (bgm && !bgm.getAttribute('src') && musicFiles.length > 0) {
-					var file = musicFiles[Math.floor(Math.random() * musicFiles.length)];
-					bgm.src = '/music/' + file;
+				var songLayers = [
+					document.getElementById('bg-song-a'),
+					document.getElementById('bg-song-b')
+				];
+				var activeLayer = 0;
+				var currentSong = null;
+
+				function songId(file) { return file.replace(/\.ogg$/, ''); }
+
+				// Preload the image, then crossfade: incoming layer fades in over the outgoing one
+				function applySong(song) {
+					currentSong = song;
+					document.body.dataset.song = songId(song.file);
+					var incoming = songLayers[1 - activeLayer];
+					var outgoing = songLayers[activeLayer];
+					var img = new Image();
+					img.onload = function() {
+						incoming.style.backgroundImage = "url('" + song.background + "')";
+						incoming.style.opacity = '1';
+						outgoing.style.opacity = '0';
+						activeLayer = 1 - activeLayer;
+					};
+					img.src = song.background;
+				}
+
+				function pickSong(prevFile) {
+					var next = songList[Math.floor(Math.random() * songList.length)];
+					while (prevFile && next.file === prevFile && songList.length > 1) {
+						next = songList[Math.floor(Math.random() * songList.length)];
+					}
+					return next;
+				}
+
+				if (bgm && !bgm.getAttribute('src') && songList.length > 0) {
+					var song = pickSong(null);
+					applySong(song);
+					bgm.src = '/music/' + song.file;
 					bgm.volume = 0.15;
 					var fading = false;
-					function pickNextSong() {
-						var next = musicFiles[Math.floor(Math.random() * musicFiles.length)];
-						while (next === file && musicFiles.length > 1) {
-							next = musicFiles[Math.floor(Math.random() * musicFiles.length)];
-						}
-						return next;
-					}
 					function startFadeOut() {
 						if (fading) return;
 						fading = true;
@@ -42,8 +81,9 @@ try {
 							bgm.volume = Math.max(0, bgm.volume - stepVol);
 							if (bgm.volume <= 0) {
 								clearInterval(fadeInterval);
-								file = pickNextSong();
-								bgm.src = '/music/' + file;
+								song = pickSong(song.file);
+								applySong(song);
+								bgm.src = '/music/' + song.file;
 								bgm.volume = 0.15;
 								fading = false;
 								bgm.play()['catch'](function() {});
@@ -57,6 +97,25 @@ try {
 					});
 					var playMusic = function() { if (bgm.paused) bgm.play(); document.body.removeEventListener('click', playMusic); };
 					bgm.play()['catch'](function() { document.body.addEventListener('click', playMusic); });
+
+					// ClientRouter swaps <body> on navigation: re-apply the active song marker
+					document.addEventListener('astro:page-load', function() {
+						if (currentSong) document.body.dataset.song = songId(currentSong.file);
+					});
 				}
 			}
 		</script>
+
+<style is:global>
+	/* Fixed per-song background layers, above the body wallpaper, under .wrapper (z-index: 10) */
+	.bg-song-layer {
+		position: fixed;
+		inset: 0;
+		background-size: cover;
+		background-position: center;
+		opacity: 0;
+		transition: opacity 1.5s ease;
+		pointer-events: none;
+		z-index: 0;
+	}
+</style>

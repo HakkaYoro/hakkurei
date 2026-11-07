@@ -1,3 +1,6 @@
+---
+import { Image } from 'astro:assets';
+---
 		<!-- Loading screen overlay — hidden immediately via inline script if already dismissed -->
 		<div id="loading-screen">
 
@@ -19,7 +22,7 @@
 
 					<div class="ls-divider">☆ ☆ ☆</div>
 
-					<img src="/images/9.png" class="spinning-logo" alt="Loading..." />
+					<Image src="/images/9.png" class="spinning-logo" alt="Loading..." width="250" height="250" loading="eager" />
 
 					<div class="ls-progress-container">
 						<div class="ls-progress-track">
