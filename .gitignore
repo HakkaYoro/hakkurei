@@ -36,6 +36,9 @@ skills-lock.json
 # unused large assets (not referenced anywhere)
 public/images/avatars/upscaled/
 
+# graphify knowledge graph output
+graphify-out/
+
 # misc
 *.swp
 *.swo
