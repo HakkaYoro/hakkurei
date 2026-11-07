@@ -78,7 +78,6 @@
 .browser-favicon {
 	width: 16px;
 	height: 16px;
-	image-rendering: pixelated;
 	flex-shrink: 0;
 }
 
@@ -192,6 +191,14 @@
 
 ::-webkit-scrollbar-corner {
 	background: #dfdfdf;
+}
+
+/* Desktop: the right-hand Now Playing widget steps aside for the mini window
+   (its #np-title/#np-mute nodes stay in the DOM — the mirror reads them) */
+@media (min-width: 1280px) {
+	.now-playing {
+		display: none;
+	}
 }
 
 /* --- Mini window (desktop only): Now Playing mirror + mood --------------- */

@@ -1,0 +1,14 @@
+---
+// Yin-yang divider orb: inline SVG so var(--reimu-red)/var(--surface) follow
+// the per-song palettes (the old data-URI background could not).
+const { size = 18 } = Astro.props;
+---
+
+<svg class="divider-orb" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+	<circle cx="12" cy="12" r="11" fill="var(--surface)" stroke="var(--reimu-red)" stroke-width="1.8"></circle>
+	<path d="M 12 1 A 11 11 0 0 1 12 23 Z" fill="var(--reimu-red)"></path>
+	<circle cx="12" cy="6.5" r="5.5" fill="var(--reimu-red)"></circle>
+	<circle cx="12" cy="17.5" r="5.5" fill="var(--surface)"></circle>
+	<circle cx="12" cy="6.5" r="1.9" fill="var(--surface)"></circle>
+	<circle cx="12" cy="17.5" r="1.9" fill="var(--reimu-red)"></circle>
+</svg>

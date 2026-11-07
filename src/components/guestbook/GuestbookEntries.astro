@@ -90,9 +90,11 @@ const { entries, avatars } = Astro.props;
 	}
 	.entry-card.avatar-marisa .entry-name { color: #d4af37; }
 	.entry-card.avatar-cirno .entry-name { color: #1e90ff; }
-	.entry-card.avatar-sakuya .entry-name { color: #4f5d6b; }
+	/* Sakuya/Youmu names were fixed dark and illegible on dark palettes:
+	   mixed with var(--text) they stay readable in every per-song palette */
+	.entry-card.avatar-sakuya .entry-name { color: color-mix(in srgb, #708090 45%, var(--text)); }
 	.entry-card.avatar-sanae .entry-name { color: #228b22; }
-	.entry-card.avatar-youmu .entry-name { color: #5f7560; }
+	.entry-card.avatar-youmu .entry-name { color: color-mix(in srgb, #5f7560 45%, var(--text)); }
 
 	.entry-date {
 		font-size: 0.7rem;

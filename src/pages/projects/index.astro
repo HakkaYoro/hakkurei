@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import YinYangOrb from '../../components/layout/YinYangOrb.astro';
 
 const repos = [
 	{
@@ -61,7 +62,7 @@ const langColors: Record<string, string> = {
 ---
 
 <Layout title="Projects">
-	<h2 class="section-title">My Projects</h2>
+	<h2 class="section-title"><span lang="ja">作品集</span> ~ My Projects</h2>
 
 	<div class="projects-grid">
 		{repos.map((repo) => (
@@ -79,11 +80,11 @@ const langColors: Record<string, string> = {
 						<!-- Hidden until the client fetch confirms a live star count -->
 						<span class="project-donations" id={`donations-${repo.name}`} style="display: none;">
 							<svg class="yinyang-svg" viewBox="0 0 24 24" width="14" height="14">
-								<circle cx="12" cy="12" r="11" fill="#FEFDFC" stroke="var(--reimu-red)" stroke-width="1.8"/>
+								<circle cx="12" cy="12" r="11" fill="var(--surface)" stroke="var(--reimu-red)" stroke-width="1.8"/>
 								<path d="M 12 1 A 11 11 0 0 1 12 23 Z" fill="var(--reimu-red)"/>
 								<circle cx="12" cy="6.5" r="5.5" fill="var(--reimu-red)"/>
-								<circle cx="12" cy="17.5" r="5.5" fill="#FEFDFC"/>
-								<circle cx="12" cy="6.5" r="1.8" fill="#FEFDFC"/>
+								<circle cx="12" cy="17.5" r="5.5" fill="var(--surface)"/>
+								<circle cx="12" cy="6.5" r="1.8" fill="var(--surface)"/>
 								<circle cx="12" cy="17.5" r="1.8" fill="var(--reimu-red)"/>
 							</svg>
 							<span>Donations: <span class="count"></span></span>
@@ -101,9 +102,9 @@ const langColors: Record<string, string> = {
 		</a>
 	</div>
 
-	<div class="divider"><span class="divider-orb"></span></div>
+	<div class="divider"><YinYangOrb /></div>
 
-	<h2 id="skills" class="section-title">Spell Cards (Skills)</h2>
+	<h2 id="skills" class="section-title"><span lang="ja">技能</span> ~ Spell Cards</h2>
 
 	<div class="skills-grid">
 		<div class="skill-panel">
@@ -121,6 +122,9 @@ const langColors: Record<string, string> = {
 			<ul class="skill-list">
 				<li>Python</li>
 				<li>Lua</li>
+				<li>TypeScript</li>
+				<li>NodeJS</li>
+				<li>NestJS</li>
 				<li>Java (Learning)</li>
 				<li>Golang (Learning)</li>
 			</ul>
@@ -137,14 +141,14 @@ const langColors: Record<string, string> = {
 		</div>
 	</div>
 
-	<div class="divider"><span class="divider-orb"></span></div>
+	<div class="divider"><YinYangOrb /></div>
 
 	<h2 class="section-title">Languages</h2>
 	<div class="skill-panel" style="max-width: 400px;">
 		<ul class="skill-list">
 			<li>Spanish (Native)</li>
 			<li>English (C1)</li>
-			<li>Japanese (N4, Learning)</li>
+			<li>Japanese (N5, Learning)</li>
 		</ul>
 	</div>
 </Layout>
@@ -311,11 +315,58 @@ const langColors: Record<string, string> = {
 </style>
 
 <script>
-	// Dynamically fetch GitHub stars (Donations) for HakkaYoro's repositories
+	// Dynamically fetch GitHub stars (Donations) for HakkaYoro's repositories,
+	// then reorder the cards: starred repos first, then by commit count desc.
+	// The final order is cached in localStorage for 1h (GitHub allows 60
+	// requests/h without a token); on any failure the current DOM order stays.
 	(function() {
+		const CACHE_KEY = 'gh-repo-order';
+		const CACHE_TTL = 3600000;
+
+		function readCache() {
+			try {
+				const raw = localStorage.getItem(CACHE_KEY);
+				if (!raw) return null;
+				const cached = JSON.parse(raw);
+				if (cached && Array.isArray(cached.order) && Date.now() - cached.ts < CACHE_TTL) return cached;
+			} catch (_) {}
+			return null;
+		}
+
+		function applyOrder(order: string[]) {
+			const grid = document.querySelector('.projects-grid');
+			if (!grid) return false;
+			const cards = new Map();
+			grid.querySelectorAll('.project-card').forEach(card => {
+				const badge = card.querySelector('.project-donations');
+				if (badge && badge.id.startsWith('donations-')) cards.set(badge.id.slice(10), card);
+			});
+			order.forEach(name => {
+				const card = cards.get(name);
+				if (card) { grid.appendChild(card); cards.delete(name); }
+			});
+			cards.forEach(card => grid.appendChild(card));
+			return true;
+		}
+
+		// per_page=1 makes the rel="last" page number equal the total commit count
+		function commitCount(name: string) {
+			return fetch(`https://api.github.com/repos/HakkaYoro/${name}/commits?per_page=1`)
+				.then(res => {
+					if (!res.ok) return 0;
+					const last = (res.headers.get('Link') || '').match(/page=(\d+)>;\s*rel="last"/);
+					if (last) return parseInt(last[1], 10);
+					return res.json().then(arr => (Array.isArray(arr) ? arr.length : 0));
+				})
+				.catch(() => 0);
+		}
+
+		const cached = readCache();
+		if (cached) applyOrder(cached.order);
+
 		fetch('https://api.github.com/users/HakkaYoro/repos')
 			.then(res => res.json())
-			.then(data => {
+			.then(async data => {
 				if (!Array.isArray(data)) return;
 				data.forEach(repo => {
 					const badge = document.getElementById(`donations-${repo.name}`);
@@ -325,13 +376,29 @@ const langColors: Record<string, string> = {
 							countEl.textContent = repo.stargazers_count;
 						}
 						// If stargazers_count > 0, make sure it is visible, otherwise hide
-						if (repo.stargazers_count > 0) {
-							badge.style.display = 'flex';
-						} else {
-							badge.style.display = 'none';
-						}
+						badge.style.display = repo.stargazers_count > 0 ? 'flex' : 'none';
 					}
 				});
+
+				if (cached) return;
+				try {
+					const stats: Record<string, { stars: number; commits: number }> = {};
+					await Promise.all(data.map(async repo => {
+						stats[repo.name] = { stars: repo.stargazers_count || 0, commits: await commitCount(repo.name) };
+					}));
+					const names = data.map(repo => repo.name)
+						.filter(name => document.getElementById(`donations-${name}`));
+					names.sort((a, b) => {
+						const starredA = stats[a].stars > 0 ? 1 : 0;
+						const starredB = stats[b].stars > 0 ? 1 : 0;
+						if (starredA !== starredB) return starredB - starredA;
+						return stats[b].commits - stats[a].commits;
+					});
+					applyOrder(names);
+					localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), order: names }));
+				} catch (err) {
+					console.error('Failed to fetch commit counts, keeping current order:', err);
+				}
 			})
 			.catch(err => console.error('Failed to fetch dynamic github donations:', err));
 	})();

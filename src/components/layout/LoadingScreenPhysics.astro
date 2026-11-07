@@ -112,6 +112,11 @@
 					screen.style.opacity = '0';
 					screen.style.pointerEvents = 'none';
 
+					// Unlock BGM directly — the click-bubbling fallback in Bgm.astro stays as backup
+					try {
+						(document.getElementById('bgm') as HTMLAudioElement | null)?.play()?.catch(() => {});
+					} catch (_) {}
+
 					// Start the wrapper drop animation
 					startWrapperDrop();
 

@@ -1,5 +1,5 @@
 {
-  "name": "mnt-c15f9086-72a6-4245-9256-741c8329e457-hakkurei-hakkurei",
+  "name": "hakkurei",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "@astrojs/node": "^11.1.11",
-    "astro": "^7.4.7"
+    "astro": "^7.4.7",
+    "better-sqlite3": "^13.0.3"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^26.6.6",
     "typescript": "^6.0.3"
   }

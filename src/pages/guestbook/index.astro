@@ -5,7 +5,7 @@ import Layout from '../../layouts/Layout.astro';
 import Saisenbako from '../../components/guestbook/Saisenbako.astro';
 import GuestbookForm from '../../components/guestbook/GuestbookForm.astro';
 import GuestbookEntries from '../../components/guestbook/GuestbookEntries.astro';
-import { getGuestbookEntries, getDonationsData } from '../../lib/db';
+import { getGuestbookEntries, getDonationsTotal } from '../../lib/db';
 
 const defaultAvatars = [
 	{ id: 'reimu', name: 'Reimu Hakurei', path: '/images/avatars/reimu.png' },
@@ -20,8 +20,7 @@ const allEntries = getGuestbookEntries();
 // Sort by date descending
 allEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-const donations = getDonationsData();
-const totalDonations = donations.total;
+const totalDonations = getDonationsTotal();
 ---
 
 <Layout title="Guestbook">

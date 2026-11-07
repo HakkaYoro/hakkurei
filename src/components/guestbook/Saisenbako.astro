@@ -2,6 +2,15 @@
 import { Image } from 'astro:assets';
 
 const { totalDonations } = Astro.props;
+
+// Server-rendered per request: Reimu's opening line varies between reloads
+const emptyBoxMessages = [
+	'Sigh... The donation box is empty again today.',
+	'Not a single coin today. The gods are patient, but the box is not...',
+	'The saisenbako echoes when tapped. Emptiness has a sound too, you know.',
+	'Zero offerings so far. Even the fairies stopped pretending to donate.',
+];
+const emptyBoxMessage = emptyBoxMessages[Math.floor(Math.random() * emptyBoxMessages.length)];
 ---
 
 	<!-- ═══════════════════════════════════════════════════
@@ -11,12 +20,12 @@ const { totalDonations } = Astro.props;
 		<div class="reimu-bubble-container">
 			<Image src="/images/avatars/reimu.png" class="reimu-bubble-avatar" alt="Reimu" width="600" height="258" loading="eager" />
 			<div class="reimu-speech-bubble" id="reimu-bubble" aria-live="polite">
-				Sigh... The donation box is empty again today.
+				{emptyBoxMessage}
 			</div>
 		</div>
 
 		<div class="saisenbako" id="saisenbako" role="button" tabindex="0" aria-label="Donation box — make a 5-yen offering">
-			<div class="saisen-grille"></div>
+			<Image src="/images/saisenbako.png" class="saisen-box-img" alt="" width="440" height="240" loading="eager" />
 			<div class="saisen-text">賽銭</div>
 			<!-- Canvas overlay for falling coin physics -->
 			<canvas id="saisen-canvas" class="saisen-canvas"></canvas>
@@ -364,52 +373,41 @@ const { totalDonations } = Astro.props;
 		100% { transform: scale(1); }
 	}
 
-	/* SAISENBAKO 2.5D WOODEN BOX */
+	/* SAISENBAKO — real illustration with transparency (public/images/saisenbako.png) */
 	.saisenbako {
 		width: 220px;
 		max-width: 100%;
-		height: 120px;
-		background: linear-gradient(135deg, #7c3b17, #59250a);
-		border: 5px solid #361403;
+		aspect-ratio: 440 / 240;
 		position: relative;
 		cursor: pointer;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		box-shadow: 
-			0 10px 20px rgba(0,0,0,0.25),
-			inset 0 2px 4px rgba(255,255,255,0.15),
-			inset 0 -2px 6px rgba(0,0,0,0.4);
+		filter: drop-shadow(0 10px 14px rgba(0,0,0,0.3));
 		transition: transform 0.08s ease;
 		user-select: none;
-		overflow: hidden;
 	}
 	.saisenbako:active {
 		transform: translateY(2px) scale(0.97);
 	}
 
-	.saisen-grille {
+	.saisen-box-img {
 		position: absolute;
-		top: 0; left: 0; width: 100%; height: 20px;
-		background: repeating-linear-gradient(
-			90deg,
-			#361403 0px,
-			#361403 10px,
-			transparent 10px,
-			transparent 24px
-		);
-		border-bottom: 3px solid #361403;
-		z-index: 10;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
 	}
 
 	.saisen-text {
 		font-family: var(--font-sans);
 		color: #ffd700;
-		font-size: 2.2rem;
+		font-size: 1.9rem;
 		font-weight: bold;
 		text-shadow: 2px 2px 0px #1e0901;
 		letter-spacing: 12px;
 		margin-left: 12px; /* balance letter spacing offset */
+		margin-top: 1.5rem; /* sit on the front face, under the slot band */
 		pointer-events: none;
 		z-index: 5;
 	}

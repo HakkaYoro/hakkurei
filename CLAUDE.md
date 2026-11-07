@@ -18,26 +18,32 @@ No test runner, no linter. `tsconfig.json` extends `astro/tsconfigs/strict`. Nod
 
 Touhou-themed personal portfolio / shrine site. Astro 7 in **SSR mode** via `@astrojs/node` (`mode: 'standalone'`, `astro.config.mjs`) — the server ships as `./dist/server/entry.mjs` and is run directly by Node (`Dockerfile`). There is **no UI framework** (no React/Vue/Svelte): pages are `.astro` files and all interactivity is hand-written vanilla JS inside `<script is:inline>` blocks.
 
-### The database is JSON files (not a real DB)
+### The database is SQLite (data/hakkurei.db)
 
-This is the central architectural choice. `src/lib/db.ts` persists all state as plain JSON under `data/` using synchronous `node:fs`:
+This is the central architectural choice. `src/lib/db.ts` persists all state in a single SQLite database at `data/hakkurei.db` via **better-sqlite3** (synchronous API, WAL mode):
 
-- `data/guestbook.json` — entries (seeded with hardcoded Touhou-character comments on first run via `ensureFilesExist()`; each `addGuestbookEntry` prunes the file to the 500 most recent entries)
-- `data/donations.json` — running donation total + per-day/IP counters
-- `data/guestbook_limits.json` — rate-limit counters
+- `entries` — guestbook entries (seeded with hardcoded Touhou-character comments on first run; each `addGuestbookEntry` prunes the table to the 500 most recent rows)
+- `donations_totals` — single-row running donation total
+- `rate_limits` — shared rate-limit counters, keyed by bucket (`d:YYYY-MM-DD` daily, `m:YYYY-MM-DDTHH:MM` per-minute) + scope (`guestbook`, `donations`, `admin-login`) + key (IP or `__global__`)
 
-`data/` is **gitignored** and created at runtime — the repo never holds live data. In production it lives in a Docker named volume mounted at `/app/data` (`docker-compose.yml`) so donations/guestbook survive image rebuilds. Every read/write funnels through the exported functions in `db.ts`; do not touch the files directly from endpoints.
+**First-boot migration:** if the `.db` file does not exist but the legacy JSON files (`data/guestbook.json`, `data/donations.json`, `data/guestbook_limits.json`) are present, they are imported as-is; otherwise the seed data (5 character entries, 105-yen total) is written. `public/messages.json`, `public/mood.json` and `public/music/songs.json` are static content, NOT database — mood.json is rewritten only by the admin panel.
 
-**Atomicity caveat** (see the `ponytail:` comment in `db.ts`): the read-modify-write pattern is only accidentally atomic because the whole app runs in a single Node process. There is no locking. If this ever runs behind more than one process/replica, add locking.
+`data/` is **gitignored** and created at runtime — the repo never holds live data. In production it lives in a Docker named volume mounted at `/app/data` (`docker-compose.yml`) so donations/guestbook survive image rebuilds. Every read/write funnels through the exported functions in `db.ts`; do not touch the database directly from endpoints. better-sqlite3 ships prebuilt binaries for glibc and musl (no build toolchain needed in the alpine image).
+
+**Atomicity caveat** (see the comment in `db.ts`): better-sqlite3 is synchronous, so statements are serialized per connection, but the app still assumes a **single Node process**. If this ever runs behind more than one process/replica, move to a client-server DB.
+
+### Admin panel (/admin)
+
+Password-only admin at `/admin` (not linked anywhere — direct URL). `POST /api/admin/auth` compares SHA-256 hex of the posted password against a hardcoded hash (override with `ADMIN_PASSWORD_HASH` env, same format) and caps the body at 4KB (413 before parsing, same as the guestbook POST). Sessions are in-memory token cookies (`admin_session`, HttpOnly, SameSite=Strict, `Secure` only when the request arrives over TLS — direct https, or the proxy-appended `x-forwarded-proto` entry when `TRUST_PROXY` is set; TTL 1h) — a restart logs admins out. Login attempts are rate-limited to 5/min/IP through the shared `rate_limits` table. Authenticated endpoints: `PATCH /api/admin/mood` (rewrites `public/mood.json`), `GET /api/admin/entries`, `DELETE /api/admin/entries/:id`, `POST /api/admin/logout` — all return 401 without a valid cookie.
 
 ### Hybrid rendering
 
-Pages default to static. Anything that must read live state opts out with `export const prerender = false;` — currently the `/guestbook` page and both API routes. The API routes are in `src/pages/api/`:
+Pages default to static. Anything that must read live state opts out with `export const prerender = false;` — currently the `/guestbook` and `/admin` pages and all API routes. The public API routes are in `src/pages/api/`:
 
 - `GET /api/guestbook` → entry list; `POST /api/guestbook` → validate + append (name ≤30, message ≤500, avatar allowlisted server-side)
 - `POST /api/donations` → +5 yen with rate-limit check (the box POST reads the total from the response; there is no GET route)
 
-Both POST handlers extract the client IP **proxy-aware**: with `TRUST_PROXY` set, the **last** `x-forwarded-for` entry (the one the trusted proxy appended; client-supplied entries come first and are spoofable), otherwise `clientAddress` (correct behind the reverse proxy / TrueNAS setup). Rate limits: donations 50/IP + 1000 global per day; guestbook 5/IP + 50 global per day, tracked in `guestbook_limits.json`. Limits are enforced in `db.ts` (`checkGuestbookLimit`, `incrementDonations`), not in the routes.
+The admin API lives in `src/pages/api/admin/` (see the admin section below). The guestbook POST sends JSON with a **4KB Content-Length cap** (413 before parsing); both POST handlers extract the client IP **proxy-aware**: with `TRUST_PROXY` set, the **last** `x-forwarded-for` entry (the one the trusted proxy appended; client-supplied entries come first and are spoofable), otherwise `clientAddress` (correct behind the reverse proxy / TrueNAS setup). Rate limits: donations 50/IP + 1000 global per day; guestbook 5/IP + 50 global per day — enforced in `db.ts` (`checkGuestbookLimit`, `incrementDonations`), not in the routes.
 
 The donation box POST sends an **empty body** and reads JSON — it uses `request.json()`, not `.formData()`. There is intentionally no CSRF guard on these public, rate-limited, +5-yen endpoints.
 

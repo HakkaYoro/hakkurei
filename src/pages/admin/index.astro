@@ -1,0 +1,317 @@
+---
+export const prerender = false;
+
+import fs from 'node:fs';
+import path from 'node:path';
+import Layout from '../../layouts/Layout.astro';
+import { isSessionValid, sessionTokenFromRequest } from '../../lib/admin';
+import { getGuestbookEntriesWithIds } from '../../lib/db';
+
+const authed = isSessionValid(sessionTokenFromRequest(Astro.request));
+
+let moodText = '';
+try {
+	const mood = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public', 'mood.json'), 'utf-8'));
+	if (mood && typeof mood.text === 'string') moodText = mood.text;
+} catch { /* mood.json missing — editor starts empty */ }
+
+const entries = authed ? getGuestbookEntriesWithIds() : [];
+---
+
+<Layout title="Admin">
+	<h2 class="section-title"><span lang="ja">管理</span> ~ Admin</h2>
+
+	{!authed && (
+		<div class="admin-panel">
+			<h3 class="admin-panel-header">Barrier Gate (結界)</h3>
+			<p class="admin-panel-desc">
+				Password only — there is no username. The gatekeeper is watching.
+			</p>
+			<form id="admin-login-form" class="admin-login-form">
+				<label for="admin-password"><span lang="ja">パスワード</span> Password:</label>
+				<input type="password" id="admin-password" name="password" required autocomplete="current-password" />
+				<button type="submit" class="admin-btn">ログイン Login</button>
+			</form>
+			<p class="admin-msg" id="admin-login-msg" role="alert"></p>
+		</div>
+	)}
+
+	{authed && (
+		<div class="admin-panel">
+			<div class="admin-panel-header-row">
+				<h3 class="admin-panel-header">Authenticated — welcome back, keeper</h3>
+				<button type="button" class="admin-btn" id="admin-logout">ログアウト Logout</button>
+			</div>
+
+			<h4 class="admin-subheader">今日の気分 — Mood</h4>
+			<form id="mood-form" class="mood-form">
+				<textarea id="mood-text" rows="2" maxlength="200" required>{moodText}</textarea>
+				<button type="submit" class="admin-btn">保存 Save</button>
+				<span class="admin-msg" id="mood-msg" role="status"></span>
+			</form>
+
+			<h4 class="admin-subheader">Guestbook entries ({entries.length})</h4>
+			<div class="admin-entries" id="admin-entries">
+				{entries.map((entry) => (
+					<div class="admin-entry" data-id={entry.id}>
+						<div class="admin-entry-meta">
+							<span class="admin-entry-name">{entry.name}</span>
+							<span class="admin-entry-date">{entry.date}</span>
+						</div>
+						<p class="admin-entry-message">{entry.message}</p>
+						<div class="admin-entry-actions">
+							<button type="button" class="admin-btn admin-btn-danger" data-delete={entry.id}>削除 Delete</button>
+						</div>
+					</div>
+				))}
+				{entries.length === 0 && <p class="admin-empty">No entries. The book is blank.</p>}
+			</div>
+		</div>
+	)}
+</Layout>
+
+<script is:inline>
+	(function() {
+		var loginForm = document.getElementById('admin-login-form');
+		if (loginForm) {
+			loginForm.addEventListener('submit', function(e) {
+				e.preventDefault();
+				var password = document.getElementById('admin-password').value;
+				var msg = document.getElementById('admin-login-msg');
+				fetch('/api/admin/auth', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ password: password })
+				})
+				.then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+				.then(function(r) {
+					if (r.ok) window.location.reload();
+					else msg.textContent = r.data.error || 'Login failed.';
+				})
+				.catch(function() { msg.textContent = 'The barrier did not respond. Try again.'; });
+			});
+		}
+
+		var logoutBtn = document.getElementById('admin-logout');
+		if (logoutBtn) {
+			logoutBtn.addEventListener('click', function() {
+				fetch('/api/admin/logout', { method: 'POST' }).then(function() { window.location.reload(); });
+			});
+		}
+
+		var moodForm = document.getElementById('mood-form');
+		if (moodForm) {
+			moodForm.addEventListener('submit', function(e) {
+				e.preventDefault();
+				var text = document.getElementById('mood-text').value;
+				var msg = document.getElementById('mood-msg');
+				fetch('/api/admin/mood', {
+					method: 'PATCH',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ text: text })
+				})
+				.then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+				.then(function(r) {
+					msg.textContent = r.ok ? '✓ saved' : (r.data.error || 'error');
+					msg.classList.toggle('admin-msg-error', !r.ok);
+				})
+				.catch(function() { msg.textContent = 'error'; msg.classList.add('admin-msg-error'); });
+			});
+		}
+
+		// Win9x inline confirmation: the Delete button swaps for [Yes]/[No] in place
+		var entriesBox = document.getElementById('admin-entries');
+		if (entriesBox) {
+			entriesBox.addEventListener('click', function(e) {
+				var btn = e.target instanceof Element ? e.target.closest('[data-delete]') : null;
+				if (!btn) return;
+				var id = btn.getAttribute('data-delete');
+				var actions = btn.parentElement;
+				actions.innerHTML = '<span class="admin-confirm">Borrar esta entrada? <button type="button" class="admin-btn admin-btn-danger" data-confirm="' + id + '">Sí</button> <button type="button" class="admin-btn" data-cancel>No</button></span>';
+			});
+
+			entriesBox.addEventListener('click', function(e) {
+				var confirmBtn = e.target instanceof Element ? e.target.closest('[data-confirm]') : null;
+				if (confirmBtn) {
+					var id = confirmBtn.getAttribute('data-confirm');
+					fetch('/api/admin/entries/' + id, { method: 'DELETE' })
+						.then(function(res) { return res.json(); })
+						.then(function(d) {
+							if (d.success) {
+								var row = entriesBox.querySelector('.admin-entry[data-id="' + id + '"]');
+								if (row) row.remove();
+							}
+						});
+					return;
+				}
+				if (e.target instanceof Element && e.target.closest('[data-cancel]')) {
+					var wrapper = e.target.closest('.admin-confirm');
+					if (wrapper) wrapper.remove();
+				}
+			});
+		}
+	})();
+</script>
+
+<style is:global>
+	.admin-panel {
+		background: var(--surface);
+		border: 1px solid var(--border-light);
+		box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+		padding: 1.5rem;
+		margin: 1.5rem 0;
+	}
+
+	.admin-panel-header {
+		color: var(--reimu-red);
+		margin: 0 0 0.5rem;
+		font-size: 1.1rem;
+	}
+
+	.admin-panel-header-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.admin-panel-desc {
+		font-size: 0.85rem;
+		color: var(--text-dim);
+		margin-bottom: 1rem;
+	}
+
+	.admin-login-form {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		max-width: 320px;
+	}
+
+	.admin-login-form label {
+		font-weight: bold;
+		color: var(--reimu-red);
+		font-size: 0.9rem;
+	}
+
+	.admin-login-form input {
+		border: 2px solid var(--border-light);
+		border-style: inset;
+		background: var(--bg);
+		padding: 0.5rem;
+		font-family: var(--font-mono);
+		color: var(--text);
+	}
+
+	.admin-btn {
+		background: var(--bg);
+		border: 2px outset var(--border-light);
+		padding: 4px 14px;
+		font-family: var(--font-sans);
+		font-size: 0.85rem;
+		font-weight: bold;
+		color: var(--text);
+		cursor: url('/cursors/Link.png'), pointer;
+		align-self: flex-start;
+	}
+	.admin-btn:active { border-style: inset; }
+
+	.admin-btn-danger {
+		background: var(--reimu-red);
+		color: var(--bg);
+		border-color: var(--reimu-red);
+	}
+
+	.admin-msg {
+		font-size: 0.8rem;
+		color: var(--text-dim);
+		min-height: 1.2em;
+		margin-top: 0.25rem;
+	}
+	.admin-msg-error { color: var(--magenta); }
+
+	.admin-subheader {
+		color: var(--reimu-red);
+		margin: 1.5rem 0 0.75rem;
+		font-size: 1rem;
+		border-bottom: 1px dashed var(--border-light);
+		padding-bottom: 0.25rem;
+	}
+
+	.mood-form {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+	.mood-form textarea {
+		border: 2px solid var(--border-light);
+		border-style: inset;
+		background: var(--bg);
+		padding: 0.5rem;
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
+		color: var(--text);
+		resize: vertical;
+	}
+
+	.admin-entries {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		max-height: 60vh;
+		overflow-y: auto;
+		padding-right: 4px;
+	}
+
+	.admin-entry {
+		border: 1px solid var(--border-light);
+		background: var(--bg);
+		padding: 0.75rem;
+	}
+
+	.admin-entry-meta {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.admin-entry-name {
+		font-weight: bold;
+		color: var(--reimu-red);
+		font-size: 0.9rem;
+	}
+
+	.admin-entry-date {
+		font-size: 0.7rem;
+		color: var(--text-dim);
+	}
+
+	.admin-entry-message {
+		font-size: 0.85rem;
+		color: var(--text);
+		margin: 0.5rem 0;
+		white-space: pre-wrap;
+	}
+
+	.admin-entry-actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.admin-confirm {
+		font-size: 0.8rem;
+		font-weight: bold;
+		color: var(--text);
+		display: inline-flex;
+		gap: 0.5rem;
+		align-items: center;
+	}
+
+	.admin-empty {
+		font-size: 0.85rem;
+		color: var(--text-dim);
+		font-style: italic;
+	}
+</style>

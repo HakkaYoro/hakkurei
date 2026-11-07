@@ -133,6 +133,17 @@ try {
 						renderNowPlaying();
 					});
 
+					// Palette crossfade: while data-song swaps, every color eases over ~0.8s
+					var paletteTimer = null;
+					var paletteObserver = new MutationObserver(function() {
+						document.body.classList.add('palette-transition');
+						if (paletteTimer) clearTimeout(paletteTimer);
+						paletteTimer = setTimeout(function() {
+							document.body.classList.remove('palette-transition');
+						}, 900);
+					});
+					paletteObserver.observe(document.body, { attributes: true, attributeFilter: ['data-song'] });
+
 					// Mute toggle via delegation — survives View Transition DOM swaps
 					document.addEventListener('click', function(e) {
 						var target = e.target instanceof Element ? e.target.closest('#np-mute') : null;

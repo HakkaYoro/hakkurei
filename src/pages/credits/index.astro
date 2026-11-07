@@ -115,11 +115,8 @@ const stampSources: Array<[string, string]> = [
 		Real graphics only — see our <a href="/links">button collection</a>. Each item's provenance:
 	</p>
 	<ul class="credits-list">
-		<li>
-			<code>88x31/moriya.png</code> — Moriya Shrine's official button, courtesy of
-			<a href="https://moriya-shrine.org" target="_blank" rel="noopener noreferrer">moriya-shrine.org</a>.
-		</li>
-		<li><code>88x31/reimoo.png</code> — our own button, drawn for this page (that's us!).</li>
+		<li><code>88x31/moriya.png</code> — made by HakkaYoro (this site).</li>
+		<li><code>88x31/reimoo.png</code> — made by HakkaYoro (this site).</li>
 		<li>
 			<code>blinkies/88x31-touhoubutton.gif</code> — the classic red 「TOUHOU!」 button, collected from the
 			<a href="https://88x31.nl" target="_blank" rel="noopener noreferrer">88x31.nl button archive</a>
@@ -165,6 +162,13 @@ const stampSources: Array<[string, string]> = [
 	<ul class="credits-list">
 		<li><code>public/images/avatars/*.png</code> — guestbook avatars (Reimu, Marisa, Cirno, Sakuya, Sanae, Youmu): preexisting in the repository, origin not documented.</li>
 		<li><code>public/wallpaper.webp</code> — the Reimu &amp; Marisa hanami picnic wallpaper (3840×2400 fanart): preexisting in the repository, artist unknown.</li>
+		<li>
+			<code>public/images/torii.png</code> — vermillion torii gate, derived from
+			<a href="https://commons.wikimedia.org/wiki/File:Shinto_torii_icon_vermillion.svg" target="_blank" rel="noopener noreferrer">Shinto torii icon vermillion.svg</a>
+			by Washiucho (Wikimedia Commons, public domain): sphere frame removed, vector re-rendered.
+		</li>
+		<li><code>public/images/saisenbako.png</code> — the wooden offering-box illustration, drawn for this site (that's us!).</li>
+		<li><code>public/images/9-16.png</code>, <code>9-96.png</code> — pre-scaled ⑨ renditions of <code>9.png</code> (Mitchell/Lanczos via ImageMagick), drawn for this site.</li>
 	</ul>
 </Layout>
 
@@ -184,7 +188,7 @@ const stampSources: Array<[string, string]> = [
 
 	.provenance-table th {
 		background: var(--reimu-red);
-		color: #fff;
+		color: var(--bg);
 		padding: 6px 8px;
 		text-align: left;
 		font-size: 0.75rem;

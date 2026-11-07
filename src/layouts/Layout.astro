@@ -49,15 +49,15 @@ const sectionTab = SECTION_TABS[path] ?? (path.startsWith('/links') ? 'リンク
 				<span class="browser-search">ユーザーを検索する: <span class="browser-search-field"></span></span>
 			</div>
 
-			<div class="browser-address">
-				<Image src="/images/9.png" alt="" class="browser-favicon" width="16" height="16" />
+				<div class="browser-address">
+					<Image src="/images/9-16.png" alt="" class="browser-favicon" width="16" height="16" />
 				<span class="browser-url">http://www.hakkurei.com{path === '/' ? '/' : `${path}/`}</span>
 			</div>
 
 			<div class="browser-viewport">
 				<div class="wrapper">
 					<header class="site-header">
-						<div class="torii-icon" aria-hidden="true">⛩️</div>
+						<Image src="/images/torii.png" alt="" aria-hidden="true" class="torii-icon" width={256} height={188} loading="eager" />
 						<h1 class="site-title">博麗神社 ~ Hakurei Shrine</h1>
 						<p class="site-subtitle">Welcome to hakkurei.com</p>
 					</header>
@@ -82,12 +82,12 @@ const sectionTab = SECTION_TABS[path] ?? (path.startsWith('/links') ? 'リンク
 							<span class="badge orange">VALID CSS3</span>
 						</div>
 						<p>
-							© 2026 Hakurei Shrine ◆ Built with nostalgia ◆ Best viewed at 1024x768
+							© 2026 <span lang="ja">博麗神社</span> ~ Hakurei Shrine ◆ Built with nostalgia ◆ Best viewed at 1024x768
 						</p>
 						<p style="margin: 1rem 0;">
 							<a href="/">Home</a> ・ <a href="/guestbook">Guestbook</a> ・ <a href="/links">Links</a> ・ <a href="/credits">Credits</a>
 						</p>
-						<p>🌸 May the shrine protect you from incidents 🌸</p>
+						<p>🌸 <span lang="ja">無事でありますように</span> May the shrine protect you from incidents 🌸</p>
 					</footer>
 				</div>
 			</div>
@@ -120,6 +120,60 @@ const sectionTab = SECTION_TABS[path] ?? (path.startsWith('/links') ? 'リンク
 				};
 				applySectionTab();
 				document.addEventListener('astro:page-load', applySectionTab);
+			}
+		</script>
+
+		<script is:inline>
+			// Persistent Touhou name in the fake browser search field (localStorage per visitor)
+			if (!window._searchNameInit) {
+				window._searchNameInit = true;
+				var applySearchName = function() {
+					var field = document.querySelector('.browser-search-field');
+					if (!field) return;
+					var name = localStorage.getItem('touhou-search-name');
+					if (!name) {
+						fetch('/touhou-characters.json')
+							.then(function(res) { return res.json(); })
+							.then(function(list) {
+								if (!Array.isArray(list) || !list.length) return;
+								name = list[Math.floor(Math.random() * list.length)];
+								localStorage.setItem('touhou-search-name', name);
+								field.textContent = name;
+							})
+							.catch(function() {});
+					} else {
+						field.textContent = name;
+					}
+				};
+				applySearchName();
+				document.addEventListener('astro:page-load', applySearchName);
+			}
+		</script>
+
+		<script is:inline>
+			// Marisa crosses the screen rarely: one WAAPI pass, ~20% chance every 60-90s.
+			// Re-queries the element each flight so View Transition swaps keep it working.
+			if (!window._marisaInit) {
+				window._marisaInit = true;
+				var marisaFly = function() {
+					if (document.hidden) return;
+					var img = document.querySelector('.marisa-fly');
+					if (!img || typeof img.animate !== 'function') return;
+					var anim = img.animate([
+						{ transform: 'translate(0, 0)', opacity: 0 },
+						{ transform: 'translate(5.5vw, 0)', opacity: 1, offset: 0.05 },
+						{ transform: 'translate(104.5vw, 0)', opacity: 1, offset: 0.95 },
+						{ transform: 'translate(110vw, 0)', opacity: 0 }
+					], { duration: 5000, easing: 'linear' });
+					anim.onfinish = function() { img.style.opacity = ''; };
+				};
+				var scheduleMarisa = function() {
+					setTimeout(function() {
+						if (Math.random() < 0.2) marisaFly();
+						scheduleMarisa();
+					}, 60000 + Math.random() * 30000);
+				};
+				if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) scheduleMarisa();
 			}
 		</script>
 	</body>

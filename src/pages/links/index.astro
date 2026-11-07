@@ -1,9 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import LinkToUs from '../../components/links/LinkToUs.astro';
-import Affiliates from '../../components/links/Affiliates.astro';
 import CommunityPortals from '../../components/links/CommunityPortals.astro';
 import ButtonCollection from '../../components/links/ButtonCollection.astro';
+import YinYangOrb from '../../components/layout/YinYangOrb.astro';
 ---
 
 <Layout title="Links">
@@ -17,15 +17,11 @@ import ButtonCollection from '../../components/links/ButtonCollection.astro';
 
 	<LinkToUs />
 
-	<div class="divider"><span class="divider-orb"></span></div>
+	<div class="divider"><YinYangOrb /></div>
 
 	<ButtonCollection />
 
-	<div class="divider"><span class="divider-orb"></span></div>
-
-	<Affiliates />
-
-	<div class="divider"><span class="divider-orb"></span></div>
+	<div class="divider"><YinYangOrb /></div>
 
 	<CommunityPortals />
 </Layout>

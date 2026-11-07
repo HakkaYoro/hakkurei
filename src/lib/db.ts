@@ -1,3 +1,4 @@
+import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -9,24 +10,30 @@ export interface GuestbookEntry {
 	isCharacter?: boolean;
 }
 
-export interface DonationsData {
+export interface DonationCheckResult {
+	success: boolean;
 	total: number;
-	dailyLimits: {
-		[dateStr: string]: {
-			globalCount: number;
-			ips: {
-				[ip: string]: number;
-			};
-		};
-	};
+	errorMsg?: string;
+}
+
+export interface RateLimitResult {
+	allowed: boolean;
+	errorMsg?: string;
 }
 
 const DATA_DIR = path.join(process.cwd(), 'data');
-const GUESTBOOK_PATH = path.join(DATA_DIR, 'guestbook.json');
-const DONATIONS_PATH = path.join(DATA_DIR, 'donations.json');
-const GUESTBOOK_LIMITS_PATH = path.join(DATA_DIR, 'guestbook_limits.json');
+const DB_PATH = path.join(DATA_DIR, 'hakkurei.db');
+const LEGACY_GUESTBOOK = path.join(DATA_DIR, 'guestbook.json');
+const LEGACY_DONATIONS = path.join(DATA_DIR, 'donations.json');
+const LEGACY_GUESTBOOK_LIMITS = path.join(DATA_DIR, 'guestbook_limits.json');
 
-// Preseeded comments from legendary Touhou characters
+// Keep only the most recent 500 entries so the table cannot grow unbounded.
+const MAX_GUESTBOOK_ENTRIES = 500;
+const DONATIONS_IP_DAILY_MAX = 50;
+const DONATIONS_GLOBAL_DAILY_MAX = 1000;
+
+// Preseeded comments from legendary Touhou characters (used when there is no
+// legacy JSON to import and the database is brand new)
 const preseededEntries: GuestbookEntry[] = [
 	{
 		name: 'Cirno ⑨',
@@ -65,196 +72,217 @@ const preseededEntries: GuestbookEntry[] = [
 	},
 ];
 
-// Helper to ensure data directory and files exist
-function ensureFilesExist() {
-	if (!fs.existsSync(DATA_DIR)) {
-		fs.mkdirSync(DATA_DIR, { recursive: true });
+let db: Database.Database;
+
+function initDb(): Database.Database {
+	if (db) return db;
+	if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+	const fresh = !fs.existsSync(DB_PATH);
+	db = new Database(DB_PATH);
+	db.pragma('journal_mode = WAL');
+	db.exec(`
+		CREATE TABLE IF NOT EXISTS entries (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL,
+			avatar TEXT NOT NULL,
+			date TEXT NOT NULL,
+			message TEXT NOT NULL,
+			isCharacter INTEGER NOT NULL DEFAULT 0
+		);
+		CREATE TABLE IF NOT EXISTS donations_totals (
+			id INTEGER PRIMARY KEY CHECK (id = 1),
+			total INTEGER NOT NULL
+		);
+		CREATE TABLE IF NOT EXISTS rate_limits (
+			bucket TEXT NOT NULL,
+			scope TEXT NOT NULL,
+			key TEXT NOT NULL,
+			count INTEGER NOT NULL DEFAULT 0,
+			PRIMARY KEY (bucket, scope, key)
+		);
+	`);
+	if (fresh) migrateLegacyData();
+	return db;
+}
+
+// First boot on an existing deployment: import the legacy JSON files as-is.
+// Without them (fresh install), seed the character entries and the 105 total.
+function migrateLegacyData(): void {
+	let entries: GuestbookEntry[] | null = null;
+	try {
+		const parsed = JSON.parse(fs.readFileSync(LEGACY_GUESTBOOK, 'utf-8'));
+		if (Array.isArray(parsed) && parsed.length) entries = parsed;
+	} catch { /* no legacy file */ }
+	const insertEntry = db.prepare(
+		'INSERT INTO entries (name, avatar, date, message, isCharacter) VALUES (?, ?, ?, ?, ?)',
+	);
+	if (entries) {
+		for (const e of entries) {
+			insertEntry.run(e.name, e.avatar, e.date, e.message, e.isCharacter ? 1 : 0);
+		}
+	} else {
+		for (const e of preseededEntries) {
+			insertEntry.run(e.name, e.avatar, e.date, e.message, e.isCharacter ? 1 : 0);
+		}
 	}
 
-	if (!fs.existsSync(GUESTBOOK_PATH)) {
-		fs.writeFileSync(GUESTBOOK_PATH, JSON.stringify(preseededEntries, null, 2), 'utf-8');
-	}
+	let total = 105;
+	try {
+		const donations = JSON.parse(fs.readFileSync(LEGACY_DONATIONS, 'utf-8'));
+		if (donations && typeof donations.total === 'number') total = donations.total;
+	} catch { /* no legacy file */ }
+	db.prepare('INSERT INTO donations_totals (id, total) VALUES (1, ?)').run(total);
 
-	if (!fs.existsSync(DONATIONS_PATH)) {
-		const initialDonations: DonationsData = {
-			total: 105,
-			dailyLimits: {},
-		};
-		fs.writeFileSync(DONATIONS_PATH, JSON.stringify(initialDonations, null, 2), 'utf-8');
-	}
+	importLegacyRateLimits(LEGACY_DONATIONS, 'donations');
+	importLegacyRateLimits(LEGACY_GUESTBOOK_LIMITS, 'guestbook');
+}
 
-	if (!fs.existsSync(GUESTBOOK_LIMITS_PATH)) {
-		fs.writeFileSync(GUESTBOOK_LIMITS_PATH, JSON.stringify({}, null, 2), 'utf-8');
+function importLegacyRateLimits(file: string, scope: string): void {
+	let data: Record<string, { globalCount?: number; ips?: Record<string, number> }> | null = null;
+	try {
+		const parsed = JSON.parse(fs.readFileSync(file, 'utf-8'));
+		if (parsed && typeof parsed === 'object' && parsed.dailyLimits) data = parsed.dailyLimits;
+		else if (parsed && typeof parsed === 'object') data = parsed;
+	} catch { /* no legacy file */ }
+	if (!data) return;
+	const insert = db.prepare(
+		'INSERT OR IGNORE INTO rate_limits (bucket, scope, key, count) VALUES (?, ?, ?, ?)',
+	);
+	for (const [day, slot] of Object.entries(data)) {
+		if (!slot || typeof slot !== 'object') continue;
+		if (typeof slot.globalCount === 'number') {
+			insert.run(`d:${day}`, scope, '__global__', slot.globalCount);
+		}
+		if (slot.ips && typeof slot.ips === 'object') {
+			for (const [ip, count] of Object.entries(slot.ips)) {
+				if (typeof count === 'number') insert.run(`d:${day}`, scope, ip, count);
+			}
+		}
 	}
+}
+
+// Rate-limit buckets: 'd:YYYY-MM-DD' for daily scopes, 'm:YYYY-MM-DDTHH:MM' for
+// per-minute ones. Stale buckets are dropped on every use so the table stays tiny.
+function pruneRateLimits(day: string, minute: string): void {
+	db.prepare("DELETE FROM rate_limits WHERE bucket LIKE 'd:%' AND bucket != ?").run(day);
+	db.prepare("DELETE FROM rate_limits WHERE bucket LIKE 'm:%' AND bucket != ?").run(minute);
+}
+
+function rateCount(bucket: string, scope: string, key: string): number {
+	const row = db.prepare('SELECT count FROM rate_limits WHERE bucket = ? AND scope = ? AND key = ?')
+		.get(bucket, scope, key) as { count: number } | undefined;
+	return row ? row.count : 0;
+}
+
+function rateBump(bucket: string, scope: string, key: string, amount: number): void {
+	db.prepare(`
+		INSERT INTO rate_limits (bucket, scope, key, count) VALUES (?, ?, ?, ?)
+		ON CONFLICT (bucket, scope, key) DO UPDATE SET count = count + excluded.count
+	`).run(bucket, scope, key, amount);
 }
 
 // Guestbook operations
 export function getGuestbookEntries(): GuestbookEntry[] {
-	ensureFilesExist();
-	try {
-		const content = fs.readFileSync(GUESTBOOK_PATH, 'utf-8');
-		return JSON.parse(content);
-	} catch (err) {
-		console.error('Error reading guestbook database file:', err);
-		return preseededEntries;
-	}
+	const rows = initDb().prepare('SELECT name, avatar, date, message, isCharacter FROM entries ORDER BY id')
+		.all() as Array<{ name: string; avatar: string; date: string; message: string; isCharacter: number }>;
+	return rows.map((r) => ({ ...r, isCharacter: !!r.isCharacter }));
 }
 
-// Keep only the most recent 500 entries so the JSON file cannot grow unbounded.
-const MAX_GUESTBOOK_ENTRIES = 500;
+// Admin panel view: ids + newest first
+export function getGuestbookEntriesWithIds(): Array<GuestbookEntry & { id: number }> {
+	const rows = initDb().prepare('SELECT id, name, avatar, date, message, isCharacter FROM entries ORDER BY id DESC')
+		.all() as Array<{ id: number; name: string; avatar: string; date: string; message: string; isCharacter: number }>;
+	return rows.map((r) => ({ ...r, isCharacter: !!r.isCharacter }));
+}
 
 export function addGuestbookEntry(entry: GuestbookEntry): void {
-	ensureFilesExist();
-	try {
-		const entries = getGuestbookEntries();
-		entries.push(entry);
-		const trimmed = entries.slice(-MAX_GUESTBOOK_ENTRIES);
-		fs.writeFileSync(GUESTBOOK_PATH, JSON.stringify(trimmed, null, 2), 'utf-8');
-	} catch (err) {
-		console.error('Error writing to guestbook database file:', err);
-	}
+	initDb().prepare('INSERT INTO entries (name, avatar, date, message, isCharacter) VALUES (?, ?, ?, ?, ?)')
+		.run(entry.name, entry.avatar, entry.date, entry.message, entry.isCharacter ? 1 : 0);
+	db.prepare(`
+		DELETE FROM entries WHERE id NOT IN (
+			SELECT id FROM entries ORDER BY id DESC LIMIT ?
+		)
+	`).run(MAX_GUESTBOOK_ENTRIES);
+}
+
+// Admin panel: remove a guestbook entry by id
+export function deleteGuestbookEntry(id: number): boolean {
+	return initDb().prepare('DELETE FROM entries WHERE id = ?').run(id).changes > 0;
 }
 
 // Donations operations
-export function getDonationsData(): DonationsData {
-	ensureFilesExist();
-	try {
-		const content = fs.readFileSync(DONATIONS_PATH, 'utf-8');
-		return JSON.parse(content);
-	} catch (err) {
-		console.error('Error reading donations database file:', err);
-		return { total: 105, dailyLimits: {} };
-	}
-}
-
-function saveDonationsData(data: DonationsData): void {
-	ensureFilesExist();
-	try {
-		fs.writeFileSync(DONATIONS_PATH, JSON.stringify(data, null, 2), 'utf-8');
-	} catch (err) {
-		console.error('Error writing to donations database file:', err);
-	}
-}
-
-export interface DonationCheckResult {
-	success: boolean;
-	total: number;
-	errorMsg?: string;
+export function getDonationsTotal(): number {
+	return (initDb().prepare('SELECT total FROM donations_totals WHERE id = 1').get() as { total: number } | undefined)?.total ?? 105;
 }
 
 export function incrementDonations(ip: string, amount: number = 5): DonationCheckResult {
-	const data = getDonationsData();
-	const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+	const today = `d:${new Date().toISOString().split('T')[0]}`;
+	initDb();
+	pruneRateLimits(today, today);
 
-	// Check if date entry exists
-	if (!data.dailyLimits[today]) {
-		data.dailyLimits[today] = {
-			globalCount: 0,
-			ips: {},
-		};
-	}
-
-	// Only today's bucket is ever read; drop past days so the JSON stays bounded.
-	for (const day of Object.keys(data.dailyLimits)) {
-		if (day !== today) delete data.dailyLimits[day];
-	}
-
-	const limits = data.dailyLimits[today];
-	const currentIpDonations = limits.ips[ip] || 0;
-
-	// Limit checks:
-	// 1. IP limit: Max 50 yen per IP per day (10 offerings)
-	const maxIpDonation = 50;
-	if (currentIpDonations + amount > maxIpDonation) {
+	const currentIpDonations = rateCount(today, 'donations', ip);
+	if (currentIpDonations + amount > DONATIONS_IP_DAILY_MAX) {
 		return {
 			success: false,
-			total: data.total,
+			total: getDonationsTotal(),
 			errorMsg: 'Hey! Donating too much today will anger the gods... (Daily limit reached!)',
 		};
 	}
-
-	// 2. Global limit: Max 1000 yen per day
-	const maxGlobalDonation = 1000;
-	if (limits.globalCount + amount > maxGlobalDonation) {
+	const globalCount = rateCount(today, 'donations', '__global__');
+	if (globalCount + amount > DONATIONS_GLOBAL_DAILY_MAX) {
 		return {
 			success: false,
-			total: data.total,
+			total: getDonationsTotal(),
 			errorMsg: 'The donation box is full for today! Please check back tomorrow.',
 		};
 	}
 
-	// Increment
-	limits.ips[ip] = currentIpDonations + amount;
-	limits.globalCount += amount;
-	data.total += amount;
+	rateBump(today, 'donations', ip, amount);
+	rateBump(today, 'donations', '__global__', amount);
+	db.prepare('UPDATE donations_totals SET total = total + ? WHERE id = 1').run(amount);
 
-	saveDonationsData(data);
-
-	return {
-		success: true,
-		total: data.total,
-	};
+	return { success: true, total: getDonationsTotal() };
 }
 
-// Guestbook anti-spam: per-IP + global daily cap. Same shape as donations' dailyLimits.
-export type GuestbookRateLimits = DonationsData['dailyLimits'];
-
-export interface RateLimitResult {
-	allowed: boolean;
-	errorMsg?: string;
-}
-
-// ponytail: sync read-modify-write is accidentally atomic under a single Node
-// process (same property incrementDonations relies on). Add locking if this ever
-// runs across multiple processes/replicas.
+// Guestbook anti-spam: per-IP + global daily cap.
 export function checkGuestbookLimit(
 	ip: string,
 	maxPerIp = 5,
 	maxGlobal = 50,
 ): RateLimitResult {
-	ensureFilesExist();
-	let data: GuestbookRateLimits = {};
-	try {
-		data = JSON.parse(fs.readFileSync(GUESTBOOK_LIMITS_PATH, 'utf-8'));
-	} catch (err) {
-		console.error('Error reading guestbook rate-limit file:', err);
-		data = {};
-	}
+	const today = `d:${new Date().toISOString().split('T')[0]}`;
+	initDb();
+	pruneRateLimits(today, today);
 
-	const today = new Date().toISOString().split('T')[0];
-	if (!data[today]) {
-		data[today] = { globalCount: 0, ips: {} };
-	}
-
-	// Only today's bucket is ever read; drop past days so the JSON stays bounded.
-	for (const day of Object.keys(data)) {
-		if (day !== today) delete data[day];
-	}
-
-	const slot = data[today];
-	const ipCount = slot.ips[ip] || 0;
-
-	if (ipCount + 1 > maxPerIp) {
+	if (rateCount(today, 'guestbook', ip) + 1 > maxPerIp) {
 		return {
 			allowed: false,
 			errorMsg: 'The shrine bell needs a rest — you have signed enough for today! (Daily limit reached)',
 		};
 	}
-	if (slot.globalCount + 1 > maxGlobal) {
+	if (rateCount(today, 'guestbook', '__global__') + 1 > maxGlobal) {
 		return {
 			allowed: false,
 			errorMsg: 'The guestbook is full for today, please come back tomorrow!',
 		};
 	}
+	rateBump(today, 'guestbook', ip, 1);
+	rateBump(today, 'guestbook', '__global__', 1);
+	return { allowed: true };
+}
 
-	slot.ips[ip] = ipCount + 1;
-	slot.globalCount += 1;
-
-	try {
-		fs.writeFileSync(GUESTBOOK_LIMITS_PATH, JSON.stringify(data, null, 2), 'utf-8');
-	} catch (err) {
-		console.error('Error writing guestbook rate-limit file:', err);
+// Admin login brute-force guard: 5 attempts per minute per IP.
+export function checkAdminLoginLimit(ip: string, maxPerMinute = 5): RateLimitResult {
+	const minute = `m:${new Date().toISOString().slice(0, 16)}`;
+	const day = `d:${new Date().toISOString().split('T')[0]}`;
+	initDb();
+	pruneRateLimits(day, minute);
+	if (rateCount(minute, 'admin-login', ip) + 1 > maxPerMinute) {
+		return {
+			allowed: false,
+			errorMsg: 'Too many login attempts — the barrier needs a minute to recover.',
+		};
 	}
-
+	rateBump(minute, 'admin-login', ip, 1);
 	return { allowed: true };
 }

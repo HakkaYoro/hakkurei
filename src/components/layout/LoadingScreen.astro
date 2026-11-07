@@ -15,14 +15,15 @@ import { Image } from 'astro:assets';
 			<div class="ls-panel">
 				<div class="ls-panel-ring ls-ring-left"></div>
 				<div class="ls-panel-ring ls-ring-right"></div>
+				<span class="ls-tab"><span lang="ja">読み込み中</span> ~ Loading</span>
 				<div class="ls-panel-border">
-					<div class="ls-header">⛩️</div>
+					<Image src="/images/torii.png" alt="" aria-hidden="true" class="ls-torii" width={256} height={188} loading="eager" />
 					<h1 class="ls-title">博麗神社 ~ Hakurei Shrine</h1>
 					<p class="ls-subtitle">Welcome to hakkurei.com</p>
 
 					<div class="ls-divider">☆ ☆ ☆</div>
 
-					<Image src="/images/9.png" class="spinning-logo" alt="Loading..." width="250" height="250" loading="eager" />
+					<Image src="/images/9-96.png" class="spinning-logo" alt="Loading..." width="96" height="96" loading="eager" />
 
 					<div class="ls-progress-container">
 						<div class="ls-progress-track">
@@ -31,7 +32,7 @@ import { Image } from 'astro:assets';
 						<div class="ls-progress-label" id="ls-progress-label">Loading...</div>
 					</div>
 
-					<p id="click-text">Click here to enter the Shrine</p>
+					<p id="click-text">Click to enter — enables BGM ♪ <span lang="ja">音楽が鳴ります</span></p>
 
 					<div class="ls-divider">☆ ☆ ☆</div>
 
@@ -70,7 +71,9 @@ import { Image } from 'astro:assets';
 
 <style is:global>
 			/* ═══════════════════════════════════════════════════
-			   LOADING SCREEN — Matching site's 2000s/Neocities style
+			   LOADING SCREEN — fake 2002 japanese browser window
+			   (same chrome style as browser-chrome.css: white body,
+			   1px black border, accent folder tab, Monapo type)
 			   ═══════════════════════════════════════════════════ */
 
 			#loading-screen {
@@ -88,9 +91,11 @@ import { Image } from 'astro:assets';
 			}
 
 			.ls-panel {
-				background: var(--bg);
-				border-left: 4px solid var(--magenta);
-				border-right: 4px solid var(--magenta);
+				background: #fff;
+				border: 1px solid #000;
+				box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+				font-family: var(--font-chrome);
+				color: #000;
 				max-width: 550px;
 				width: 90%;
 				position: absolute;
@@ -98,8 +103,26 @@ import { Image } from 'astro:assets';
 				top: 50%;
 				transform: translate(-50%, -50%);
 				margin: 0;
-				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 1px 6px rgba(0, 0, 0, 0.1);
 				z-index: 99990;
+			}
+
+			/* Folder tab riding on the window frame, like the section tabs */
+			.ls-tab {
+				position: absolute;
+				top: -25px;
+				left: 50%;
+				transform: translateX(-50%);
+				padding: 3px 14px 2px;
+				border: 1px solid #000;
+				border-bottom: none;
+				border-radius: 10px 10px 0 0;
+				background: var(--accent);
+				color: #fff;
+				font-size: 0.8rem;
+				font-weight: bold;
+				letter-spacing: 1px;
+				line-height: 1.4;
+				white-space: nowrap;
 			}
 
 			/* ═══════════════════════════════════════════════════
@@ -128,8 +151,6 @@ import { Image } from 'astro:assets';
 				stroke-linecap: round;
 			}
 
-
-
 			.ls-panel-ring {
 				position: absolute;
 				top: -12px;
@@ -152,44 +173,8 @@ import { Image } from 'astro:assets';
 				transform: translateX(-50%);
 			}
 
-			/* Torn paper edges */
-			.ls-panel::before,
-			.ls-panel::after {
-				content: '';
-				position: absolute;
-				left: 0;
-				width: 100%;
-				height: 18px;
-				background: var(--bg);
-				z-index: 1;
-			}
-			.ls-panel::before {
-				top: -16px;
-				clip-path: polygon(
-					0% 100%, 3% 55%, 6% 80%, 10% 45%, 14% 70%, 18% 35%,
-					22% 65%, 26% 30%, 30% 75%, 34% 40%, 38% 60%, 42% 25%,
-					46% 70%, 50% 35%, 54% 65%, 58% 20%, 62% 55%, 66% 40%,
-					70% 75%, 74% 30%, 78% 60%, 82% 45%, 86% 70%, 90% 25%,
-					94% 55%, 97% 40%, 100% 100%
-				);
-			}
-			.ls-panel::after {
-				bottom: -16px;
-				clip-path: polygon(
-					0% 0%, 3% 50%, 7% 20%, 11% 60%, 15% 30%, 19% 70%,
-					23% 25%, 27% 55%, 31% 35%, 35% 75%, 39% 20%, 43% 50%,
-					47% 30%, 51% 65%, 55% 40%, 59% 70%, 63% 15%, 67% 55%,
-					71% 35%, 75% 75%, 79% 25%, 83% 60%, 87% 30%, 91% 65%,
-					95% 45%, 98% 20%, 100% 0%
-				);
-			}
-
 			.ls-panel-border {
-				border: 1px solid var(--reimu-red);
-				margin: 1.5rem;
-				padding: 2rem 2.5rem;
-				border-style: dashed;
-				background: var(--surface);
+				padding: 1.75rem 2rem;
 				text-align: center;
 				display: flex;
 				flex-direction: column;
@@ -197,25 +182,22 @@ import { Image } from 'astro:assets';
 				gap: 0.75rem;
 			}
 
-			/* Torii icon */
-			.ls-header {
-				font-size: 4rem;
-				line-height: 1;
-				text-shadow: 2px 2px 0px var(--text-dim);
+			/* Torii mark */
+			.ls-torii {
+				width: 4.5rem;
+				height: auto;
 			}
 
 			/* Title */
 			.ls-title {
-				color: var(--reimu-red);
-				font-family: var(--font-sans);
+				color: var(--accent);
 				font-size: 2rem;
 				margin: 0;
 				letter-spacing: 1px;
 			}
 
 			.ls-subtitle {
-				color: var(--reimu-red);
-				font-family: var(--font-sans);
+				color: #333;
 				font-size: 0.9rem;
 			}
 
@@ -224,14 +206,13 @@ import { Image } from 'astro:assets';
 				color: var(--reimu-red);
 				font-size: 0.8rem;
 				letter-spacing: 4px;
-				opacity: 0.6;
+				opacity: 0.55;
 			}
 
-			/* Spinning logo */
+			/* Spinning logo (pre-scaled 9-96.png, no pixelation) */
 			.spinning-logo {
 				width: 96px;
 				height: 96px;
-				image-rendering: pixelated;
 				animation: spin 2s linear infinite;
 			}
 
@@ -268,8 +249,7 @@ import { Image } from 'astro:assets';
 			}
 
 			.ls-progress-label {
-				color: var(--text-dim);
-				font-family: var(--font-sans);
+				color: #444;
 				font-size: 0.75rem;
 				margin-top: 4px;
 				text-align: center;
@@ -278,7 +258,6 @@ import { Image } from 'astro:assets';
 
 			#click-text {
 				color: var(--reimu-red);
-				font-family: var(--font-sans);
 				font-size: 1.1rem;
 				font-weight: bold;
 				user-select: none;
@@ -297,7 +276,7 @@ import { Image } from 'astro:assets';
 
 			#click-text:hover {
 				background: var(--reimu-red);
-				color: white;
+				color: var(--bg);
 				border-style: inset;
 				transition: background 0.2s ease, color 0.2s ease;
 			}
@@ -309,9 +288,8 @@ import { Image } from 'astro:assets';
 
 			/* Footer */
 			.ls-footer {
-				color: var(--reimu-red);
-				font-family: var(--font-sans);
+				color: #666;
 				font-size: 0.7rem;
-				opacity: 0.6;
+				opacity: 0.75;
 			}
 </style>

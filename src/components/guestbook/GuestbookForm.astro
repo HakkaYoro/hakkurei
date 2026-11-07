@@ -13,7 +13,7 @@ const { avatars } = Astro.props;
 		<h3 class="form-header">Sign the Guestbook / Write a Prayer</h3>
 		<form id="gb-form" class="gb-form">
 			<div class="form-group">
-				<label for="gb-name">Your Handle/Name:</label>
+				<label for="gb-name"><span lang="ja">お名前</span> Name:</label>
 				<input type="text" id="gb-name" name="name" required placeholder="Anonymous Human" maxlength="30" />
 			</div>
 
@@ -33,12 +33,12 @@ const { avatars } = Astro.props;
 			</div>
 
 			<div class="form-group">
-				<label for="gb-message">Message / Prayer:</label>
+				<label for="gb-message"><span lang="ja">メッセージ</span> Message:</label>
 				<textarea id="gb-message" name="message" required placeholder="May Gensokyo stay safe..." rows="4" maxlength="500"></textarea>
 			</div>
 
 			<button type="submit" class="gb-submit-btn">
-				🧧 Offer Prayer & Submit 🧧
+				🧧 <span lang="ja">署名する</span> Sign 🧧
 			</button>
 		</form>
 	</div>
@@ -234,7 +234,7 @@ const { avatars } = Astro.props;
 
 	.gb-submit-btn {
 		background: var(--reimu-red);
-		color: white;
+		color: var(--bg);
 		border: 2px outset var(--reimu-red-light);
 		padding: 0.75rem 1.5rem;
 		font-family: var(--font-sans);
