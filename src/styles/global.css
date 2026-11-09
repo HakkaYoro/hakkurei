@@ -284,6 +284,12 @@ footer a { border: none; font-weight: bold; margin: 0 0.5rem; }
 	.about-grid { flex-direction: column; align-items: center; }
 	.site-title { font-size: 1.5rem; }
 	.torii-icon { width: 3rem; }
+	/* One centered link per row: the 1rem side margins of the inline-block links
+	   ragged-wrap unevenly at phone widths (trailing margin on every wrapped line) */
+	.site-nav a {
+		display: block;
+		margin: 0;
+	}
 }
 
 /* Reduced motion: stop CSS animations/transitions without breaking layout */

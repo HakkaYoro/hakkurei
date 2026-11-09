@@ -111,6 +111,66 @@ const sectionTab = SECTION_TABS[path] ?? (path.startsWith('/links') ? 'リンク
 		<MiniWindow />
 
 		<script is:inline>
+			// Button SFX for the whole site: one document-level delegation, so View
+			// Transition DOM swaps need no re-binding. One sound per click (closest
+			// finds the innermost match); untrusted (programmatic) clicks are ignored,
+			// which is what keeps the mini-window mute mirror from double-firing — it
+			// forwards a synthetic click to #np-mute, whose own toggle stays untouched.
+			if (!window._sfxInit) {
+				window._sfxInit = true;
+				var sfxCtx = null, sfxBufs = {};
+				var playSfx = function(file, volume, fadeMs) {
+					try {
+						if (!sfxCtx) sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
+						if (sfxCtx.state === 'suspended') sfxCtx.resume()['catch'](function() {});
+						var blast = function(buf) {
+							var src = sfxCtx.createBufferSource();
+							src.buffer = buf;
+							var g = sfxCtx.createGain();
+							var t = sfxCtx.currentTime;
+							if (fadeMs) {
+								// Mini fade-in/out envelope so clicks land soft
+								g.gain.setValueAtTime(0.0001, t);
+								g.gain.exponentialRampToValueAtTime(volume, t + fadeMs / 1000);
+								g.gain.setValueAtTime(volume, Math.max(t + fadeMs / 1000, t + buf.duration - fadeMs / 1000));
+								g.gain.exponentialRampToValueAtTime(0.0001, t + buf.duration);
+							} else {
+								g.gain.setValueAtTime(volume, t);
+							}
+							src.connect(g).connect(sfxCtx.destination);
+							src.start(t);
+						};
+						if (sfxBufs[file]) { blast(sfxBufs[file]); return; }
+						fetch('/sfx/' + file).then(function(r) { return r.arrayBuffer(); })
+							.then(function(ab) { return sfxCtx.decodeAudioData(ab); })
+							.then(function(buf) { sfxBufs[file] = buf; blast(buf); })
+							['catch'](function() {});
+					} catch (_) {}
+				};
+				document.addEventListener('click', function(e) {
+					if (!e.isTrusted) return;
+					var t = e.target instanceof Element ? e.target : null;
+					if (!t) return;
+					var mute = t.closest('#np-mute, #mini-np-mute');
+					if (mute) {
+						// Runs after Bgm.astro's own delegation, so bgm.muted is the NEW state
+						var bgm = document.getElementById('bgm');
+						if (!bgm) return;
+						playSfx(bgm.muted ? 'touhou-pause.ogg' : 'touhou-confirm.ogg', 0.25, 45);
+						return;
+					}
+					if (t.closest('#saisenbako')) {
+						playSfx('coin-toss.ogg', 0.4);
+						return;
+					}
+					if (t.closest('a, button, [role="button"], input[type="submit"], input[type="button"], #click-text, .btn-community-local, .btn-community-external')) {
+						playSfx('touhou-confirm.ogg', 0.25, 45);
+					}
+				});
+			}
+		</script>
+
+		<script is:inline>
 			// /projects#skills gets its own tab label (server-side the hash is unknown)
 			if (!window._sectionTabInit) {
 				window._sectionTabInit = true;

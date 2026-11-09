@@ -5,11 +5,26 @@ import suikaLying from '../assets/images/suika-lying.gif';
 
 // Server-pick bakes the no-JS default line; the client script re-rolls per visit
 const suikaLines = [
-	'Zzz… huh? Oh, a guest! Your page? It went down the gourd with the sake, kkk!',
-	'Shake shake~ Nothing here. Oni don\'t do directions — oni do PARTIES. Join in!',
-	'Kkkk! Even the Hakurei Border is too drunk to find it. Five more gourds and I\'ll sniff it out!',
-	'Eh? Lost? Then sit down! The path will turn up eventually. Or the sakura will. Either way, drink!',
-	'A dead link… how rare! The last one was eaten by Mystia. Or by me. I forget~',
+	'Kkkk! You gathered a whole banquet but couldn\'t gather one little page? Weak~',
+	'I dispersed your URL into mist. Same trick I do to mountains. To undo it: drink with me.',
+	'Zzz… shake shake… huh? Page is gone. Gourd is empty. Today is officially a bad day.',
+	'Oni never lie: that page never existed. We DO exaggerate, though — it was THIS big.',
+	'Last time something annoyed me this much, I burst the moon. Just a warning, just a warning~',
+	'Four-oh-FORGET it! Come back to the shrine and we\'ll pretend this never happened, kkk!',
+	'My gourd says your page is in there. My gourd also says everything is in there. Trust the gourd.',
+	'Wrong turn, guest! The party is THIS way. Dead links are THAT way. Choose wisely~',
+	'I saw you click it. I see everything — mist is the best seat in the house. Could\'ve warned you~',
+	'Even I can\'t gather what never existed. And I once gathered every oni in the mountain!',
+	'Throw beans at it. Oh wait — that only works on US. Lucky link, dodging the Setsubun!',
+	'The strong are always bored, and bored oni click dead links. Ancient proverb. I just made it up.',
+	'Your page slipped through the Hakurei Border! …Actually that was me. I slipped through. Tasty border.',
+	'No page, no money, no sake at Reimu\'s shrine. Kkkk! Feels just like home, doesn\'t it?',
+	'I once flooded all Gensokyo with sake. Your URL drowned in it. My bad — thirsty for another?',
+	'Humans threw beans and we left the surface. Your link threw a 404 and just… stayed there. Coward.',
+	'Missing page, missing gourd, missing shame — nothing a good banquet can\'t fix. So: banquet!',
+	'Suika means watermelon, you know? Smash this page open like one: nothing inside, still sweet~',
+	'No 404s in the age of the oni. Greatest era. Then humans invented links. Downhill ever since.',
+	'Sit, sit! A dead end is just a banquet with bad signage. I\'ll drink your share — kkk, more for me!',
 ];
 const defaultLine = suikaLines[Math.floor(Math.random() * suikaLines.length)];
 ---
@@ -44,7 +59,59 @@ const defaultLine = suikaLines[Math.floor(Math.random() * suikaLines.length)];
 
 		<a href="/" class="error-back">&lt;&lt; Return to Hakurei Shrine</a>
 	</div>
+
+	<!-- Suika laps the real browser viewport edge (Soku run sprite, credited on /credits) -->
+	<Image src="/images/suika-run.gif" alt="" class="suika-run" aria-hidden="true" width={81} height={95} loading="eager" />
 </Layout>
+
+<script is:inline>
+	// Suika laps the REAL browser viewport edge (window.innerWidth/innerHeight,
+	// fixed coords — not the .browser chrome): one WAAPI animation, iterations
+	// Infinity, so there is no chain to die at a corner. Clockwise circuit with
+	// the border as her floor: bottom 0deg, right -90deg (=270), top 180deg,
+	// left 90deg — each rotation puts her feet on the edge and her native
+	// (left-to-right) gaze on her direction of march, so no flip is needed.
+	// Re-measured on resize and after View Transition swaps.
+	if (!window._suikaRunInit) {
+		window._suikaRunInit = true;
+		var startSuikaRun = function() {
+			var img = document.querySelector('.suika-run');
+			if (!img || typeof img.animate !== 'function') return;
+			if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+			if (window._suikaRunAnim) window._suikaRunAnim.cancel();
+			var w = img.offsetWidth || 64;
+			var h = img.offsetHeight || Math.round((w * 95) / 81);
+			var pad = Math.max(w, h) / 2 + 2;
+			var x0 = pad, x1 = window.innerWidth - pad;
+			var y0 = pad, y1 = window.innerHeight - pad;
+			if (x1 - x0 < 80 || y1 - y0 < 80) return;
+			var lap = 2 * (x1 - x0) + 2 * (y1 - y0);
+			var o1 = (x1 - x0) / lap;
+			var o2 = o1 + (y1 - y0) / lap;
+			var o3 = o2 + (x1 - x0) / lap;
+			var tf = function(cx, cy, deg) {
+				return 'translate(' + (cx - w / 2) + 'px, ' + (cy - h / 2) + 'px) rotate(' + deg + 'deg)';
+			};
+			// Doubled keyframes at each corner snap the rotation in a single frame
+			var frames = [
+				{ transform: tf(x0, y1, 0), offset: 0 },
+				{ transform: tf(x1, y1, 0), offset: o1 },
+				{ transform: tf(x1, y1, -90), offset: o1 },
+				{ transform: tf(x1, y0, -90), offset: o2 },
+				{ transform: tf(x1, y0, 180), offset: o2 },
+				{ transform: tf(x0, y0, 180), offset: o3 },
+				{ transform: tf(x0, y0, 90), offset: o3 },
+				{ transform: tf(x0, y1, 90), offset: 1 },
+				{ transform: tf(x0, y1, 0), offset: 1 }
+			];
+			img.style.visibility = 'visible';
+			window._suikaRunAnim = img.animate(frames, { duration: lap / 0.16, easing: 'linear', iterations: Infinity });
+		};
+		startSuikaRun();
+		document.addEventListener('astro:page-load', startSuikaRun);
+		window.addEventListener('resize', startSuikaRun);
+	}
+</script>
 
 <script is:inline define:vars={{ suikaLines }}>
 	// Random Suika line per visit; re-picked after View Transition swaps
@@ -159,6 +226,26 @@ const defaultLine = suikaLines[Math.floor(Math.random() * suikaLines.length)];
 	@media (max-width: 480px) {
 		.suika-speech-bubble::before,
 		.suika-speech-bubble::after {
+			display: none;
+		}
+	}
+
+	/* Viewport-edge lap sprite: rides the real browser border via the WAAPI orbit script above */
+	.suika-run {
+		position: fixed;
+		left: 0;
+		top: 0;
+		width: 80px;
+		height: auto;
+		z-index: 5000;
+		pointer-events: none;
+		visibility: hidden;
+		image-rendering: pixelated;
+		will-change: transform;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.suika-run {
 			display: none;
 		}
 	}

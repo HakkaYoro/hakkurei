@@ -128,7 +128,26 @@ const stampSources: Array<[string, string]> = [
 			<strong>マサラン</strong> (pixiv artwork 26966533), cropped to the vertical slice behind the 404 BGM.
 		</li>
 		<li><code>src/assets/images/suika-lying.gif</code> — Suika Ibuki lying down, provided by the site owner; bundled through <code>astro:assets</code>, which serves it optimized (animated WebP).</li>
+		<li><code>public/images/suika-run.gif</code> — Suika Ibuki running sprite (the one lapping the 404 browser frame), in-game art from <em>東方非想天則 ~ Touhou Hisoutensoku</em> (Soku).</li>
 	</ul>
+
+	<h3 class="section-title">Sound Effects (効果音)</h3>
+	<p class="section-subtitle-desc">
+		Short UI sound effects live in <code>public/sfx/</code>, loudness-normalized and re-encoded to Ogg Vorbis.
+		No official source pages could be verified for these rips, so plain game/author names only — no invented links here.
+	</p>
+	<div class="provenance-table-wrap">
+		<table class="provenance-table">
+			<thead>
+				<tr><th>File</th><th>Sound</th><th>Game</th><th>Author / Publisher</th></tr>
+			</thead>
+			<tbody>
+				<tr><td><code>touhou-confirm.ogg</code>, <code>touhou-pause.ogg</code></td><td>Menu confirm &amp; pause blips</td><td>Touhou Project series</td><td><strong>ZUN / Team Shanghai Alice</strong></td></tr>
+				<tr><td><code>coin-toss.ogg</code></td><td>Coin toss</td><td><em>ULTRAKILL</em></td><td><strong>Hakita</strong> / New Blood Interactive</td></tr>
+				<tr><td><code>rope-cut.ogg</code></td><td>Roaring Knight cut (the loading-screen rope snap)</td><td><em>Deltarune</em></td><td><strong>Toby Fox</strong></td></tr>
+			</tbody>
+		</table>
+	</div>
 
 	<h3 class="section-title">Font (フォント)</h3>
 	<p class="section-subtitle-desc">
@@ -195,7 +214,7 @@ const stampSources: Array<[string, string]> = [
 
 	<h3 class="section-title">Other Assets (その他)</h3>
 	<ul class="credits-list">
-		<li><code>public/images/avatars/*.png</code> — guestbook avatars (Reimu, Marisa, Cirno, Sakuya, Sanae, Youmu): preexisting in the repository, origin not documented.</li>
+		<li><code>public/images/avatars/*.png</code> — guestbook avatars (Reimu, Marisa, Cirno, Sakuya, Sanae, Youmu): in-game portraits from <em>東方非想天則 ~ Touhou Hisoutensoku</em> (Soku), preexisting in the repository.</li>
 		<li><code>public/wallpaper.webp</code> — the Reimu &amp; Marisa hanami picnic wallpaper (3840×2400 fanart): preexisting in the repository, artist unknown.</li>
 		<li>
 			<code>public/images/torii.png</code> — vermillion torii gate, derived from

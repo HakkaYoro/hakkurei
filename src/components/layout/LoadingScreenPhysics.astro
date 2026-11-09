@@ -399,9 +399,18 @@
 				requestAnimationFrame(updatePhysics);
 
 				// Interactive Snap Trigger
+				const playRopeCut = function() {
+					try {
+						const ropeSfx = new Audio('/sfx/rope-cut.ogg');
+						ropeSfx.volume = 0.05;
+						ropeSfx.play().catch(() => {});
+					} catch (_) {}
+				};
+
 				function cutLeft() {
 					if (isLeftCut) return;
 					isLeftCut = true;
+					playRopeCut();
 					const dx = sx1 - cx1;
 					const dy = sy1 - cy1;
 					leftCeilingAngle = Math.atan2(dx, dy);
@@ -412,6 +421,7 @@
 				function cutRight() {
 					if (isRightCut) return;
 					isRightCut = true;
+					playRopeCut();
 					const dx = sx2 - cx2;
 					const dy = sy2 - cy2;
 					rightCeilingAngle = Math.atan2(dx, dy);
