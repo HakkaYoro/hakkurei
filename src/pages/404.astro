@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import suikaLying from '../assets/images/suika-lying.gif';
 
 // Server-pick bakes the no-JS default line; the client script re-rolls per visit
 const suikaLines = [
@@ -19,7 +21,7 @@ const defaultLine = suikaLines[Math.floor(Math.random() * suikaLines.length)];
 		<p class="error-code" aria-hidden="true">404</p>
 
 		<div class="suika-bubble-row">
-			<img src="/images/suika-lying.gif" alt="Suika Ibuki lying down" width="300" height="161" class="suika-avatar" loading="eager" />
+			<Image src={suikaLying} alt="Suika Ibuki lying down" class="suika-avatar" loading="eager" />
 			<div class="suika-speech-bubble" id="suika-bubble" aria-live="polite">{defaultLine}</div>
 		</div>
 
