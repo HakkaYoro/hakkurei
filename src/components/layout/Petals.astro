@@ -37,8 +37,8 @@
 				_petalInterval = setInterval(createPetal, 300);
 			}
 
-			// If already dismissed, start petals directly
-			if (sessionStorage.getItem('loading-screen-dismissed') === '1') {
+			// If already dismissed, or the page renders without an intro (404), start petals directly
+			if (sessionStorage.getItem('loading-screen-dismissed') === '1' || !document.getElementById('loading-screen')) {
 				startPetals();
 			}
 

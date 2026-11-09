@@ -14,7 +14,20 @@ const suikaLines = [
 const defaultLine = suikaLines[Math.floor(Math.random() * suikaLines.length)];
 ---
 
-<Layout title="404 ~ Not Found">
+<Layout title="404 ~ Not Found" noIntro errorPool>
+	<script is:inline>
+		// The 404 always wears the Suika theme: bake the err palette before first paint.
+		// Deterministic, not URL-based — this script only ships inside this page.
+		document.body.dataset.song = 'err_saigetsu';
+		// Preset a persisted bg layer when arriving via View Transition (on a fresh
+		// load these nodes don't exist yet and BGM init paints them instead)
+		var presetLayer = document.getElementById('bg-song-a');
+		if (presetLayer) {
+			presetLayer.style.backgroundImage = "url('/backgrounds/suika.webp')";
+			presetLayer.style.opacity = '1';
+		}
+	</script>
+
 	<h2 class="section-title"><span lang="ja">迷子</span> ~ Page Not Found</h2>
 
 	<div class="error-card">

@@ -14,7 +14,7 @@ import Petals from '../components/layout/Petals.astro';
 import AnimatedCursor from '../components/layout/AnimatedCursor.astro';
 import MiniWindow from '../components/layout/MiniWindow.astro';
 
-const { title } = Astro.props;
+const { title, noIntro = false, errorPool = false } = Astro.props;
 
 const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const SECTION_TABS: Record<string, string> = {
@@ -39,7 +39,7 @@ const sectionTab = SECTION_TABS[path] ?? (path.startsWith('/links') ? 'リンク
 		<title>{title ? `${title} · Hakkurei Shrine` : 'Hakkurei Shrine'}</title>
 	</head>
 	<body>
-		<LoadingScreen />
+		{!noIntro && <LoadingScreen />}
 
 		<!-- Fake 2002 browser chrome; the legacy .wrapper below is untouched -->
 		<div class="browser">
@@ -102,10 +102,10 @@ const sectionTab = SECTION_TABS[path] ?? (path.startsWith('/links') ? 'リンク
 		<!-- Marisa flying across the screen (GIF via Tenor / SpaceHey layout 89719, credited on /credits) -->
 		<Image src={marisaFlying} alt="" class="marisa-fly" aria-hidden="true" loading="lazy" />
 
-		<Bgm />
+		<Bgm errorPool={errorPool} />
 		<ClientRouter />
 
-		<LoadingScreenPhysics />
+		{!noIntro && <LoadingScreenPhysics />}
 		<Petals />
 		<AnimatedCursor />
 		<MiniWindow />
