@@ -1,0 +1,150 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Server-pick bakes the no-JS default line; the client script re-rolls per visit
+const suikaLines = [
+	'Zzz… huh? Oh, a guest! Your page? It went down the gourd with the sake, kkk!',
+	'Shake shake~ Nothing here. Oni don\'t do directions — oni do PARTIES. Join in!',
+	'Kkkk! Even the Hakurei Border is too drunk to find it. Five more gourds and I\'ll sniff it out!',
+	'Eh? Lost? Then sit down! The path will turn up eventually. Or the sakura will. Either way, drink!',
+	'A dead link… how rare! The last one was eaten by Mystia. Or by me. I forget~',
+];
+const defaultLine = suikaLines[Math.floor(Math.random() * suikaLines.length)];
+---
+
+<Layout title="404 ~ Not Found">
+	<h2 class="section-title"><span lang="ja">迷子</span> ~ Page Not Found</h2>
+
+	<div class="error-card">
+		<p class="error-code" aria-hidden="true">404</p>
+
+		<div class="suika-bubble-row">
+			<img src="/images/suika-lying.gif" alt="Suika Ibuki lying down" width="300" height="161" class="suika-avatar" loading="eager" />
+			<div class="suika-speech-bubble" id="suika-bubble" aria-live="polite">{defaultLine}</div>
+		</div>
+
+		<p class="error-copy">
+			The page you requested slipped through the Hakurei Border — or Suika drank it. Nobody knows.
+		</p>
+
+		<a href="/" class="error-back">&lt;&lt; Return to Hakurei Shrine</a>
+	</div>
+</Layout>
+
+<script is:inline define:vars={{ suikaLines }}>
+	// Random Suika line per visit; re-picked after View Transition swaps
+	if (!window._err404Init) {
+		window._err404Init = true;
+		var pick404Line = function() {
+			var bubble = document.getElementById('suika-bubble');
+			if (!bubble) return;
+			bubble.textContent = suikaLines[Math.floor(Math.random() * suikaLines.length)];
+		};
+		pick404Line();
+		document.addEventListener('astro:page-load', pick404Line);
+	}
+</script>
+
+<style>
+	/* Card clones the portal-card pattern (PortalPage.astro) */
+	.error-card {
+		background: var(--surface);
+		border: 2px solid var(--reimu-red);
+		padding: 1.5rem;
+		margin-top: 1.5rem;
+		box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+		text-align: center;
+	}
+
+	.error-code {
+		font-size: 4.5rem;
+		font-weight: bold;
+		color: var(--reimu-red);
+		line-height: 1;
+		text-shadow: 4px 4px 0 var(--reimu-red-light);
+		margin-bottom: 1.25rem;
+	}
+
+	/* Avatar + bubble row clones the Saisenbako pattern */
+	.suika-bubble-row {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 1.25rem;
+		max-width: 540px;
+		margin: 0 auto 1.25rem;
+		text-align: left;
+	}
+
+	.suika-avatar {
+		width: 300px;
+		max-width: 100%;
+		height: auto;
+		image-rendering: pixelated;
+		border: 2px solid var(--reimu-red);
+		border-radius: 4px;
+		background: var(--reimu-red-light);
+		box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+		flex-shrink: 0;
+	}
+
+	.suika-speech-bubble {
+		position: relative;
+		background: var(--surface);
+		border: 2px solid var(--reimu-red);
+		border-radius: 12px;
+		padding: 0.75rem 1.25rem;
+		font-size: 0.9rem;
+		font-weight: bold;
+		color: color-mix(in srgb, var(--reimu-red) 50%, var(--text));
+		box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+	}
+
+	.suika-speech-bubble::before {
+		content: '';
+		position: absolute;
+		left: -12px;
+		top: 50%;
+		transform: translateY(-50%);
+		border-width: 6px 12px 6px 0;
+		border-style: solid;
+		border-color: transparent var(--reimu-red) transparent transparent;
+		display: block;
+		width: 0;
+		z-index: 1;
+	}
+
+	.suika-speech-bubble::after {
+		content: '';
+		position: absolute;
+		left: -9px;
+		top: 50%;
+		transform: translateY(-50%);
+		border-width: 5px 10px 5px 0;
+		border-style: solid;
+		border-color: transparent var(--surface) transparent transparent;
+		display: block;
+		width: 0;
+		z-index: 2;
+	}
+
+	.error-copy {
+		color: var(--text-dim);
+		margin-bottom: 1.5rem;
+	}
+
+	.error-back {
+		display: inline-block;
+		font-weight: bold;
+		color: var(--reimu-red);
+		border-bottom: 1px dotted var(--reimu-red);
+	}
+
+	@media (max-width: 480px) {
+		.suika-speech-bubble::before,
+		.suika-speech-bubble::after {
+			display: none;
+		}
+	}
+</style>

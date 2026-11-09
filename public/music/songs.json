@@ -134,5 +134,23 @@
 		"theme_of": "Staff roll theme",
 		"background": "/backgrounds/th06_17.webp",
 		"palette_hint": "golden dream"
+	},
+	{
+		"file": "err_tsurupettan.ogg",
+		"title_ja": "つるぺったん (Instrumental)",
+		"title_en": "Tsurupettan (Instrumental)",
+		"theme_of": "404 error page",
+		"background": "/backgrounds/suika.webp",
+		"palette_hint": "sakura daylight periwinkle",
+		"route": "/404"
+	},
+	{
+		"file": "err_saigetsu.ogg",
+		"title_ja": "砕月 (作業妨害Remix)",
+		"title_en": "Broken the Moon (Sagyou Bougai Remix)",
+		"theme_of": "404 error page",
+		"background": "/backgrounds/suika.webp",
+		"palette_hint": "sakura daylight periwinkle",
+		"route": "/404"
 	}
 ]

@@ -1,9 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 
-// Per-song EoSD backgrounds: descriptions came from the site's graphify vision
-// extraction; the illustrations are fanart found in the repository with no
-// documented origin. Nothing here is invented - unknown means unknown.
+// Per-song EoSD backgrounds: descriptions were written from the artwork itself;
+// the illustrations are fanart found in the repository with no documented origin.
+// Nothing here is invented - unknown means unknown.
 const backgrounds = [
 	{ file: 'th06_02.webp', track: 'Track 02 — Stage 1 theme — A Soul as Scarlet as a Ground Cherry', desc: 'War-torn Gensokyo street with a scarlet sky', origin: 'Fanart, artist unknown' },
 	{ file: 'th06_03.webp', track: "Track 03 — Rumia's theme — Apparitions Stalk the Night", desc: 'Rumia under a scarlet full moon', origin: 'Fanart, artist unknown' },
@@ -68,7 +68,7 @@ const stampSources: Array<[string, string]> = [
 	<h3 class="section-title">Per-song Backgrounds (背景)</h3>
 	<p class="section-subtitle-desc">
 		The 16 backgrounds in <code>public/backgrounds/</code> were collected before this credits page existed.
-		Their content descriptions come from the site's graphify vision extraction; a web search could not trace
+		Their content descriptions were written from the artwork itself; a web search could not trace
 		them to a specific artist or page, so where the source is unknown it simply says so — no invented URLs here.
 	</p>
 	<div class="provenance-table-wrap">
@@ -94,6 +94,41 @@ const stampSources: Array<[string, string]> = [
 		The BGM playlist features the OST of <em>東方紅魔郷 ~ the Embodiment of Scarlet Devil</em> (2002),
 		composed by <strong>ZUN / Team Shanghai Alice</strong>. All rights to the music belong to them.
 	</p>
+
+	<h3 class="section-title">Error Page (迷子)</h3>
+	<p class="section-subtitle-desc">
+		The <a href="/404">404 page</a> plays its own two BGM tracks (route-scoped in <code>songs.json</code>),
+		both instrumental versions. No Spotify, Bandcamp or Booth page could be found for either circle,
+		so the official links below are the ones that exist — no invented URLs here.
+	</p>
+	<div class="provenance-table-wrap">
+		<table class="provenance-table">
+			<thead>
+				<tr><th>File</th><th>Track</th><th>Circle / Artist</th><th>Official link</th></tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>err_tsurupettan.ogg</code></td>
+					<td>つるぺったん (Instrumental) / Tsurupettan (Instrumental) — original vocal on <em>東方萃奏楽</em> (2007)</td>
+					<td><strong>Silver Forest</strong></td>
+					<td><a href="https://music.apple.com/us/album/toho-suisougaku/1506709270" target="_blank" rel="noopener noreferrer">Apple Music — 東方萃奏楽</a></td>
+				</tr>
+				<tr>
+					<td><code>err_saigetsu.ogg</code></td>
+					<td>砕月 (作業妨害Remix) / Broken the Moon (Sagyou Bougai Remix) — remix by ココ&amp;さつき が てんこもり, from <em>幻想郷ミソギバライ</em> (C76, ATCD-0001)</td>
+					<td><strong>Astral Trip</strong> (あすとらるTrip)</td>
+					<td><a href="http://gensoumisogi.dojin.com" target="_blank" rel="noopener noreferrer">gensoumisogi.dojin.com (official album site)</a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<ul class="credits-list">
+		<li>
+			<code>public/backgrounds/suika.webp</code> — <a href="https://www.pixiv.net/en/artworks/26966533" target="_blank" rel="noopener noreferrer">春恋いの空</a> by
+			<strong>マサラン</strong> (pixiv artwork 26966533), cropped to the vertical slice behind the 404 BGM.
+		</li>
+		<li><code>public/images/suika-lying.gif</code> — Suika Ibuki lying down, provided by the site owner.</li>
+	</ul>
 
 	<h3 class="section-title">Font (フォント)</h3>
 	<p class="section-subtitle-desc">

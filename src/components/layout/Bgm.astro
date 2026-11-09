@@ -7,14 +7,21 @@ interface SongEntry {
 	background: string;
 	title_ja: string;
 	title_en: string;
+	route?: string;
 }
 
 let songs: SongEntry[] = [];
 try {
 	// cwd-based like db.ts — import.meta.url is unreliable across dev/prerender/runtime bundling
 	const manifestPath = path.join(process.cwd(), 'public', 'music', 'songs.json');
-	songs = (JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as SongEntry[])
+	const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as SongEntry[];
+	// Route-scoped tracks: an entry with `route` plays ONLY on that path, and pathless
+	// entries are excluded from claimed paths (bidirectional isolation)
+	const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
+	const claimed = new Set(manifest.filter((s) => s.route).map((s) => s.route));
+	songs = manifest
 		.filter((s) => s.file && s.background)
+		.filter((s) => (s.route ? s.route === pathname : !claimed.has(pathname)))
 		.map(({ file, background, title_ja, title_en }) => ({ file, background, title_ja, title_en }));
 } catch (_) {
 	// no manifest — no BGM and no per-song background

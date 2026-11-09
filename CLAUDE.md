@@ -55,7 +55,7 @@ The donation box POST sends an **empty body** and reads JSON — it uses `reques
 - `window._cursorAnimInit` (animated cursor: injects a `<style>` that swaps `/cursors/*_frames/*.png` every 96ms, re-attached if a transition removed it)
 - `window._loadingScreenSwapHooked` + `astro:before-swap` (the first-visit loading screen is removed from the incoming document before swap so it never re-shows)
 
-The `<audio id="bgm">` element uses `transition:persist` so playback continues across page loads.
+The `<audio id="bgm">` element uses `transition:persist` so playback continues across page loads. Entries in `public/music/songs.json` may carry a `route` (currently `/404`): route-scoped tracks are embedded only on that path and excluded everywhere else, while pathless tracks are excluded from the route in turn.
 
 The first-visit loading screen (`#loading-screen`) is a sizable piece of vanilla JS: a 2D rigid-body simulation of a hanging shrine sign on two cords (springs, damping, gusty wind, cuttable ropes). The guestbook donation box runs its own canvas coin/spark physics + Web Audio synth (coin/chime/buzzer). Both are pure client-side and read state only through the two API endpoints above.
 

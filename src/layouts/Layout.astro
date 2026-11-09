@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import '../styles/song-palettes.css';
 import '../styles/browser-chrome.css';
 import { ClientRouter } from 'astro:transitions';
 import { Image } from 'astro:assets';
@@ -159,13 +160,15 @@ const sectionTab = SECTION_TABS[path] ?? (path.startsWith('/links') ? 'リンク
 					if (document.hidden) return;
 					var img = document.querySelector('.marisa-fly');
 					if (!img || typeof img.animate !== 'function') return;
+					// Random cruising altitude per flight; cleared on finish so the CSS bottom wins again
+					img.style.bottom = (16 + Math.random() * (window.innerHeight - (img.offsetHeight || 68) - 32)) + 'px';
 					var anim = img.animate([
 						{ transform: 'translate(0, 0)', opacity: 0 },
 						{ transform: 'translate(5.5vw, 0)', opacity: 1, offset: 0.05 },
 						{ transform: 'translate(104.5vw, 0)', opacity: 1, offset: 0.95 },
 						{ transform: 'translate(110vw, 0)', opacity: 0 }
 					], { duration: 5000, easing: 'linear' });
-					anim.onfinish = function() { img.style.opacity = ''; };
+					anim.onfinish = function() { img.style.opacity = ''; img.style.bottom = ''; };
 				};
 				var scheduleMarisa = function() {
 					setTimeout(function() {
