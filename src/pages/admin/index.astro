@@ -50,6 +50,7 @@ const entries = authed ? getGuestbookEntriesWithIds() : [];
 
 			<h4 class="admin-subheader">今日の気分 — Mood</h4>
 			<form id="mood-form" class="mood-form">
+				<label for="mood-text"><span lang="ja">気分</span> Mood:</label>
 				<textarea id="mood-text" rows="2" maxlength="200" required>{moodText}</textarea>
 				<button type="submit" class="admin-btn">保存 Save</button>
 				<span class="admin-msg" id="mood-msg" role="status"></span>
@@ -250,6 +251,12 @@ const entries = authed ? getGuestbookEntriesWithIds() : [];
 		flex-direction: column;
 		gap: 0.5rem;
 	}
+	.mood-form label {
+		font-weight: bold;
+		color: var(--reimu-red);
+		font-size: 0.9rem;
+	}
+
 	.mood-form textarea {
 		border: 2px solid var(--border-light);
 		border-style: inset;

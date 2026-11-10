@@ -75,7 +75,7 @@ Touhou Project and all its characters are © ZUN / Team Shanghai Alice. This is 
 │   │   └── ...             # prerendered pages: home, projects, links, credits, 404
 │   ├── styles/             # global tokens, browser chrome, per-song palettes
 │   └── middleware.ts       # on-demand error handling
-├── data/                   # runtime volume: SQLite DB, daily stats cache (gitignored)
+├── data/                   # runtime volume: SQLite DB, daily stats cache, admin mood.json (gitignored)
 ├── Dockerfile              # multi-stage build, non-root entrypoint
 ├── docker-compose.yml      # volume + environment wiring
 └── entrypoint.sh           # repairs bind-mount ownership, drops to non-root
