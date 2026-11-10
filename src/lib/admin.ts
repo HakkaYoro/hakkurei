@@ -6,14 +6,20 @@ import crypto from 'node:crypto';
 const SESSION_TTL_MS = 3600000;
 const SESSION_COOKIE = 'admin_session';
 
-// Default hash ships in code; deployments may override via ADMIN_PASSWORD_HASH
-// (same format: hex sha256 of the password).
-const DEFAULT_PASSWORD_HASH = '24b4cd12a3fc0e5cf5a43cd47347d60f964b669ef36a2008eb50e062d4cc47c1';
+// Fail closed: the password hash MUST come from the environment as a hex
+// sha256 of the password. A default used to ship in code — public on GitHub,
+// which made it an offline brute-force target. Generate one with:
+//   echo -n 'your new password' | sha256sum
+function expectedHash(): string | undefined {
+	const expected = process.env.ADMIN_PASSWORD_HASH?.trim();
+	return expected && /^[0-9a-f]{64}$/i.test(expected) ? expected.toLowerCase() : undefined;
+}
 
 const sessions = new Map<string, number>(); // token -> expiresAt (epoch ms)
 
 export function verifyPassword(password: string): boolean {
-	const expected = process.env.ADMIN_PASSWORD_HASH || DEFAULT_PASSWORD_HASH;
+	const expected = expectedHash();
+	if (!expected) return false;
 	const hash = crypto.createHash('sha256').update(password).digest('hex');
 	const a = Buffer.from(hash, 'hex');
 	const b = Buffer.from(expected, 'hex');

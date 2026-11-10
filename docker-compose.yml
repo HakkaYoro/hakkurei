@@ -15,6 +15,10 @@ services:
       - HOST=0.0.0.0
       - PORT=4321
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      # REQUIRED for admin login: hex sha256 of the admin password — there is no
+      # default in code (a public default is an offline brute-force target).
+      # Generate with: echo -n 'your new password' | sha256sum
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-}
       # Set TRUST_PROXY=1 only when this port sits behind a reverse proxy that
       # appends to x-forwarded-for (e.g. the TrueNAS proxy): rate limiting then
       # keys on the proxy-appended (last) XFF entry. Leave unset for direct access.
