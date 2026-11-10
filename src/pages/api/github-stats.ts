@@ -11,7 +11,8 @@ const TTL = 24 * 60 * 60 * 1000;
 const RETRY = 60 * 60 * 1000;
 const FILE = path.join(process.cwd(), 'data', 'github-stats.json');
 
-type Repo = {
+// Shared with the projects page client script via `import type` (erased at build).
+export type Repo = {
 	full_name: string;
 	description: string | null;
 	language: string | null;
@@ -20,7 +21,7 @@ type Repo = {
 	url: string;
 };
 
-type Payload = { updated: string | null; repos: Repo[] };
+export type Payload = { repos: Repo[] };
 
 let memo: { payload: Payload; until: number } | null = null;
 
@@ -66,7 +67,7 @@ async function refresh(): Promise<Payload> {
 		}
 	}
 	repos.sort((a, b) => b.commits - a.commits || b.stars - a.stars);
-	return { updated: new Date().toISOString(), repos };
+	return { repos };
 }
 
 function readFile(): { payload: Payload; ts: number } | null {
@@ -100,7 +101,7 @@ export const GET: APIRoute = async () => {
 	} catch (err) {
 		console.error('Error in github-stats GET api route:', err);
 		// stale file beats an empty grid; back off instead of retrying GitHub per request
-		memo = { payload: file ? file.payload : { updated: null, repos: [] }, until: Date.now() + RETRY };
+		memo = { payload: file ? file.payload : { repos: [] }, until: Date.now() + RETRY };
 	}
 	return json(memo.payload);
 };

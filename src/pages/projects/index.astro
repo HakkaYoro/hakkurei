@@ -69,7 +69,7 @@ const langColors: Record<string, string> = {
 							{repo.lang}
 						</span>
 						<!-- Star count baked from gh at build time; the client script only refines it live -->
-						<span class="project-donations" id={`donations-${repo.name}`} style={`display: ${repo.stars ? 'flex' : 'none'};`}>
+						<span class="project-donations" style={`display: ${repo.stars ? 'flex' : 'none'};`}>
 							<svg class="yinyang-svg" viewBox="0 0 24 24" width="14" height="14">
 								<circle cx="12" cy="12" r="11" fill="var(--surface)" stroke="var(--reimu-red)" stroke-width="1.8"/>
 								<path d="M 12 1 A 11 11 0 0 1 12 23 Z" fill="var(--reimu-red)"/>
@@ -353,16 +353,9 @@ const langColors: Record<string, string> = {
 		// owner's authored commits) replaces the grid with one card per repo, in the
 		// server's order.
 	// On route failure or empty payload the baked grid stays untouched.
-	(function() {
-		type Repo = {
-			full_name: string;
-			description: string | null;
-			language: string | null;
-			stars: number;
-			commits: number;
-			url: string;
-		};
+	import type { Payload, Repo } from '../api/github-stats';
 
+	(function() {
 		const langColors: Record<string, string> = {
 			Java: '#b07219',
 			Python: '#3572A5',
@@ -431,10 +424,14 @@ const langColors: Record<string, string> = {
 		}
 
 		async function enhance() {
+			// astro:page-load fires on every soft navigation site-wide (the listener
+			// persists after the first visit): skip the fetch when this route's grid
+			// isn't in the DOM instead of hitting the API from any other page
+			if (!document.querySelector('.projects-grid')) return;
 			try {
 				const res = await fetch('/api/github-stats');
-				if (!res.ok) return;
-				const payload = await res.json();
+					if (!res.ok) return;
+					const payload: Payload = await res.json();
 				if (Array.isArray(payload?.repos) && payload.repos.length > 0) render(payload.repos);
 			} catch (_) {}
 		}

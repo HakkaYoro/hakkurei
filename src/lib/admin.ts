@@ -10,11 +10,7 @@ const SESSION_COOKIE = 'admin_session';
 // (same format: hex sha256 of the password).
 const DEFAULT_PASSWORD_HASH = '24b4cd12a3fc0e5cf5a43cd47347d60f964b669ef36a2008eb50e062d4cc47c1';
 
-interface AdminSession {
-	expiresAt: number;
-}
-
-const sessions = new Map<string, AdminSession>();
+const sessions = new Map<string, number>(); // token -> expiresAt (epoch ms)
 
 export function verifyPassword(password: string): boolean {
 	const expected = process.env.ADMIN_PASSWORD_HASH || DEFAULT_PASSWORD_HASH;
@@ -26,19 +22,18 @@ export function verifyPassword(password: string): boolean {
 
 export function createSession(): string {
 	const token = crypto.randomBytes(32).toString('hex');
-	sessions.set(token, { expiresAt: Date.now() + SESSION_TTL_MS });
-	const now = Date.now();
-	for (const [t, s] of sessions) {
-		if (now > s.expiresAt) sessions.delete(t);
+	sessions.set(token, Date.now() + SESSION_TTL_MS);
+	for (const [t, expiresAt] of sessions) {
+		if (Date.now() > expiresAt) sessions.delete(t);
 	}
 	return token;
 }
 
 export function isSessionValid(token: string | undefined): boolean {
 	if (!token) return false;
-	const session = sessions.get(token);
-	if (!session) return false;
-	if (Date.now() > session.expiresAt) {
+	const expiresAt = sessions.get(token);
+	if (!expiresAt) return false;
+	if (Date.now() > expiresAt) {
 		sessions.delete(token);
 		return false;
 	}
