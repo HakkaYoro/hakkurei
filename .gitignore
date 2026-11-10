@@ -39,6 +39,13 @@ public/images/avatars/upscaled/
 # graphify knowledge graph output
 graphify-out/
 
+# LLM / agent guides — stay local, never pushed
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+GEMINI.md
+.claude/
+
 # misc
 *.swp
 *.swo
