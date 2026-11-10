@@ -6,7 +6,16 @@ export const prerender = false;
 
 // ponytail: daily file cache, lazy refresh on first request after TTL
 const OWNERS = ['HakkaYoro', 'YuiStarLord'];
-const EXCLUDED_REPOS = ['HakkaYoro/order-api', 'HakkaYoro/ts-inventory-cli'];
+// Owner's exclusion list: too personal, collaborative, or not their projects
+const EXCLUDED_REPOS = [
+	'HakkaYoro/order-api',
+	'HakkaYoro/ts-inventory-cli',
+	'YuiStarLord/app-bcv',
+	'HakkaYoro/Corozal',
+	'HakkaYoro/tofu',
+	'YuiStarLord/easy-invoice',
+	'HakkaYoro/HakkaYoro',
+];
 const TTL = 24 * 60 * 60 * 1000;
 const RETRY = 60 * 60 * 1000;
 const FILE = path.join(process.cwd(), 'data', 'github-stats.json');

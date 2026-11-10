@@ -160,7 +160,10 @@ const langColors: Record<string, string> = {
 		margin-bottom: 2rem;
 	}
 
-	.project-card {
+	/* The client script re-renders the whole grid with document.createElement, so these
+	   nodes never get Astro's scoped data-astro-cid attributes: every card rule is
+	   :global or the JS-rendered cards render unstyled. */
+	:global(.project-card) {
 		display: block;
 		border: 1px solid var(--border-light);
 		background: var(--surface);
@@ -168,15 +171,15 @@ const langColors: Record<string, string> = {
 		border-bottom: 1px solid var(--border-light) !important;
 		transition: border-color 0.2s ease;
 	}
-	.project-card:hover {
+	:global(.project-card:hover) {
 		border-color: var(--reimu-red);
 	}
-	.project-card:hover .project-card-header {
+	:global(.project-card:hover .project-card-header) {
 		background: var(--reimu-red);
 		color: var(--surface);
 	}
 
-	.project-card-header {
+	:global(.project-card-header) {
 		background: var(--reimu-red-light);
 		/* 50/50 mix with --text: pure --reimu-red measures 4.43:1 on this band in
 		   the default palette (FASE 5B e2e audit); the mix clears 4.5:1 on all 17 */
@@ -189,11 +192,11 @@ const langColors: Record<string, string> = {
 		transition: background 0.2s ease, color 0.2s ease;
 	}
 
-	.project-card-body {
+	:global(.project-card-body) {
 		padding: 1rem;
 	}
 
-	.project-desc {
+	:global(.project-desc) {
 		font-size: 0.85rem;
 		color: var(--text);
 		margin-bottom: 1rem;
@@ -201,7 +204,7 @@ const langColors: Record<string, string> = {
 		line-height: 1.4;
 	}
 
-	.project-meta {
+	:global(.project-meta) {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.75rem;
@@ -210,7 +213,7 @@ const langColors: Record<string, string> = {
 		margin-bottom: 0.75rem;
 	}
 
-	.project-lang {
+	:global(.project-lang) {
 		display: flex;
 		align-items: center;
 		gap: 4px;
@@ -221,14 +224,14 @@ const langColors: Record<string, string> = {
 		font-weight: bold;
 	}
 
-	.lang-dot {
+	:global(.lang-dot) {
 		width: 8px;
 		height: 8px;
 		border-radius: 50%;
 		display: inline-block;
 	}
 
-	.project-donations {
+	:global(.project-donations) {
 		display: flex;
 		align-items: center;
 		gap: 6px;
@@ -243,17 +246,17 @@ const langColors: Record<string, string> = {
 		transition: background 0.2s ease, border-color 0.2s ease;
 	}
 
-	.project-card:hover .project-donations {
+	:global(.project-card:hover .project-donations) {
 		background: var(--surface);
 		border-color: var(--reimu-red);
 	}
 
-	.yinyang-svg {
+	:global(.yinyang-svg) {
 		flex-shrink: 0;
 		animation: spin-slow 4s linear infinite;
 	}
 
-	.project-link {
+	:global(.project-link) {
 		font-size: 0.8rem;
 		/* 50/50 mix with --text: pure --reimu-red fails 4.5:1 on the default palette */
 		color: color-mix(in srgb, var(--reimu-red) 50%, var(--text));
@@ -296,8 +299,8 @@ const langColors: Record<string, string> = {
 	/* th06_01 (default) has the brightest red fill: --surface ink sits at
 	   4.12-4.43:1 there and no light ink passes 4.5:1 — black does (4.67:1).
 	   Every other palette keeps its designed ink. */
-	body:not([data-song]) .project-card:hover .project-card-header,
-	body[data-song="th06_01"] .project-card:hover .project-card-header {
+	:global(body:not([data-song]) .project-card:hover .project-card-header),
+	:global(body[data-song="th06_01"] .project-card:hover .project-card-header) {
 		color: #000;
 	}
 	body:not([data-song]) .github-btn,
