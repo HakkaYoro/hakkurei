@@ -94,9 +94,11 @@ npm run preview    # preview the production build
 
 ### Environment variables
 
+Define these in a `.env` file next to `docker-compose.yml` — compose reads it automatically and passes the values into the container. `ADMIN_PASSWORD_HASH` and `GITHUB_TOKEN` live there; no password or token is ever hardcoded in the repository.
+
 | Variable | Required | Description |
 | :--- | :--- | :--- |
-| `ADMIN_PASSWORD_HASH` | No | SHA-256 hex hash of the admin panel password. A development default ships in code; always override in production. |
+| `ADMIN_PASSWORD_HASH` | Yes | SHA-256 hex hash of the admin panel password (`echo -n 'your password' \| sha256sum`). Without it the admin auth fails closed — no login is possible. |
 | `GITHUB_TOKEN` | No | GitHub personal access token (no scopes needed for public repositories). Raises the API quota from 60 to 5,000 requests/hour for the project stats refresh. |
 | `TRUST_PROXY` | No | Set when running behind a trusted reverse proxy so client IPs are taken from `X-Forwarded-For` (used by all rate limiting). |
 | `HOST` / `PORT` | No | Bind address and port for the standalone server (defaults `0.0.0.0:4321`). |

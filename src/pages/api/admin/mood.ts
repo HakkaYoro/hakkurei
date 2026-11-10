@@ -5,7 +5,8 @@ import { requireSession } from '../../../lib/admin';
 
 export const prerender = false;
 
-// Rewrites public/mood.json — the same file the footer mini-window fetches.
+// Rewrites data/mood.json — the runtime file /api/mood serves; the public/mood.json
+// seed stays untouched so rebuilds never reset the admin-set mood.
 export const PATCH: APIRoute = async ({ request }) => {
 	try {
 		const unauthorized = requireSession(request);
@@ -20,7 +21,8 @@ export const PATCH: APIRoute = async ({ request }) => {
 			return new Response(JSON.stringify({ error: 'Mood text must be under 200 characters.' }), { status: 400 });
 		}
 
-		const moodPath = path.join(process.cwd(), 'public', 'mood.json');
+		const moodPath = path.join(process.cwd(), 'data', 'mood.json');
+		fs.mkdirSync(path.dirname(moodPath), { recursive: true });
 		fs.writeFileSync(moodPath, JSON.stringify({ text: text.trim() }, null, 2) + '\n', 'utf-8');
 
 		return new Response(JSON.stringify({ success: true, text: text.trim() }), {

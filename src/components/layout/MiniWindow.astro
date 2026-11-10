@@ -18,6 +18,14 @@
 	// clicks to the real button. Visible at every viewport width.
 	if (!window._miniWindowInit) {
 		window._miniWindowInit = true;
+		var loadMood = function() {
+			var moodEl = document.getElementById('mini-mood-text');
+			if (!moodEl) return;
+			fetch('/api/mood', { cache: 'no-store' })
+				.then(function(res) { return res.json(); })
+				.then(function(data) { if (moodEl && data && data.text) moodEl.textContent = data.text; })
+				.catch(function() {});
+		};
 		var wireMiniWindow = function() {
 			var tabs = document.querySelectorAll('#mini-window .mini-tab');
 			tabs.forEach(function(t) {
@@ -56,15 +64,10 @@
 			});
 
 			var moodEl = document.getElementById('mini-mood-text');
-			if (moodEl && !moodEl._loaded) {
-				moodEl._loaded = true;
-				fetch('/mood.json')
-					.then(function(res) { return res.json(); })
-					.then(function(data) { if (moodEl && data && data.text) moodEl.textContent = data.text; })
-					.catch(function() {});
-			}
+			if (moodEl) loadMood();
 		};
 		wireMiniWindow();
+		document.addEventListener('mood:updated', loadMood);
 		document.addEventListener('astro:page-load', wireMiniWindow);
 	}
 </script>

@@ -11,9 +11,14 @@ const authed = isSessionValid(sessionTokenFromRequest(Astro.request));
 
 let moodText = '';
 try {
-	const mood = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public', 'mood.json'), 'utf-8'));
+	const mood = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'mood.json'), 'utf-8'));
 	if (mood && typeof mood.text === 'string') moodText = mood.text;
-} catch { /* mood.json missing — editor starts empty */ }
+} catch {
+	try {
+		const seed = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public', 'mood.json'), 'utf-8'));
+		if (seed && typeof seed.text === 'string') moodText = seed.text;
+	} catch { /* mood.json missing — editor starts empty */ }
+}
 
 const entries = authed ? getGuestbookEntriesWithIds() : [];
 ---
@@ -114,6 +119,7 @@ const entries = authed ? getGuestbookEntriesWithIds() : [];
 				.then(function(r) {
 					msg.textContent = r.ok ? '✓ saved' : (r.data.error || 'error');
 					msg.classList.toggle('admin-msg-error', !r.ok);
+					if (r.ok) document.dispatchEvent(new CustomEvent('mood:updated'));
 				})
 				.catch(function() { msg.textContent = 'error'; msg.classList.add('admin-msg-error'); });
 			});
