@@ -120,3 +120,9 @@ After deploying a changed stats pipeline, delete `data/github-stats.json` once s
 - **Touhou Project**, its characters, and the *Embodiment of Scarlet Devil* OST are © ZUN / Team Shanghai Alice. This is a fan-made, non-profit website.
 - The display font (DFPPOPCorn-W12) is a commercial typeface by DynaComware, self-hosted for display purposes only — review its license terms before redistributing this repository.
 - In-game sprites and additional sound effects originate from Touhou Hisoutensoku, Deltarune, and ULTRAKILL; their respective rights holders are credited on the in-site [credits page](https://hakkurei.com/credits).
+
+## License
+
+The source code is released under the [MIT License](LICENSE).
+
+The license covers the code only. Bundled media — Touhou music and artwork, the DynaComware display font, in-game sprites, and third-party sound effects — remains the property of its respective owners, is included solely as fan-made, non-profit use, and is explicitly excluded from redistribution rights. Anyone reusing this repository's code must obtain those assets independently and comply with their own terms.

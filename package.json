@@ -1,7 +1,14 @@
 {
   "name": "hakkurei",
+  "description": "Personal Touhou-themed fan site — a 2002-era Japanese homepage wrapped in a retro browser window",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Gabriel Mendez (HakkaYoro)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HakkaYoro/hakkurei.git"
+  },
   "engines": {
     "node": ">=22.23.4"
   },

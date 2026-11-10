@@ -1,0 +1,43 @@
+MIT License
+
+Copyright (c) 2026 Gabriel Mendez (HakkaYoro)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+------------------------------------------------------------------------------
+SCOPE OF THIS LICENSE
+
+The above MIT license applies to the SOURCE CODE only (the contents of src/,
+configuration files, build scripts, and Docker assets).
+
+It does NOT apply to the bundled media and third-party content, which remains
+the property of its respective owners and is included solely as fan-made,
+non-profit use:
+
+- Music, characters, and related names from Touhou Project
+  (c) ZUN / Team Shanghai Alice
+- Display font DFPPOPCorn-W12 (c) DynaComware Japan — self-hosted for
+  display purposes; review its license terms before any redistribution
+- In-game sprites (Touhou Hisoutensoku), artwork, cursors, and sound effects
+  from Deltarune (c) Toby Fox and ULTRAKILL (c) Hakiti / New Blood Interactive
+
+These assets are NOT redistributable under this license. Anyone reusing this
+repository's source code must obtain those assets independently and comply
+with their own terms. Full attribution is available on the in-site credits
+page (https://hakkurei.com/credits).
