@@ -75,8 +75,9 @@ async function refresh(): Promise<Payload> {
 			});
 		}
 	}
-	repos.sort((a, b) => b.commits - a.commits || b.stars - a.stars);
-	return { repos };
+	// Owner's cap: top 4 — stars carry the weight, commits break ties
+	repos.sort((a, b) => b.stars - a.stars || b.commits - a.commits);
+	return { repos: repos.slice(0, 4) };
 }
 
 function readFile(): { payload: Payload; ts: number } | null {
