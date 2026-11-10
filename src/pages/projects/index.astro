@@ -2,10 +2,9 @@
 import Layout from '../../layouts/Layout.astro';
 import YinYangOrb from '../../components/layout/YinYangOrb.astro';
 
-// Baked from the live GitHub API (verified 2026-11-07 with gh api): starred
-// repos first, then by commit count desc, capped at 6. The server HTML ships
-// in this order AND with its star counts — the client script below only
-// refines both live.
+// No-JS fallback grid (verified 2026-11-07 with gh api): the client script
+// below replaces it with the auto-discovered /api/github-stats payload when
+// it answers, and leaves it untouched otherwise.
 const repos = [
 	{
 		name: "app-bcv",
@@ -42,13 +41,6 @@ const repos = [
 		url: "https://github.com/HakkaYoro/AutoHMWRK",
 		stars: 0,
 	},
-	{
-		name: "order-api",
-		desc: "NestJS API playground — orders, pings, guards and interceptors.",
-		lang: "TypeScript",
-		url: "https://github.com/HakkaYoro/order-api",
-		stars: 0,
-	},
 ];
 
 const langColors: Record<string, string> = {
@@ -61,6 +53,7 @@ const langColors: Record<string, string> = {
 
 <Layout title="Projects">
 	<h2 class="section-title"><span lang="ja">作品集</span> ~ My Projects</h2>
+	<p class="section-subtitle-desc">Public repos auto-discovered from GitHub, ranked by the owner's own commits — refreshed once a day.</p>
 
 	<div class="projects-grid">
 		{repos.map((repo) => (
@@ -267,6 +260,14 @@ const langColors: Record<string, string> = {
 		font-weight: bold;
 	}
 
+	.section-subtitle-desc {
+		font-size: 0.85rem;
+		color: var(--text-dim);
+		margin-top: -1rem;
+		margin-bottom: 1.5rem;
+		font-style: italic;
+	}
+
 	.github-cta {
 		text-align: center;
 		margin: 2rem 0;
@@ -347,115 +348,106 @@ const langColors: Record<string, string> = {
 </style>
 
 <script>
-	// Progressive enhancement over the baked cards: one fetch to the server
-	// route /api/github-stats (owner and repo taken from each card's own GitHub
-	// URL, so non-HakkaYoro cards (app-bcv) count too) — then re-sort starred
-	// repos first, commits desc. Cached 1h in localStorage (order + star
-	// counts); on any failure the baked DOM order and counts stay untouched.
+		// Progressive enhancement over the baked cards: one fetch to /api/github-stats
+		// (which auto-discovers the owners' public repos and ranks them by the
+		// owner's authored commits) replaces the grid with one card per repo, in the
+		// server's order.
+	// On route failure or empty payload the baked grid stays untouched.
 	(function() {
-		const CACHE_KEY = 'gh-repo-order-v2';
-		const CACHE_TTL = 3600000;
+		type Repo = {
+			full_name: string;
+			description: string | null;
+			language: string | null;
+			stars: number;
+			commits: number;
+			url: string;
+		};
 
-		type Stat = { stars: number | null; commits: number | null };
+		const langColors: Record<string, string> = {
+			Java: '#b07219',
+			Python: '#3572A5',
+			JavaScript: '#f1e05a',
+			TypeScript: '#3178c6',
+		};
 
-		function readCache() {
-			try {
-				const raw = localStorage.getItem(CACHE_KEY);
-				if (!raw) return null;
-				const cached = JSON.parse(raw);
-				if (cached && Array.isArray(cached.order) && Date.now() - cached.ts < CACHE_TTL) return cached;
-			} catch (_) {}
-			return null;
-		}
+		function card(repo: Repo): HTMLAnchorElement {
+			const name = repo.full_name.split('/')[1];
+			const link = document.createElement('a');
+			link.href = repo.url;
+			link.target = '_blank';
+			link.rel = 'noopener noreferrer';
+			link.className = 'project-card';
 
-		function applyOrder(order: string[]) {
-			const grid = document.querySelector('.projects-grid');
-			if (!grid) return;
-			const cards = new Map();
-			grid.querySelectorAll('.project-card').forEach(card => {
-				const badge = card.querySelector('.project-donations');
-				if (badge && badge.id.startsWith('donations-')) cards.set(badge.id.slice(10), card);
-			});
-			order.forEach(name => {
-				const card = cards.get(name);
-				if (card) { grid.appendChild(card); cards.delete(name); }
-			});
-			cards.forEach(card => grid.appendChild(card));
-		}
+			const header = document.createElement('div');
+			header.className = 'project-card-header';
+			header.textContent = name;
 
-		// stars === null means "unknown" (fetch failed): leave the baked DOM alone
-		function applyBadges(stats: Record<string, Stat>) {
-			Object.keys(stats).forEach(name => {
-				const stars = stats[name].stars;
-				if (stars === null || stars === undefined) return;
-				const badge = document.getElementById(`donations-${name}`);
-				if (!badge) return;
-				const countEl = badge.querySelector('.count');
-				if (countEl) countEl.textContent = String(stars);
-				badge.style.display = stars > 0 ? 'flex' : 'none';
-			});
-		}
+			const body = document.createElement('div');
+			body.className = 'project-card-body';
 
-		function applyCached() {
-			const cached = readCache();
-			if (cached) {
-				applyOrder(cached.order);
-				if (cached.stats) applyBadges(cached.stats);
+			const desc = document.createElement('p');
+			desc.className = 'project-desc';
+			desc.textContent = repo.description || '(no description)';
+
+			const meta = document.createElement('div');
+			meta.className = 'project-meta';
+			if (repo.language) {
+				const lang = document.createElement('span');
+				lang.className = 'project-lang';
+				const dot = document.createElement('span');
+				dot.className = 'lang-dot';
+				dot.style.background = langColors[repo.language] || 'var(--reimu-red)';
+				lang.appendChild(dot);
+				lang.appendChild(document.createTextNode(repo.language));
+				meta.appendChild(lang);
 			}
-			return !!cached;
+
+			const badge = document.createElement('span');
+			badge.className = 'project-donations';
+			badge.style.display = repo.stars > 0 ? 'flex' : 'none';
+			badge.innerHTML = `<svg class="yinyang-svg" viewBox="0 0 24 24" width="14" height="14">
+				<circle cx="12" cy="12" r="11" fill="var(--surface)" stroke="var(--reimu-red)" stroke-width="1.8"/>
+				<path d="M 12 1 A 11 11 0 0 1 12 23 Z" fill="var(--reimu-red)"/>
+				<circle cx="12" cy="6.5" r="5.5" fill="var(--reimu-red)"/>
+				<circle cx="12" cy="17.5" r="5.5" fill="var(--surface)"/>
+				<circle cx="12" cy="6.5" r="1.8" fill="var(--surface)"/>
+				<circle cx="12" cy="17.5" r="1.8" fill="var(--reimu-red)"/>
+			</svg><span>Donations: <span class="count"></span></span>`;
+			badge.querySelector('.count')!.textContent = String(repo.stars);
+			meta.appendChild(badge);
+
+			const view = document.createElement('div');
+			view.className = 'project-link';
+			view.textContent = '[ View on GitHub ]';
+
+			body.append(desc, meta, view);
+			link.append(header, body);
+			return link;
 		}
 
-		function enhance() {
-			if (applyCached()) return;
-
+		function render(repos: Repo[]) {
 			const grid = document.querySelector('.projects-grid');
-			if (!grid) return;
-			const cards = [...grid.querySelectorAll('.project-card')].map(card => {
-				const anchor = card as HTMLAnchorElement;
-				const badge = anchor.querySelector('.project-donations');
-				const fullName = new URL(anchor.href).pathname.replace(/^\/+|\/+$/g, '');
-				return { name: badge && badge.id.startsWith('donations-') ? badge.id.slice(10) : fullName, fullName, card: anchor };
-			});
-			if (!cards.length) return;
+			if (grid) grid.replaceChildren(...repos.map(card));
+		}
 
-			(async function() {
-				try {
-					const res = await fetch('/api/github-stats');
-					if (!res.ok) return;
-					const payload = await res.json();
-					if (!payload || typeof payload !== 'object') return;
-					const stats: Record<string, Stat> = {};
-					cards.forEach(({ name, fullName }) => {
-						const hit = payload[fullName];
-						if (hit && typeof hit.stars === 'number' && typeof hit.commits === 'number') {
-							stats[name] = { stars: hit.stars, commits: hit.commits };
-						}
-					});
-					// Partial data would reorder blindly — keep the baked order instead
-					if (cards.some(({ name }) => !(name in stats))) return;
-					const names = cards.map(c => c.name);
-					names.sort((a, b) => {
-						const starredA = (stats[a]?.stars ?? 0) > 0 ? 1 : 0;
-						const starredB = (stats[b]?.stars ?? 0) > 0 ? 1 : 0;
-						if (starredA !== starredB) return starredB - starredA;
-						return (stats[b]?.commits ?? 0) - (stats[a]?.commits ?? 0);
-					});
-					applyOrder(names);
-					applyBadges(stats);
-					localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), order: names, stats }));
-				} catch (_) {
-					// silent fallback: the baked order and counts stay
-				}
-			})();
+		async function enhance() {
+			try {
+				const res = await fetch('/api/github-stats');
+				if (!res.ok) return;
+				const payload = await res.json();
+				if (Array.isArray(payload?.repos) && payload.repos.length > 0) render(payload.repos);
+			} catch (_) {}
 		}
 
 		enhance();
 
-		// ClientRouter swaps the DOM on soft navigation (e.g. clicking Projects
-		// again while already there): the fresh cards ship the baked star
-		// counts, and a fresh cache — if any — refines them without refetching.
-		document.addEventListener('astro:page-load', function() {
-			if (document.querySelector('.projects-grid')) applyCached();
-		});
+		// ClientRouter swaps the DOM on soft navigation: the fresh baked cards get
+		// re-rendered from the route (served from the server's memo/file, no new
+		// GitHub hit). The window._ guard keeps the listener one-shot.
+		const w = window as { _projectsGridInit?: boolean };
+		if (!w._projectsGridInit) {
+			w._projectsGridInit = true;
+			document.addEventListener('astro:page-load', enhance);
+		}
 	})();
 </script>
