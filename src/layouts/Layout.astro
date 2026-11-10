@@ -37,7 +37,7 @@ const sectionTab = SECTION_TABS[path] ?? (path.startsWith('/links') ? 'リンク
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content="Hakkurei Shrine — the wired and the bullet hell." />
 		<title>{title ? `${title} · Hakkurei Shrine` : 'Hakkurei Shrine'}</title>
-		<script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"67b0241fd30b4abf9a3b050d2bcd5c9f","r":1,"spa":2}'></script>
+		<!-- Cloudflare Web Analytics --><script is:inline type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "67b0241fd30b4abf9a3b050d2bcd5c9f", "spa": 2}'></script><!-- End Cloudflare Web Analytics -->
 	</head>
 	<body>
 		{!noIntro && <LoadingScreen />}
