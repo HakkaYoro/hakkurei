@@ -347,9 +347,9 @@ const langColors: Record<string, string> = {
 </style>
 
 <script>
-	// Progressive enhancement over the baked cards: fetch live stars
-	// (Donations) per card — owner and repo taken from each card's own GitHub
-	// URL, so non-HakkaYoro cards (app-bcv) count too — then re-sort starred
+	// Progressive enhancement over the baked cards: one fetch to the server
+	// route /api/github-stats (owner and repo taken from each card's own GitHub
+	// URL, so non-HakkaYoro cards (app-bcv) count too) — then re-sort starred
 	// repos first, commits desc. Cached 1h in localStorage (order + star
 	// counts); on any failure the baked DOM order and counts stay untouched.
 	(function() {
@@ -396,19 +396,6 @@ const langColors: Record<string, string> = {
 			});
 		}
 
-		// per_page=1 makes the rel="last" page number equal the total commit count
-		// null on failure — a partial fetch must not degrade the baked order
-		function commitCount(fullName: string) {
-			return fetch(`https://api.github.com/repos/${fullName}/commits?per_page=1`)
-				.then(res => {
-					if (!res.ok) return null;
-					const last = (res.headers.get('Link') || '').match(/page=(\d+)>;\s*rel="last"/);
-					if (last) return parseInt(last[1], 10);
-					return res.json().then(arr => (Array.isArray(arr) ? arr.length : 0));
-				})
-				.catch(() => null);
-		}
-
 		function applyCached() {
 			const cached = readCache();
 			if (cached) {
@@ -433,27 +420,19 @@ const langColors: Record<string, string> = {
 
 			(async function() {
 				try {
+					const res = await fetch('/api/github-stats');
+					if (!res.ok) return;
+					const payload = await res.json();
+					if (!payload || typeof payload !== 'object') return;
 					const stats: Record<string, Stat> = {};
-					let allOk = true;
-					await Promise.all(cards.map(async ({ name, fullName }) => {
-						const repo = await fetch(`https://api.github.com/repos/${fullName}`)
-							.then(res => (res.ok ? res.json() : null))
-							.catch(() => null);
-						const commits = await commitCount(fullName);
-						if (!repo || commits === null) allOk = false;
-						// A failed fetch knows nothing: keep the baked count/visibility
-						stats[name] = { stars: repo ? repo.stargazers_count || 0 : null, commits };
-						if (repo) {
-							const badge = document.getElementById(`donations-${name}`);
-							if (badge) {
-								const countEl = badge.querySelector('.count');
-								if (countEl) countEl.textContent = String(stats[name].stars);
-								badge.style.display = (stats[name].stars ?? 0) > 0 ? 'flex' : 'none';
-							}
+					cards.forEach(({ name, fullName }) => {
+						const hit = payload[fullName];
+						if (hit && typeof hit.stars === 'number' && typeof hit.commits === 'number') {
+							stats[name] = { stars: hit.stars, commits: hit.commits };
 						}
-					}));
+					});
 					// Partial data would reorder blindly — keep the baked order instead
-					if (!allOk) return;
+					if (cards.some(({ name }) => !(name in stats))) return;
 					const names = cards.map(c => c.name);
 					names.sort((a, b) => {
 						const starredA = (stats[a]?.stars ?? 0) > 0 ? 1 : 0;
@@ -462,6 +441,7 @@ const langColors: Record<string, string> = {
 						return (stats[b]?.commits ?? 0) - (stats[a]?.commits ?? 0);
 					});
 					applyOrder(names);
+					applyBadges(stats);
 					localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), order: names, stats }));
 				} catch (_) {
 					// silent fallback: the baked order and counts stay
